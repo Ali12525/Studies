@@ -1,0 +1,8 @@
+﻿  Lab2.cpp
+A:\Ycheba\Ali\Prog\2Lb\Lab2\Lab2\Lab2.cpp(40,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+A:\Ycheba\Ali\Prog\2Lb\Lab2\Lab2\Lab2.cpp(50,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Создание кода
+  Previous IPDB not found, fall back to full compilation.
+  All 5 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Создание кода завершено
+  Lab2.vcxproj -> A:\Ycheba\Ali\Prog\2Lb\Lab2\Release\Lab2.exe
