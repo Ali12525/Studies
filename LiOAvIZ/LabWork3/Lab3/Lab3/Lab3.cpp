@@ -6,22 +6,24 @@
 
 void push();
 void review();
-void del(int priority);
-struct node* create_node();
-struct node* find(int priority);
 void pop();
+void del(int priority);
+struct node* create_node();     
+struct node* create_node_list(int priority, char* task);
+void add_element(int priority, char* task);
+void push_logic(struct node* p);
 
 struct node* head = NULL;
 
 int main()
 {
 	char ch;
-	int exit = 0;
+	int ext = 0, extt = 0, priority = -1;
 
 	do
 	{
 		system("cls");
-		printf("1. Add element\n2. Take element\n3. View list\n");
+		printf("1. Add element\n2. Take element\n3. View list\n4. Delete element\n");
 		printf("Select item: ");
 		scanf("%c", &ch);
 		system("cls");
@@ -44,10 +46,29 @@ int main()
 			review();
 			getchar();
 			break;
+		case '4':
+			do
+			{
+				printf("Enter the priority: ");
+				scanf("%d", &priority);
+				if (priority == -1)
+				{
+					printf("no recording was made\n");
+					scanf("%*[^\n]");
+					getchar();
+					continue;
+				}
+				getchar();
+				extt = 1;
+			} while (extt == 0);
+			del(priority);
+			printf("Press any key to exit");
+			getchar();
+			break;
 		default:
 			break;
 		}
-	} while (exit == 0);
+	} while (ext == 0);
 
     return 0;
 }
@@ -123,7 +144,7 @@ void review()
 void del(int priority)
 {
 	struct node* struc = head;
-	struct node* prev;
+	struct node* prev = struc;
 	int flag = 0;
 
 	if (head == NULL)
@@ -139,9 +160,11 @@ void del(int priority)
 		free(struc);
 		struc = head;
 	}
-
-	prev = struc;
-	struc = struc->next;
+	else
+	{
+		prev = struc;
+		struc = struc->next;
+	}
 
 	while (struc)
 	{
@@ -179,6 +202,50 @@ void push()
 {
 	struct node* p = NULL;
 	p = create_node();
+	push_logic(p);
+}
+
+void pop()
+{
+	if (head == NULL)
+	{
+		printf("the list is empty\n");
+		return;
+	}
+	struct node* struc = head;
+	head = struc->next;
+	printf("Priority: %d, \n", struc->priority);
+	printf("Task: %s", struc->task);
+	free(struc);
+	printf("Press any key to exit");
+}
+
+struct node* create_node_list(int priority, char* task)
+{
+	struct node* p = NULL;
+
+	if ((p = (node*)malloc(sizeof(struct node))) == NULL)
+	{
+		printf("memory allocation error\n");
+		exit(1);
+	}
+
+	p->priority = priority;
+	strcpy(p->task, task);
+	p->next = NULL;
+
+	return p;
+}
+
+void add_element(int priority, char* task)
+{
+	struct node* p = NULL;
+	p = create_node_list(priority, task);
+	push_logic(p);
+}
+
+void push_logic(struct node* p)
+{
 	if (head == NULL && p != NULL)
 	{
 		head = p;
@@ -228,19 +295,4 @@ void push()
 			}
 		}
 	}
-}
-
-void pop()
-{
-	if (head == NULL)
-	{
-		printf("the list is empty\n");
-		return;
-	}
-	struct node* struc = head;
-	head = struc->next;
-	printf("Priority: %d, \n", struc->priority);
-	printf("Task: %s", struc->task);
-	free(struc);
-	printf("Press any key to exit");
 }
