@@ -34,13 +34,11 @@ int main()
 		switch (ch)
 		{
 		case '1':
-			printf("-1 - end\n");
 			printf("Enter number: ");
 			scanf("%d", &data);
 			root = add_element(data, root);
 			break;
 		case '2':
-			printf("-1 - end\n");
 			printf("Enter number: ");
 			scanf("%d", &data);
 			root = add_unequal_element(data, root);
@@ -143,10 +141,12 @@ void find(struct tnode* tree, int element)
 {
 	if (tree != NULL)
 	{
-		find(tree->left, element);
+		if(element < tree->data)
+			find(tree->left, element);
 		if (tree->data == element)
 			printf("Element %d found\n", element);
-		find(tree->right, element);
+		if (element > tree->data)
+			find(tree->right, element);
 	}
 }
 
@@ -154,9 +154,11 @@ void total(struct tnode* tree, int element)
 {
 	if (tree != NULL)
 	{
-		total(tree->left, element);
+		if (element <= tree->data)
+			total(tree->left, element);
 		if (tree->data == element)
 			count++;
-		total(tree->right, element);
+		if (element >= tree->data)
+			total(tree->right, element);
 	}
 }
