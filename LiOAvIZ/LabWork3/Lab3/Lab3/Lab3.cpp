@@ -12,6 +12,7 @@ struct node* create_node();
 struct node* create_node_list(int priority, char* task);
 void add_element(int priority, char* task);
 void push_logic(struct node* p);
+char* take_element();
 
 struct node* head = NULL;
 
@@ -40,10 +41,12 @@ int main()
 			break;
 		case '2':
 			pop();
+			printf("Press any key to exit");
 			getchar();
 			break;
 		case '3':
 			review();
+			printf("Press any key to exit");
 			getchar();
 			break;
 		case '4':
@@ -138,7 +141,6 @@ void review()
 		printf("Task: %s", struc->task);
 		struc = struc->next;
 	}
-	printf("Press any key to exit");
 }
 
 void del(int priority)
@@ -217,7 +219,21 @@ void pop()
 	printf("Priority: %d, \n", struc->priority);
 	printf("Task: %s", struc->task);
 	free(struc);
-	printf("Press any key to exit");
+}
+
+char* take_element()
+{
+	if (head == NULL)
+	{
+		printf("the list is empty\n");
+		return NULL;
+	}
+	char* data = (char*)malloc(50 * sizeof(char));
+	struct node* struc = head;
+	head = struc->next;
+	strcpy(data, struc->task);
+	free(struc);
+	return data;
 }
 
 struct node* create_node_list(int priority, char* task)

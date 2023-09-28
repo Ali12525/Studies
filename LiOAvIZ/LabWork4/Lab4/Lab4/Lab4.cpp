@@ -60,6 +60,10 @@ int main()
 			printf("Enter element: ");
 			scanf("%d", &element);
 			find(root, element);
+			total(root, element);
+			if (count == 0)
+				printf("Element not found\n");
+			count = 0;
 			printf("Press any key to exit");
 			getchar();
 			getchar();

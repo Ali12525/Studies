@@ -19,7 +19,7 @@ struct node* head = NULL;
 int main()
 {
 	char ch;
-	int exit = 0;
+	int ext = 0;
 	char inf[256];
 
 	do
@@ -65,7 +65,7 @@ int main()
 		default:
 			break;
 		}
-	} while (exit == 0);
+	} while (ext == 0);
 
 	return 0;
 }
@@ -259,6 +259,7 @@ void take_element()
 		printf("the list is empty\n");
 		return;
 	}
+	char* data = (char*)malloc(256 * sizeof(char));
 	struct node* struc = head;
 	head = struc->next;
 	free(struc);

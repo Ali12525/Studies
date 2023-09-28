@@ -11,7 +11,7 @@ struct node* create_node();
 void find(char* name);
 void pop();
 struct node* create_node_list(char* inf);
-void take_element();
+char* take_element();
 void add_element(char* inf);
 
 struct node* head = NULL, * last = NULL;
@@ -254,16 +254,20 @@ void add_element(char* inf)
 	return;
 }
 
-void take_element()
+ char* take_element()
 {
 	if (head == NULL)
 	{
 		printf("the list is empty\n");
-		return;
+		return NULL;
 	}
+	char* data = (char*)malloc(256 * sizeof(char));
 	struct node* struc = head;
 	head = struc->next;
+	strcpy(data, struc->inf);
 	free(struc);
+	
+	return data;
 }
 
 struct node* create_node_list(char* inf)
