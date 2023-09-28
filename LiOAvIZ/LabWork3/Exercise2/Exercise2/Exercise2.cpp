@@ -42,8 +42,6 @@ int main()
 			break;
 		case '2':
 			pop();
-			getchar();
-			break;
 		case '3':
 			review();
 			getchar();
@@ -234,7 +232,6 @@ void pop()
 	head = struc->next;
 	printf("Info: %s", struc->inf);
 	free(struc);
-	printf("Press any key to exit");
 }
 
 void add_element(char* inf)
