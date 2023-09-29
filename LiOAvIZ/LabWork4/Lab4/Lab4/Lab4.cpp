@@ -4,9 +4,12 @@
 
 struct tnode* add_element(int x, tnode* tree);
 struct tnode* add_unequal_element(int x, tnode* tree);
-void print_tree(struct tnode* tree);
+void print_tree(struct tnode* r, int l);
+void view_tree(struct tnode* tree);
 void find(struct tnode* tree, int element);
 void total(struct tnode* tree, int element);
+void total_amount(struct tnode* tree);
+void occurrence(struct tnode* tree, int element);
 
 int count = 0;
 
@@ -21,7 +24,7 @@ int main()
 	do
 	{
 		system("cls");
-		printf("1. Add element\n2. Adding unequal elements\n3. View tree\n4. Find element\n5. Occurrence of the element\n");
+		printf("1. Add element\n2. Adding unequal elements\n3. Print tree\n4. Find element\n5. Occurrence of the element\n6. View tree\n7. Amount of the element\n");
 		printf("Select item: ");
 		scanf("%c", &ch);
 		system("cls");
@@ -51,8 +54,8 @@ int main()
 			}
 			break;
 		case '3':
-			printf("Tree: ");
-			print_tree(root);
+			printf("Tree: \n");
+			print_tree(root, 6);
 			printf("\nPress any key to exit");
 			getchar();
 			break;
@@ -71,11 +74,25 @@ int main()
 		case '5':
 			printf("Enter element: ");
 			scanf("%d", &element);
-			total(root, element);
-			printf("total: %d", count);
+			occurrence(root, element);
+			printf("Occurrence: %d", count);
 			count = 0;
 			printf("\nPress any key to exit");
 			getchar();
+			getchar();
+			break;
+		case '6':
+			printf("Tree: \n");
+			view_tree(root);
+			printf("\nPress any key to exit");
+			getchar();
+			break;
+		case '7':
+			count = 0;	
+			total_amount(root);
+			printf("Amount: %d", count++);
+			count = 0;
+			printf("\nPress any key to exit");
 			getchar();
 			break;
 		default:
@@ -132,12 +149,31 @@ struct tnode* add_unequal_element(int x, tnode* tree)
 	return(tree);
 }
 
-void print_tree(struct tnode* tree)
+void print_tree(struct tnode* r, int l)
+{
+
+	if (r == NULL)
+	{
+		return;
+	}
+
+	print_tree(r->right, l + 1);
+	for (int i = 0; i < l; i++)
+	{
+		printf(" ");
+	}
+
+	printf("%d  \n", r->data);
+	print_tree(r->left, l + 1);
+}
+
+void view_tree(struct tnode* tree)
 {
 	if (tree != NULL) {
-		print_tree(tree->left);
 		printf("%d ", tree->data);
-		print_tree(tree->right);
+		count++;
+		view_tree(tree->left);
+		view_tree(tree->right);
 	}
 }
 
@@ -166,3 +202,26 @@ void total(struct tnode* tree, int element)
 			total(tree->right, element);
 	}
 }
+
+void total_amount(struct tnode* tree)
+{
+	if (tree != NULL) {
+		
+		count++;
+		total_amount(tree->left);
+		total_amount(tree->right);
+	}
+}
+
+void occurrence(struct tnode* tree, int element)
+{
+	if (tree != NULL)
+	{
+		if (element < tree->data)
+			occurrence(tree->left, element);
+		count++;
+		if (element > tree->data)
+			occurrence(tree->right, element);
+	}
+}
+
