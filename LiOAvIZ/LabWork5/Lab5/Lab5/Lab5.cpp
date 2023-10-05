@@ -91,7 +91,7 @@ void fill_arr(int** Arr, int size)
 
 void fill_arr_inccidence(int** Arr, int** Arrey, int size)
 {
-	int C = 0;
+	int c = 0;
 
 	for (int i = 0; i < size; i++)
 	{
@@ -106,8 +106,8 @@ void fill_arr_inccidence(int** Arr, int** Arrey, int size)
 		for (int j = i + 1; j < size; j++)
 		{
 			if (Arr[i][j]) {
-				Arrey[i][C] = 1;
-				Arrey[j][C++] = 1;
+				Arrey[i][c] = 1;
+				Arrey[j][c++] = 1;
 			}
 		}
 	}
