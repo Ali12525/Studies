@@ -83,8 +83,16 @@ void fill_arr(int** Arr, int size)
 				Arr[i][j] = 0;
 				continue;
 			}
-			Arr[i][j] = rand() % 2;
-			Arr[j][i] = Arr[i][j];
+			if (rand() % 2 == rand() % 2 || rand() % 2 == rand() % 2 || rand() % 2 == rand() % 2)
+			{
+				Arr[i][j] = 1;
+				Arr[j][i] = 1;
+			}
+			else
+			{
+				Arr[i][j] = rand() % 2;
+				Arr[j][i] = Arr[i][j];
+			}
 		}
 	}
 }
