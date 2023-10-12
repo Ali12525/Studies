@@ -10,7 +10,8 @@ int** vertexSplitting(int** Arr, int size, int u, int v);
 int find_arr(int* Arr, int size, int element);
 int** vertexIdentification1(int** matrix, int size, int u, int v);
 int** workGraph(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work);
-int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work);
+int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2);
+int** RemoveVertex(int** matrix, int* size, int r);
 struct Graph* vertexSplittingMatrix(struct Graph* graph, int** Arrey, int size, int u, int v);
 struct node* createNode(int v);
 struct Graph* createGraph(int vertices);
@@ -79,8 +80,8 @@ int main(void)
 	do
 	{
 		system("cls");
-		printf("1. Vertex identification (Matrix)\n2. Vertex contraction (Matrix)\n3. Vertex splitting (Matrix)\n4. Vertex identification (list)\n\
-5. Vertex contraction (list)\n6. Vertex splitting (list)\n7. Unification graph\n8. Intersection graph\n9. Ring sum graph\n10. Multiplication graph\n");
+		printf("0. Vertex identification (Matrix)\n1. Vertex contraction (Matrix)\n2. Vertex splitting (Matrix)\n3. Vertex identification (list)\n\
+4. Vertex contraction (list)\n5. Vertex splitting (list)\n6. Unification graph\n7. Intersection graph\n8. Ring sum graph\n9. Multiplication graph\n");
 		printf("Select item: ");
 		scanf("%c", &ch);
 		system("cls");
@@ -92,7 +93,7 @@ int main(void)
 
 		switch (ch)
 		{
-		case '1':
+		case '0':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -112,7 +113,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '2':
+		case '1':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -149,7 +150,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '3':
+		case '2':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -186,7 +187,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '4':
+		case '3':
 			printf("Graph 1:\n");
 			printGraph(graph1);
 			printf("Graph 2:\n");
@@ -206,7 +207,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '5':
+		case '4':
 			printf("Graph 1:\n");
 			printGraph(graph1);
 			printf("Graph 2:\n");
@@ -244,7 +245,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '6':
+		case '5':
 			printf("Graph 1:\n");
 			printGraph(graph1);
 			printf("Graph 2:\n");
@@ -282,7 +283,7 @@ int main(void)
 			getchar();
 			getchar();
 			break;
-		case '7':
+		case '6':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -293,7 +294,7 @@ int main(void)
 			printf("\nPress any key to exit");
 			getchar();
 			break;
-		case '8':
+		case '7':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -304,7 +305,7 @@ int main(void)
 			printf("\nPress any key to exit");
 			getchar();
 			break;
-		case '9':
+		case '8':
 			printf("Adjacency matrix 1\n");
 			print_arr(Arr, sizeMatrix1);
 			printf("\n\nAdjacency matrix 2\n");
@@ -315,13 +316,17 @@ int main(void)
 			printf("\nPress any key to exit");
 			getchar();
 			break;
-		case '10':
-			printf("Graph 1:\n");
-			printGraph(graph1);
-			printf("Graph 2:\n");
-			printGraph(graph2);
-
+		case '9':
+			printf("Matrix 1:\n");
+			print_arr(Arr, sizeMatrix1);
+			printf("Matrix 2:\n");
+			print_arr(Arrey, sizeMatrix2);
 			printf("Result\n");
+			ArrResult = Multiplication(Arr, sizeMatrix1, Arrey, sizeMatrix2);
+			size = sizeMatrix1 * sizeMatrix2;
+			print_arr(ArrResult, size);
+			printf("\nPress any key to exit");
+			getchar();
 			break;
 		default:
 			break;
@@ -616,6 +621,23 @@ int** workGraph(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int wo
 		}
 	}
 
+	int s = size;
+
+	if (work == 2)
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			int count = 0;
+			for (size_t j = 0; j < size; j++)
+			{
+				if (ArrResult[i][j] == 0)
+					count++;
+			}
+			if (count == size)
+				ArrResult = RemoveVertex(ArrResult, &s, i);
+		}
+	}
+
 	return ArrResult;
 }
 
@@ -697,6 +719,43 @@ struct Graph* delVertexGraph(int** Arr, int size, int u)
 	}
 
 	return graph;
+}
+
+int** RemoveVertex(int** matrix, int* size, int r)
+{
+	int s = *size;
+	int** ArrResult = (int**)malloc((s - 1) * sizeof(int*));
+
+	for (int i = 0; i < s - 1; ++i)
+	{
+		ArrResult[i] = (int*)malloc((s - 1) * sizeof(int));
+	}
+	int di = 0, dj = 0;
+	for (int i = 0; i < s; i++)
+	{
+		if (i == r)
+			i++;
+		if (i >= s)
+			break;
+
+		for (int j = 0; j < s; j++)
+		{
+			if (j == r)
+				j++;
+			if (j >= s)
+				break;
+
+			ArrResult[di][dj] = matrix[i][j];
+			dj++;
+		}
+
+		di++;
+		dj = 0;
+	}
+
+	*size = s - 1;
+
+	return ArrResult;
 }
 
 int find_arr(int* Arr, int size, int element)
@@ -857,9 +916,11 @@ void printGraphDel(struct Graph* graph, int u, int k)
 	printf("\n");
 }
 
-int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work)
+int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2)
 {
 	int size = sizeMatrix1 * sizeMatrix2;
+	int lSize, bSize;
+	int** lMatrix, ** bMatrix;
 
 	int** ArrResult = (int**)malloc(size * sizeof(int*));
 
@@ -873,6 +934,48 @@ int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, i
 		for (int j = 0; j < size; j++)
 		{
 			ArrResult[i][j] = 0;
+		}
+	}
+
+	if (sizeMatrix1 >= sizeMatrix2)
+	{
+		bSize = sizeMatrix1;
+		lSize = sizeMatrix2;
+		bMatrix = Arr;
+		lMatrix = Arrey;
+	}
+	else
+	{
+		lSize = sizeMatrix1;
+		bSize = sizeMatrix2;
+		lMatrix = Arr;
+		bMatrix = Arrey;
+	}
+
+	int n = 0, m = 0;
+	for (size_t i = 0; i < lSize; i++)
+	{
+		for (size_t k = 0; k < bSize; k++)
+		{
+			for (size_t j = 0; j < lSize; j++)
+			{
+				for (size_t l = 0; l < bSize; l++)
+				{
+					if (i == j)
+					{
+						if (bMatrix[k][l] == 1)
+							ArrResult[n][m] = 1;
+					}
+					else if (k == l)
+					{
+						if (lMatrix[i][j] == 1)
+							ArrResult[n][m] = 1;
+					}
+					m++;
+				}
+			}
+			n++;
+			m = 0;
 		}
 	}
 
