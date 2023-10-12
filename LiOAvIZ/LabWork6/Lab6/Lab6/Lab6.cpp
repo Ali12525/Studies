@@ -9,6 +9,9 @@ int** vertexIdentification2(int** Arr, int size, int u, int v);
 int** vertexSplitting(int** Arr, int size, int u, int v);
 int find_arr(int* Arr, int size, int element);
 int** vertexIdentification1(int** matrix, int size, int u, int v);
+int** workGraph(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work);
+int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work);
+struct Graph* vertexSplittingMatrix(struct Graph* graph, int** Arrey, int size, int u, int v);
 struct node* createNode(int v);
 struct Graph* createGraph(int vertices);
 void addEdge(struct Graph* graph, int src, int dest);
@@ -22,9 +25,9 @@ int main(void)
 {
 	srand(time(NULL));
 	int sizeMatrix1, sizeMatrix2;
-	int** Arr, **Arrey;
+	int** Arr, **Arrey, **ArrResult;
 	char ch;
-	int ext = 0, extt = 0, priority = -1;
+	int ext = 0, size = 0;;
 	int u, v;
 
 	printf("Enter the size of the adjacency matrix 1: ");
@@ -52,6 +55,18 @@ int main(void)
 	fill_arr(Arrey, sizeMatrix2);
 	print_arr(Arrey, sizeMatrix2);
 
+	if (sizeMatrix1 >= sizeMatrix2)
+		size = sizeMatrix1;
+	else
+		size = sizeMatrix2;
+
+	ArrResult = (int**)malloc(size * sizeof(int*));
+
+	for (int i = 0; i < size; ++i)
+	{
+		ArrResult[i] = (int*)malloc(size * sizeof(int));
+	}
+
 	struct Graph* graph1 = transformGraph(Arr, sizeMatrix1);
 	struct Graph* graph2 = transformGraph(Arrey, sizeMatrix2);
 
@@ -64,7 +79,8 @@ int main(void)
 	do
 	{
 		system("cls");
-		printf("1. Vertex indentification (Matrix)\n2. Vertex contraction (Matrix)\n3. Vertex splitting (Matrix)\n4. Vertex indentification (list)\n5. Vertex contraction (list)\n6. Vertex splitting (list)\n");
+		printf("1. Vertex identification (Matrix)\n2. Vertex contraction (Matrix)\n3. Vertex splitting (Matrix)\n4. Vertex identification (list)\n\
+5. Vertex contraction (list)\n6. Vertex splitting (list)\n7. Unification graph\n8. Intersection graph\n9. Ring sum graph\n10. Multiplication graph\n");
 		printf("Select item: ");
 		scanf("%c", &ch);
 		system("cls");
@@ -106,20 +122,29 @@ int main(void)
 			scanf("%d", &u);
 			printf("v = ");
 			scanf("%d", &v);
+			printf("Result:\n");
+			printf("\nGraph 1:\n");
 			if (Arr[u][v] == 0)
 			{
-				printf("Error\n");
-				printf("Press any key to exit");
-				getchar();
-				getchar();
-				break;
+				printf("\nError\n");
 			}
-			Arr = vertexIdentification1(Arr, sizeMatrix1, u, v);
-			Arrey = vertexIdentification1(Arrey, sizeMatrix2, u, v);
-			printf("Result:\n");
-			print_arr(Arr, sizeMatrix1);
-			printf("\n");
-			print_arr(Arrey, sizeMatrix1);
+			else
+			{
+				Arr = vertexIdentification1(Arr, sizeMatrix1, u, v);
+				print_arr(Arr, sizeMatrix1);
+				printf("\n");
+			}
+			printf("\nGraph 2:\n");
+			if (Arrey[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				Arrey = vertexIdentification1(Arrey, sizeMatrix2, u, v);
+				print_arr(Arrey, sizeMatrix2);
+				printf("\n");
+			}
 			printf("Press any key to exit");
 			getchar();
 			getchar();
@@ -134,33 +159,169 @@ int main(void)
 			scanf("%d", &u);
 			printf("v = ");
 			scanf("%d", &v);
-			Arr = vertexSplitting(Arr, sizeMatrix1, u, v);
-			Arrey = vertexSplitting(Arrey, sizeMatrix2, u, v);
-			printf("Result:\n");
-			print_arr(Arr, sizeMatrix1 + 1);
-			printf("\n");
-			print_arr(Arrey, sizeMatrix1 + 1);
+			printf("\nResult:\n");
+			printf("\nGraph 1:\n");
+			if (Arr[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				Arr = vertexSplitting(Arr, sizeMatrix1, u, v);
+				print_arr(Arr, sizeMatrix1 + 1);
+				printf("\n");
+			}
+			printf("\nGraph 2:\n");
+			if (Arrey[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				Arrey = vertexSplitting(Arrey, sizeMatrix2, u, v);
+				print_arr(Arrey, sizeMatrix2 + 1);
+				printf("\n");
+			}
 			printf("Press any key to exit");
 			getchar();
 			getchar();
 			break;
 		case '4':
+			printf("Graph 1:\n");
+			printGraph(graph1);
+			printf("Graph 2:\n");
+			printGraph(graph2);
 			printf("Enter vertex: \n");
 			printf("u = ");
 			scanf("%d", &u);
 			printf("v = ");
 			scanf("%d", &v);
+			printf("Result\n");
 			graph1 = vertexIndentificationMatrix(graph1, Arr, sizeMatrix1, u, v);
+			graph2 = vertexIndentificationMatrix(graph2, Arrey, sizeMatrix2, u, v);
 			printGraphDel(graph1, u , v);
 			printf("\n");
+			printGraphDel(graph2, u, v);
+			printf("\nPress any key to exit");
 			getchar();
 			getchar();
 			break;
 		case '5':
+			printf("Graph 1:\n");
+			printGraph(graph1);
+			printf("Graph 2:\n");
+			printGraph(graph2);
+			printf("Enter vertex: \n");
+			printf("u = ");
+			scanf("%d", &u);
+			printf("v = ");
+			scanf("%d", &v);
+			printf("\nResult:\n");
+			printf("\nGraph 1:\n");
+			if (Arr[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				graph1 = vertexIndentificationMatrix(graph1, Arr, sizeMatrix1, u, v);
+				printGraphDel(graph1, u, v);
+				printf("\n");
+			}
+			printf("\nGraph 2:\n");
+			if (Arrey[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				graph2 = vertexIndentificationMatrix(graph2, Arrey, sizeMatrix2, u, v);
 
+				printGraphDel(graph2, u, v);
+				printf("\n");
+			}
+			printf("\nPress any key to exit");
+			getchar();
+			getchar();
 			break;
 		case '6':
+			printf("Graph 1:\n");
+			printGraph(graph1);
+			printf("Graph 2:\n");
+			printGraph(graph2);
+			printf("Enter vertex: \n");
+			printf("u = ");
+			scanf("%d", &u);
+			printf("v = ");
+			scanf("%d", &v);
+			printf("\nResult:\n");
+			printf("\nGraph 1:\n");
+			if (Arr[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				graph1 = vertexSplittingMatrix(graph1, Arr, sizeMatrix1, u, v);
+				printGraph(graph1);
+				printf("\n");
+			}
+			printf("\nGraph 2:\n");
+			if (Arrey[u][v] == 0)
+			{
+				printf("\nError\n");
+			}
+			else
+			{
+				graph2 = vertexSplittingMatrix(graph2, Arrey, sizeMatrix2, u, v);
 
+				printGraph(graph2);
+				printf("\n");
+			}
+			printf("\nPress any key to exit");
+			getchar();
+			getchar();
+			break;
+		case '7':
+			printf("Adjacency matrix 1\n");
+			print_arr(Arr, sizeMatrix1);
+			printf("\n\nAdjacency matrix 2\n");
+			print_arr(Arrey, sizeMatrix2);
+			printf("Result\n");
+			ArrResult = workGraph(Arr, sizeMatrix1, Arrey, sizeMatrix2, 0);
+			print_arr(ArrResult, size);
+			printf("\nPress any key to exit");
+			getchar();
+			break;
+		case '8':
+			printf("Adjacency matrix 1\n");
+			print_arr(Arr, sizeMatrix1);
+			printf("\n\nAdjacency matrix 2\n");
+			print_arr(Arrey, sizeMatrix2);
+			printf("Result\n");
+			ArrResult = workGraph(Arr, sizeMatrix1, Arrey, sizeMatrix2, 1);
+			print_arr(ArrResult, size);
+			printf("\nPress any key to exit");
+			getchar();
+			break;
+		case '9':
+			printf("Adjacency matrix 1\n");
+			print_arr(Arr, sizeMatrix1);
+			printf("\n\nAdjacency matrix 2\n");
+			print_arr(Arrey, sizeMatrix2);
+			printf("Result\n");
+			ArrResult = workGraph(Arr, sizeMatrix1, Arrey, sizeMatrix2, 2);
+			print_arr(ArrResult, size);
+			printf("\nPress any key to exit");
+			getchar();
+			break;
+		case '10':
+			printf("Graph 1:\n");
+			printGraph(graph1);
+			printf("Graph 2:\n");
+			printGraph(graph2);
+
+			printf("Result\n");
 			break;
 		default:
 			break;
@@ -378,6 +539,86 @@ int** vertexSplitting(int** Arr, int size, int u, int v)
 	return ArreyIndentification;
 }
 
+int** workGraph(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work)
+{
+	int size = 0;
+	if (sizeMatrix1 >= sizeMatrix2)
+		size = sizeMatrix1;
+	else
+		size = sizeMatrix2;
+
+	int** ArrU = (int**)malloc(size * sizeof(int*));
+
+	for (int i = 0; i < size; ++i)
+	{
+		ArrU[i] = (int*)malloc(size * sizeof(int));
+	}
+
+	int** ArrResult = (int**)malloc(size * sizeof(int*));
+
+	for (int i = 0; i < size; ++i)
+	{
+		ArrResult[i] = (int*)malloc(size * sizeof(int));
+	}
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			ArrU[i][j] = 0;
+		}
+	}
+
+	if (sizeMatrix1 >= sizeMatrix2)
+	{
+		for (int i = 0; i < sizeMatrix2; i++)
+		{
+			for (int j = 0; j < sizeMatrix2; j++)
+			{
+				ArrU[i][j] = Arrey[i][j];
+			}
+		}
+
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if(work == 0)
+					ArrResult[i][j] = ArrU[i][j] || Arr[i][j];
+				if(work == 1)
+					ArrResult[i][j] = ArrU[i][j] && Arr[i][j];
+				else
+					ArrResult[i][j] = ArrU[i][j] ^ Arr[i][j];
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < sizeMatrix1; i++)
+		{
+			for (int j = 0; j < sizeMatrix1; j++)
+			{
+				ArrU[i][j] = Arr[i][j];
+			}
+		}
+
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if (work == 0)
+					ArrResult[i][j] = ArrU[i][j] || Arrey[i][j];
+				if (work == 1)
+					ArrResult[i][j] = ArrU[i][j] && Arrey[i][j];
+				else
+					ArrResult[i][j] = ArrU[i][j] ^ Arrey[i][j];
+			}
+		}
+	}
+
+	return ArrResult;
+}
+
 struct Graph* vertexIndentificationMatrix(struct Graph* graph, int** Arrey, int size, int u, int v)
 {
 	int count = 0, count2 = 0;
@@ -413,7 +654,6 @@ struct Graph* vertexIndentificationMatrix(struct Graph* graph, int** Arrey, int 
 	}
 
 	graph = delVertexGraph(Arrey, size, u);
-	printGraph(graph);
 
 	for (int i = 0; i < count2; i++)
 	{
@@ -433,8 +673,6 @@ struct Graph* vertexIndentificationMatrix(struct Graph* graph, int** Arrey, int 
 		graph2->adjLists[k] = temp;
 		k++;
 	}
-
-	printGraph(graph);
 
 	return graph2;
 }
@@ -497,6 +735,29 @@ void fill_arr(int** Arr, int size)
 			}
 		}
 	}
+}
+
+struct Graph* vertexSplittingMatrix(struct Graph* graph, int** Arrey, int size, int u, int v)
+{
+	struct Graph* graph2 = createGraph(size + 1);
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = i; j < size; j++)
+		{
+			if (i == u && j == v)
+				continue;
+			if (Arrey[i][j] == 1)
+			{
+				addEdge(graph2, i, j);
+			}
+		}
+	}
+
+	addEdge(graph2, size, u);
+	addEdge(graph2, size, v);
+
+	return graph2;
 }
 
 struct node* createNode(int v)
@@ -594,4 +855,26 @@ void printGraphDel(struct Graph* graph, int u, int k)
 		}
 	}
 	printf("\n");
+}
+
+int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int work)
+{
+	int size = sizeMatrix1 * sizeMatrix2;
+
+	int** ArrResult = (int**)malloc(size * sizeof(int*));
+
+	for (int i = 0; i < size; ++i)
+	{
+		ArrResult[i] = (int*)malloc(size * sizeof(int));
+	}
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			ArrResult[i][j] = 0;
+		}
+	}
+
+	return ArrResult;
 }
