@@ -5,6 +5,7 @@
 
 void fill_arr(int** Arr, int size);
 void print_arr(int** Arr, int size);
+void print_arr2(int** Arr, int* s);
 int** vertexIdentification2(int** Arr, int size, int u, int v);
 int** vertexSplitting(int** Arr, int size, int u, int v);
 int find_arr(int* Arr, int size, int element);
@@ -132,7 +133,7 @@ int main(void)
 			else
 			{
 				Arr = vertexIdentification1(Arr, sizeMatrix1, u, v);
-				print_arr(Arr, sizeMatrix1);
+				print_arr(Arr, sizeMatrix1 - 1);
 				printf("\n");
 			}
 			printf("\nGraph 2:\n");
@@ -143,7 +144,7 @@ int main(void)
 			else
 			{
 				Arrey = vertexIdentification1(Arrey, sizeMatrix2, u, v);
-				print_arr(Arrey, sizeMatrix2);
+				print_arr(Arrey, sizeMatrix2  - 1);
 				printf("\n");
 			}
 			printf("Press any key to exit");
@@ -312,8 +313,8 @@ int main(void)
 			print_arr(Arrey, sizeMatrix2);
 			printf("Result\n");
 			ArrResult = workGraph(Arr, sizeMatrix1, Arrey, sizeMatrix2, 2);
-			print_arr(ArrResult, size);
 			printf("\nPress any key to exit");
+			getchar();
 			getchar();
 			break;
 		case '9':
@@ -636,10 +637,29 @@ int** workGraph(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2, int wo
 			if (count == size)
 				ArrResult = RemoveVertex(ArrResult, &s, i);
 		}
+		print_arr2(ArrResult, &s);
+	}
+	else
+	{
+		print_arr(ArrResult, size);
 	}
 
 	return ArrResult;
 }
+
+void print_arr2(int** Arr, int* s)
+{
+	int size = *s;
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			printf("%3d ", Arr[i][j]);
+		}
+		printf("\n");
+	}
+}
+
 
 struct Graph* vertexIndentificationMatrix(struct Graph* graph, int** Arrey, int size, int u, int v)
 {
@@ -952,32 +972,44 @@ int** Multiplication(int** Arr, int sizeMatrix1, int** Arrey, int sizeMatrix2)
 		bMatrix = Arrey;
 	}
 
-	int n = 0, m = 0;
-	for (size_t i = 0; i < lSize; i++)
+	int z1 = 0, v1 = 0;
+	int z2 = 0, v2 = 0;
+	for (size_t i = 0; i < size; i++)
 	{
-		for (size_t k = 0; k < bSize; k++)
+		if (i / bSize != z1)
+			z1++;
+		if (z1 >= lSize)
+			z1 = 0;
+
+		if (v1 >= bSize)
+			v1 = 0;
+
+		for (size_t j = 0; j < size; j++)
 		{
-			for (size_t j = 0; j < lSize; j++)
+			if (j / bSize != z2)
+				z2++;
+
+			if (v2 >= bSize)
+				v2 = 0;
+
+			if (z1 == z2)
 			{
-				for (size_t l = 0; l < bSize; l++)
-				{
-					if (i == j)
-					{
-						if (bMatrix[k][l] == 1)
-							ArrResult[n][m] = 1;
-					}
-					else if (k == l)
-					{
-						if (lMatrix[i][j] == 1)
-							ArrResult[n][m] = 1;
-					}
-					m++;
-				}
+				if (bMatrix[v1][v2] == 1)
+					ArrResult[i][j] = 1;
 			}
-			n++;
-			m = 0;
+			else if (v1 == v2)
+			{
+				if (lMatrix[z1][z2] == 1)
+					ArrResult[i][j] = 1;
+			}
+			v2 += 1;
 		}
+		z2 = 0;
+		v2 = 0;
+		v1 += 1;
 	}
+
+	
 
 	return ArrResult;
 }

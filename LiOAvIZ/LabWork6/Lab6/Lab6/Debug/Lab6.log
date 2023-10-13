@@ -1,9 +1,7 @@
 ﻿  Lab6.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(27,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(628,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(631,25): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(956,23): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(958,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(960,25): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(962,26): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(28,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(629,24): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(632,25): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(977,23): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Lab6\Lab6.cpp(987,24): warning C4018: <: несоответствие типов со знаком и без знака
   Lab6.vcxproj -> A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork6\Lab6\Debug\Lab6.exe
