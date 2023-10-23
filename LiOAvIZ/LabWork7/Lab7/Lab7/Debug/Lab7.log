@@ -1,3 +1,5 @@
 ﻿  Lab7.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork7\Lab7\Lab7\Lab7.cpp(21,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-  Lab7.vcxproj -> A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork7\Lab7\Debug\Lab7.exe
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork7\Lab7\Lab7\Lab7.cpp(5,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  Stack.cpp
+  Создание кода...
+  Lab7.vcxproj -> D:\Учеба\Али\Studies\LiOAvIZ\LabWork7\Lab7\Debug\Lab7.exe

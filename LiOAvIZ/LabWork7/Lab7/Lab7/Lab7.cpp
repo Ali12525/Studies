@@ -1,20 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-void fill_arr(int** Arr, int size);
-void print_arr(int** Arr, int size);
-int find_arr(int* Arr, int size, int element);
-struct node* createNode(int v);
-struct Graph* createGraph(int vertices);
-void addEdge(struct Graph* graph, int src, int dest);
-void printGraph(struct Graph* graph);
-struct Graph* transformGraph(int** Arr, int size);
-void DFS(int** Matrix, int size);
-void Dfs(int** Matrix, int size, int vertex, int* visited);
-void DFSList(struct Graph* graph, int size);
-void DfsList(struct Graph* graph, int vertex, int* visited);
+﻿#include "Header.h"
 
 int main(void)
 {
@@ -40,6 +24,8 @@ int main(void)
 	DFS(Arr, sizeMatrix);
 	printf("\n\nDFS in the adjacency list");
 	DFSList(graph, sizeMatrix);
+	printf("\n\nIterative DFS in the adjacency matrix");
+	iterativeDFS(Arr, sizeMatrix);
 
 
 	free(Arr);
@@ -113,6 +99,40 @@ void DfsList(struct Graph* graph, int vertex, int* visited)
 	}
 }
 
+void iterativeDFS(int** Matrix, int size)
+{
+	int* visited = (int*)calloc(size, size * sizeof(int));
+
+	for (int i = 0; i < size; i++)
+	{
+		if (visited[i] == 0) {
+			printf("\n");
+			iterativeDfs(Matrix, size, i, visited);
+		}
+	}
+}
+
+void iterativeDfs(int** Matrix, int size, int vertex, int* visited)
+{
+	push(vertex);
+	
+	while (!stackEmpty())
+	{
+		vertex = pop();
+		if (visited[vertex] == 1)
+			continue;
+		visited[vertex] = 1;
+		printf("%d ", vertex);
+		for (int i = 0; i < size; i++)
+		{
+			if (Matrix[vertex][i] == 1 && visited[i] == 0)
+			{
+				push(i);
+			}
+		}
+	}
+	
+}
 
 void print_arr(int** Arr, int size)
 {
