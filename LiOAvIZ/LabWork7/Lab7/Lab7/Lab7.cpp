@@ -146,19 +146,6 @@ void print_arr(int** Arr, int size)
 	}
 }
 
-int find_arr(int* Arr, int size, int element)
-{
-	for (int j = 0; j < size; j++)
-	{
-		if (element == Arr[j])
-		{
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
 void fill_arr(int** Arr, int size)
 {
 	for (int i = 0; i < size; i++)

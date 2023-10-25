@@ -71,14 +71,12 @@ void Bfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
 {
 	std::queue<int> queue;
 	queue.push(vertex);	
+	visited[vertex] = 1;
 
 	while (!queue.empty())
 	{
 		vertex = queue.front();
 		queue.pop();
-		if (visited[vertex] == 1)
-			continue;
-		visited[vertex] = 1;
 		if (!shutdown)
 			printf("%d ", vertex);
 		for (int i = 0; i < size; i++)
@@ -86,6 +84,7 @@ void Bfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
 			if (Matrix[vertex][i] == 1 && visited[i] == 0)
 			{
 				queue.push(i);
+				visited[i] = 1;
 			}
 		}
 	}
@@ -286,7 +285,7 @@ void addEdge(struct Graph* graph, int src, int dest)
 	newNode = createNode(src);
 	newNode->next = graph->adjLists[dest];
 	graph->adjLists[dest] = newNode;
-}
+}	
 
 void printGraph(struct Graph* graph)
 {

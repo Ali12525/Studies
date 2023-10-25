@@ -8,7 +8,6 @@
 
 void fill_arr(int** Arr, int size);
 void print_arr(int** Arr, int size);
-int find_arr(int* Arr, int size, int element);
 struct node* createNode(int v);
 struct Graph* createGraph(int vertices);
 void addEdge(struct Graph* graph, int src, int dest);
