@@ -14,13 +14,13 @@ struct Graph* createGraph(int vertices);
 void addEdge(struct Graph* graph, int src, int dest);
 void printGraph(struct Graph* graph);
 struct Graph* transformGraph(int** Arr, int size);
-void BFSList(struct Graph* graph, int size);
+void BFSList(struct Graph* graph, int size, int vertex);
 void BfsList(struct Graph* graph, int vertex, int* visited);
-void BFS(int** Matrix, int size, int shutdown);
+void BFS(int** Matrix, int size, int shutdown, int vertex);
 void Bfs(int** Matrix, int size, int vertex, int* visited, int shutdown);
-void noClassBFS(int** Matrix, int size, int shutdown);
+void noClassBFS(int** Matrix, int size, int shutdown, int vertex);
 void noClassBfs(int** Matrix, int size, int vertex, int* visited, int shutdown);
-void autoTest();
+void autoTest(int vertex);
 
 struct nodeQueue* create_node(int inf);
 int pop();

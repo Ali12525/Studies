@@ -3,11 +3,13 @@
 int main(void)
 {
 	srand(time(NULL));
-	int sizeMatrix;
+	int sizeMatrix, vertex;
 	int** Arr;
 
 	printf("Enter the size of the adjacency matrix: ");
 	scanf("%d", &sizeMatrix);
+	printf("\nEnter vertex: ");
+	scanf("%d", &vertex);
 	Arr = (int**)malloc(sizeMatrix * sizeof(int*));
 
 	for (int i = 0; i < sizeMatrix; ++i)
@@ -20,14 +22,15 @@ int main(void)
 	print_arr(Arr, sizeMatrix);
 	struct Graph* graph = transformGraph(Arr, sizeMatrix);
 	printGraph(graph);
-	printf("\nDFS in the adjacency matrix");
-	DFS(Arr, sizeMatrix);
-	printf("\n\nDFS in the adjacency list");
-	DFSList(graph, sizeMatrix);
-	printf("\n\nIterative DFS in the adjacency matrix");
-	iterativeDFS(Arr, sizeMatrix);
+	printf("\nDFS in the adjacency matrix\n");
+	DFS(Arr, sizeMatrix, vertex);
+	printf("\n\nDFS in the adjacency list\n");
+	DFSList(graph, sizeMatrix, vertex);
+	printf("\n\nIterative DFS in the adjacency matrix\n");
+	iterativeDFS(Arr, sizeMatrix, vertex);
 
-
+	for (int i = 0; i < sizeMatrix; i++)
+		free(Arr[i]);
 	free(Arr);
 
 	return(0);
@@ -46,17 +49,20 @@ struct Graph
 };
 
 
-void DFS(int** Matrix, int size)
+void DFS(int** Matrix, int size, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 	
-	for (int i = 0; i < size; i++)
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			printf("\n");
 			Dfs(Matrix, size, i, visited);
 		}
-	}
+	}*/
+	Dfs(Matrix, size, vertex, visited);
+
+	free(visited);
 }
 
 void Dfs(int **Matrix, int size, int vertex, int* visited)
@@ -72,17 +78,20 @@ void Dfs(int **Matrix, int size, int vertex, int* visited)
 	}
 }
 
-void DFSList(struct Graph* graph, int size)
+void DFSList(struct Graph* graph, int size, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 
-	for (int i = 0; i < size; i++)
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			printf("\n");
 			DfsList(graph, i, visited);
 		}
-	}
+	}*/
+	DfsList(graph, vertex, visited);
+
+	free(visited);
 }
 
 void DfsList(struct Graph* graph, int vertex, int* visited)
@@ -99,17 +108,20 @@ void DfsList(struct Graph* graph, int vertex, int* visited)
 	}
 }
 
-void iterativeDFS(int** Matrix, int size)
+void iterativeDFS(int** Matrix, int size, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 
-	for (int i = 0; i < size; i++)
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			printf("\n");
 			iterativeDfs(Matrix, size, i, visited);
 		}
-	}
+	}*/
+	iterativeDfs(Matrix, size, vertex, visited);
+
+	free(visited);
 }
 
 void iterativeDfs(int** Matrix, int size, int vertex, int* visited)

@@ -7,11 +7,14 @@ using namespace std;
 int main(void)
 {
 	srand(time(NULL));
-	int sizeMatrix;
+	int sizeMatrix, vertex;
 	int** Arr;
 
 	printf("Enter the size of the adjacency matrix: ");
 	scanf("%d", &sizeMatrix);
+	printf("\nEnter vertex: ");
+	scanf("%d", &vertex);
+
 	Arr = (int**)malloc(sizeMatrix * sizeof(int*));
 
 	for (int i = 0; i < sizeMatrix; ++i)
@@ -25,20 +28,22 @@ int main(void)
 	struct Graph* graph = transformGraph(Arr, sizeMatrix);
 	printGraph(graph);
 
-	printf("\nBFS in the adjacency matrix");
-	BFS(Arr, sizeMatrix, 0);
+	printf("\nBFS in the adjacency matrix\n");
+	BFS(Arr, sizeMatrix, 0, vertex);
 
-	printf("\n\nBFS in the adjacency list");
-	BFSList(graph, sizeMatrix);
+	printf("\n\nBFS in the adjacency list\n");
+	BFSList(graph, sizeMatrix, vertex);
 
-	printf("\n\nNo class BFS in the adjacency matrix");
-	noClassBFS(Arr, sizeMatrix, 0);
+	printf("\n\nNo class BFS in the adjacency matrix\n");
+	noClassBFS(Arr, sizeMatrix, 0, vertex);
 
-	autoTest();
-
+	for (int i = 0; i < sizeMatrix; i++)
+		free(Arr[i]);
 	free(Arr);
 
-	return(0);
+	autoTest(vertex);
+
+	return 0;
 }
 
 struct node
@@ -53,18 +58,21 @@ struct Graph
 	struct node** adjLists;
 };
 
-void BFS(int** Matrix, int size, int shutdown)
+void BFS(int** Matrix, int size, int shutdown, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 
-	for (int i = 0; i < size; i++)
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			if(!shutdown)
 				printf("\nway: ");
 			Bfs(Matrix, size, i, visited, shutdown);
 		}
-	}
+	}*/
+	Bfs(Matrix, size, vertex, visited, shutdown);
+
+	free(visited);
 }
 
 void Bfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
@@ -91,31 +99,32 @@ void Bfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
 
 }
 
-void BFSList(struct Graph* graph, int size)
+void BFSList(struct Graph* graph, int size, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 
-	for (int i = 0; i < size; i++)
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			printf("\nway: ");
 			BfsList(graph, i, visited);
 		}
-	}
+	}*/
+	BfsList(graph, vertex, visited);
+
+	free(visited);
 }
 
 void BfsList(struct Graph* graph, int vertex, int* visited)
 {
 	std::queue<int> queue;
 	queue.push(vertex);
+	visited[vertex] = 1;
 
 	while (!queue.empty())
 	{
 		vertex = queue.front();
 		queue.pop();
-		if (visited[vertex] == 1)
-			continue;
-		visited[vertex] = 1;
 		printf("%d ", vertex);
 
 		struct node* temp = graph->adjLists[vertex];
@@ -123,38 +132,42 @@ void BfsList(struct Graph* graph, int vertex, int* visited)
 		{
 			int i = temp->vertex;
 			if (visited[i] == 0)
+			{
 				queue.push(i);
+				visited[i] = 1;
+			}
 			temp = temp->next;
 		}
 	}
 }
 
-void noClassBFS(int** Matrix, int size, int shutdown)
+void noClassBFS(int** Matrix, int size, int shutdown, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
-
-	for (int i = 0; i < size; i++)
+	
+	/*for (int i = 0; i < size; i++)
 	{
 		if (visited[i] == 0) {
 			if (!shutdown)
 				printf("\nway: ");
 			noClassBfs(Matrix, size, i, visited, shutdown);
 		}
-	}
+	}*/
+
+	noClassBfs(Matrix, size, vertex, visited, shutdown);
+
+	free(visited);
 }
 
 void noClassBfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
 {
 	std::queue<int> queue;
 	push(vertex);
+	visited[vertex] = 1;
 
 	while (!queueEmpty())
 	{
 		vertex = pop();
-		
-		if (visited[vertex] == 1)
-			continue;
-		visited[vertex] = 1;
 		if (!shutdown)
 			printf("%d ", vertex);
 		for (int i = 0; i < size; i++)
@@ -162,6 +175,7 @@ void noClassBfs(int** Matrix, int size, int vertex, int* visited, int shutdown)
 			if (Matrix[vertex][i] == 1 && visited[i] == 0)
 			{
 				push(i);
+				visited[i] = 1;
 			}
 		}
 	}
@@ -205,7 +219,7 @@ void fill_arr(int** Arr, int size)
 	}
 }
 
-void autoTest()
+void autoTest(int vertex)
 {
 	printf("\n\n              Auto test");
 	printf("\n--------------------------------------\n");
@@ -221,17 +235,19 @@ void autoTest()
 		fill_arr(Arr, size);
 
 		clock_t start = clock();
-		BFS(Arr, size, 1);
+		BFS(Arr, size, 1, vertex);
 		clock_t end = clock();
 		double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
 		printf("%12f s.", time_spent);
 
 		start = clock();
-		noClassBFS(Arr, size, 1);
+		noClassBFS(Arr, size, 1, vertex);
 		end = clock();
 		time_spent = (double)(end - start) / CLOCKS_PER_SEC;
 		printf("|%10f s.|\n", time_spent);
 
+		for(int i = 0; i < size; i++)
+			free(Arr[i]);
 		free(Arr);
 	}
 	printf("--------------------------------------\n");

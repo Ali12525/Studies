@@ -13,11 +13,11 @@ struct Graph* createGraph(int vertices);
 void addEdge(struct Graph* graph, int src, int dest);
 void printGraph(struct Graph* graph);
 struct Graph* transformGraph(int** Arr, int size);
-void DFS(int** Matrix, int size);
+void DFS(int** Matrix, int size, int vertex);
 void Dfs(int** Matrix, int size, int vertex, int* visited);
-void DFSList(struct Graph* graph, int size);
+void DFSList(struct Graph* graph, int size, int vertex);
 void DfsList(struct Graph* graph, int vertex, int* visited);
-void iterativeDFS(int** Matrix, int size);
+void iterativeDFS(int** Matrix, int size, int vertex);
 void iterativeDfs(int** Matrix, int size, int vertex, int* visited);
 
 struct nodeStack* create_node(int inf);
