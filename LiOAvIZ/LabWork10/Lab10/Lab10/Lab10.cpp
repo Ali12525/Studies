@@ -21,16 +21,37 @@ int main(void)
 	{
 		Arr[i] = (int*)malloc(sizeMatrix * sizeof(int));
 	}
+	
+	printf("\nFor undirected graph\n");
+	printf("\nAdjacency matrix\n");
+	fill_arr(Arr, sizeMatrix, 0);
+	print_arr(Arr, sizeMatrix);
+	shortestPath(ArreyDistance, predok, Arr, sizeMatrix, vertex);
+	printShortestPath(ArreyDistance, sizeMatrix, predok, vertex);
+	printRadius(Arr, sizeMatrix);
+	printDiametr(Arr, sizeMatrix);
+	peripheralVertex(Arr, sizeMatrix);
+	centralVertex(Arr, sizeMatrix);
 
+	ArreyDistance = fillArreyDistance(ArreyDistance, sizeMatrix);
+	free(predok);
+	predok = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
+	printf("\n\n\n\nFor directed graph\n");
 	printf("\nAdjacency matrix\n");
 	fill_arr(Arr, sizeMatrix, 1);
 	print_arr(Arr, sizeMatrix);
 	shortestPath(ArreyDistance, predok, Arr, sizeMatrix, vertex);
 	printShortestPath(ArreyDistance, sizeMatrix, predok, vertex);
+	printRadius(Arr, sizeMatrix);
+	printDiametr(Arr, sizeMatrix);
+	peripheralVertex(Arr, sizeMatrix);
+	centralVertex(Arr, sizeMatrix);
 
 	for (int i = 0; i < sizeMatrix; i++)
 		free(Arr[i]);
 	free(Arr);
+	free(ArreyDistance);
+	free(predok);
 
 	return 0;
 }
@@ -46,6 +67,105 @@ struct Graph
 	int numVertices;
 	struct node** adjLists;
 };
+
+int diametr(int** Matrix, int size)
+{
+	int max = 0;
+	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+
+	for (int i = 0; i < size; i++)
+	{
+		if (max < arreyEccentricity[i])
+			max = arreyEccentricity[i];
+	}
+
+	free(arreyEccentricity);
+
+	return max;
+}
+
+int radius(int** Matrix, int size)
+{
+	int min = MAX;
+	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+
+	for (int i = 0; i < size; i++)
+	{
+		if (min > arreyEccentricity[i])
+			min = arreyEccentricity[i];
+	}
+
+	free(arreyEccentricity);
+
+	return min;
+}
+
+void printDiametr(int** Matrix, int size)
+{
+	if(diametr(Matrix, size) == MAX)
+		printf("\nDiametr: -\n");
+	else
+		printf("\nDiametr: %d\n", diametr(Matrix, size));
+}
+
+void printRadius(int** Matrix, int size)
+{
+	if (radius(Matrix, size) == MAX)
+		printf("\nRadius: -\n");
+	else
+		printf("\nRadius: %d\n", radius(Matrix, size));
+}
+
+int* getEccentricityArrey(int** Matrix, int size)
+{
+	int* arreyEccentricity = (int*)calloc(size, size * sizeof(int));
+	for (int i = 0; i < size; i++)
+	{
+		int* ArreyDistance = (int*)calloc(size, size * sizeof(int));
+		ArreyDistance = fillArreyDistance(ArreyDistance, size);
+		int* predok = (int*)calloc(size, size * sizeof(int));
+		shortestPath(ArreyDistance, predok, Matrix, size, i);
+		for (int j = 0; j < size; j++)
+		{
+			if (arreyEccentricity[i] < ArreyDistance[j])
+				arreyEccentricity[i] = ArreyDistance[j];
+		}
+		free(ArreyDistance);
+		free(predok);
+	}
+	
+	return arreyEccentricity;
+}
+
+void peripheralVertex(int** Matrix, int size)
+{
+	int max = diametr(Matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	printf("\nPeripheral vertex: ");
+
+	for (int i = 0; i < size; i++)
+	{
+		if (max == arreyEccentricity[i])
+			printf("%d ", i);
+	}
+
+	free(arreyEccentricity);
+}
+
+void centralVertex(int** Matrix, int size)
+{
+	int min = radius(Matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	printf("\nCentral vertex: ");
+
+	for (int i = 0; i < size; i++)
+	{
+		if (min == arreyEccentricity[i])
+			printf("%d ", i);
+	}
+
+	free(arreyEccentricity);
+}
 
 void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int vertex)
 {
@@ -78,6 +198,8 @@ void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int v
 			}
 		}
 	}
+	
+	free(visited);
 }
 
 void printWay(int* Arr, int size, int vertex)
@@ -138,9 +260,9 @@ void fill_arr(int** Arr, int size, int oriented)
 				Arr[i][j] = 0;
 				continue;
 			}
-			if (rand() % 3 == 1)
+			if (rand() % 2 == 1)
 			{
-				Arr[i][j] = rand() % 20;
+				Arr[i][j] = rand() % 20 + 1;
 				if(oriented == 0)
 					Arr[j][i] = Arr[i][j];
 			}
@@ -152,12 +274,12 @@ void fill_arr(int** Arr, int size, int oriented)
 			}
 		}
 	}
-	Arr[0][0] = MAX;    Arr[0][1] = 4;    Arr[0][2] = MAX;    Arr[0][3] = 1;    Arr[0][4] = 3; Arr[0][5] = MAX;
+	/*Arr[0][0] = MAX;    Arr[0][1] = 4;    Arr[0][2] = MAX;    Arr[0][3] = 1;    Arr[0][4] = 3; Arr[0][5] = MAX;
 	Arr[1][0] = MAX;     Arr[1][1] = MAX;    Arr[1][2] = 3;     Arr[1][3] = MAX;   Arr[1][4] = MAX; Arr[1][5] = MAX;
 	Arr[2][0] = MAX;   Arr[2][1] = MAX;    Arr[2][2] = MAX;     Arr[2][3] = MAX;   Arr[2][4] = MAX; Arr[2][5] = MAX;
 	Arr[3][0] = MAX;    Arr[3][1] = MAX;    Arr[3][2] = MAX;    Arr[3][3] = MAX; Arr[3][4] = 1; Arr[3][5] = 2;
 	Arr[4][0] = MAX;    Arr[4][1] = MAX;    Arr[4][2] = 4;    Arr[4][3] = MAX; Arr[4][4] = MAX; Arr[4][5] = MAX;
-	Arr[5][0] = MAX;    Arr[5][1] = MAX;    Arr[5][2] = 2;    Arr[5][3] = MAX; Arr[5][4] = MAX; Arr[5][5] = MAX;
+	Arr[5][0] = MAX;    Arr[5][1] = MAX;    Arr[5][2] = 2;    Arr[5][3] = MAX; Arr[5][4] = MAX; Arr[5][5] = MAX;*/
 
 }
 

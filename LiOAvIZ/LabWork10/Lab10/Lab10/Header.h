@@ -15,3 +15,10 @@ void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int v
 void printArr(int* ArreyDistance, int size);
 void printWay(int* Arr, int size, int vertex);
 void printShortestPath(int* ArreyDistance, int size, int* predok, int vertex);
+int diametr(int** Matrix, int size);
+int radius(int** Matrix, int size);
+int* getEccentricityArrey(int** Matrix, int size);
+void peripheralVertex(int** Matrix, int size);
+void centralVertex(int** Matrix, int size);
+void printDiametr(int** Matrix, int size);
+void printRadius(int** Matrix, int size);
