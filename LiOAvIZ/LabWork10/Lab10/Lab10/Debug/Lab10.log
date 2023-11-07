@@ -1,7 +1,7 @@
 ﻿  Lab10.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(9,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(232,32): warning C4474: "printf" : для строки формата передано слишком много аргументов
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(232,32): message : заполнители и их параметры ожидают переменное число аргументов в количестве 0, но было предоставлено 1
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(243,66): warning C4474: "printf" : для строки формата передано слишком много аргументов
-A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(243,66): message : заполнители и их параметры ожидают переменное число аргументов в количестве 2, но было предоставлено 3
-  Lab10.vcxproj -> A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Debug\Lab10.exe
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(7,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(244,32): warning C4474: "printf" : для строки формата передано слишком много аргументов
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(244,32): message : заполнители и их параметры ожидают переменное число аргументов в количестве 0, но было предоставлено 1
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(255,66): warning C4474: "printf" : для строки формата передано слишком много аргументов
+D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(255,66): message : заполнители и их параметры ожидают переменное число аргументов в количестве 2, но было предоставлено 3
+  Lab10.vcxproj -> D:\Учеба\Али\Studies\LiOAvIZ\LabWork10\Lab10\Debug\Lab10.exe

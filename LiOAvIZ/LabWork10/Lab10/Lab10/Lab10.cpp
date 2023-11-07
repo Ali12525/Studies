@@ -1,57 +1,69 @@
 ﻿#include "Header.h"
-#include <queue>
-#include <iostream>
 
 using namespace std;
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	srand(time(NULL));
 	int sizeMatrix, start = 0, end = 0;
-	int** Arr;
+	int** matrix;
 	int vertex = 0;
+	int weighted = 1;
+	int directed = 1;
+
+	if (argc > 1)
+	{
+		for (int i = 0; i < argc; ++i)
+		{
+			if (strcmp(argv[i], "-weighted") == 0)
+				weighted = std::stoi(argv[i + 1]);
+
+			if (strcmp(argv[i], "-directed") == 0)
+				directed = std::stoi(argv[i + 1]);
+		}
+	}
+	else
+	{
+		printf("Enter weighted: ");
+		scanf("%d", &weighted);
+		getchar();
+		printf("Enter directed: ");
+		scanf("%d", &directed);
+		getchar();
+	}
+
 	printf("Enter the size of the adjacency matrix: ");
 	scanf("%d", &sizeMatrix);
-	int* predok = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
-	int* ArreyDistance = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
-	ArreyDistance = fillArreyDistance(ArreyDistance, sizeMatrix);
-	Arr = (int**)malloc(sizeMatrix * sizeof(int*));
+	int* ancestor = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
+	int* arreyDistance = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
+	arreyDistance = fillArreyDistance(arreyDistance, sizeMatrix);
+	matrix = (int**)malloc(sizeMatrix * sizeof(int*));
 
 	for (int i = 0; i < sizeMatrix; ++i)
 	{
-		Arr[i] = (int*)malloc(sizeMatrix * sizeof(int));
+		matrix[i] = (int*)malloc(sizeMatrix * sizeof(int));
 	}
 	
-	printf("\nFor undirected graph\n");
+	if(directed == 0)
+		printf("\nFor undirected graph\n");
+	else
+		printf("\nFor directed graph\n");
 	printf("\nAdjacency matrix\n");
-	fill_arr(Arr, sizeMatrix, 0);
-	print_arr(Arr, sizeMatrix);
-	shortestPath(ArreyDistance, predok, Arr, sizeMatrix, vertex);
-	printShortestPath(ArreyDistance, sizeMatrix, predok, vertex);
-	printRadius(Arr, sizeMatrix);
-	printDiametr(Arr, sizeMatrix);
-	peripheralVertex(Arr, sizeMatrix);
-	centralVertex(Arr, sizeMatrix);
-
-	ArreyDistance = fillArreyDistance(ArreyDistance, sizeMatrix);
-	free(predok);
-	predok = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
-	printf("\n\n\n\nFor directed graph\n");
-	printf("\nAdjacency matrix\n");
-	fill_arr(Arr, sizeMatrix, 1);
-	print_arr(Arr, sizeMatrix);
-	shortestPath(ArreyDistance, predok, Arr, sizeMatrix, vertex);
-	printShortestPath(ArreyDistance, sizeMatrix, predok, vertex);
-	printRadius(Arr, sizeMatrix);
-	printDiametr(Arr, sizeMatrix);
-	peripheralVertex(Arr, sizeMatrix);
-	centralVertex(Arr, sizeMatrix);
+	fillMatrix(matrix, sizeMatrix, directed, weighted);
+	printMatrix(matrix, sizeMatrix);
+	shortestPath(arreyDistance, ancestor, matrix, sizeMatrix, vertex);
+	printShortestPath(arreyDistance, sizeMatrix, ancestor, vertex);
+	printRadius(matrix, sizeMatrix);
+	printDiameter(matrix, sizeMatrix);
+	peripheralVertex(matrix, sizeMatrix);
+	centralVertex(matrix, sizeMatrix);
+	printf("\n");
 
 	for (int i = 0; i < sizeMatrix; i++)
-		free(Arr[i]);
-	free(Arr);
-	free(ArreyDistance);
-	free(predok);
+		free(matrix[i]);
+	free(matrix);
+	free(arreyDistance);
+	free(ancestor);
 
 	return 0;
 }
@@ -68,10 +80,10 @@ struct Graph
 	struct node** adjLists;
 };
 
-int diametr(int** Matrix, int size)
+int diameter(int** matrix, int size)
 {
 	int max = 0;
-	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(matrix, size);
 
 	for (int i = 0; i < size; i++)
 	{
@@ -84,10 +96,10 @@ int diametr(int** Matrix, int size)
 	return max;
 }
 
-int radius(int** Matrix, int size)
+int radius(int** matrix, int size)
 {
 	int min = MAX;
-	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(matrix, size);
 
 	for (int i = 0; i < size; i++)
 	{
@@ -100,47 +112,47 @@ int radius(int** Matrix, int size)
 	return min;
 }
 
-void printDiametr(int** Matrix, int size)
+void printDiameter(int** matrix, int size)
 {
-	if(diametr(Matrix, size) == MAX)
-		printf("\nDiametr: -\n");
+	if(diameter(matrix, size) == MAX)
+		printf("\nDiameter: -\n");
 	else
-		printf("\nDiametr: %d\n", diametr(Matrix, size));
+		printf("\nDiameter: %d\n", diameter(matrix, size));
 }
 
-void printRadius(int** Matrix, int size)
+void printRadius(int** matrix, int size)
 {
-	if (radius(Matrix, size) == MAX)
+	if (radius(matrix, size) == MAX)
 		printf("\nRadius: -\n");
 	else
-		printf("\nRadius: %d\n", radius(Matrix, size));
+		printf("\nRadius: %d\n", radius(matrix, size));
 }
 
-int* getEccentricityArrey(int** Matrix, int size)
+int* getEccentricityArrey(int** matrix, int size)
 {
 	int* arreyEccentricity = (int*)calloc(size, size * sizeof(int));
 	for (int i = 0; i < size; i++)
 	{
-		int* ArreyDistance = (int*)calloc(size, size * sizeof(int));
-		ArreyDistance = fillArreyDistance(ArreyDistance, size);
-		int* predok = (int*)calloc(size, size * sizeof(int));
-		shortestPath(ArreyDistance, predok, Matrix, size, i);
+		int* arreyDistance = (int*)calloc(size, size * sizeof(int));
+		arreyDistance = fillArreyDistance(arreyDistance, size);
+		int* ancestor = (int*)calloc(size, size * sizeof(int));
+		shortestPath(arreyDistance, ancestor, matrix, size, i);
 		for (int j = 0; j < size; j++)
 		{
-			if (arreyEccentricity[i] < ArreyDistance[j])
-				arreyEccentricity[i] = ArreyDistance[j];
+			if (arreyEccentricity[i] < arreyDistance[j])
+				arreyEccentricity[i] = arreyDistance[j];
 		}
-		free(ArreyDistance);
-		free(predok);
+		free(arreyDistance);
+		free(ancestor);
 	}
 	
 	return arreyEccentricity;
 }
 
-void peripheralVertex(int** Matrix, int size)
+void peripheralVertex(int** matrix, int size)
 {
-	int max = diametr(Matrix, size);
-	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	int max = diameter(matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(matrix, size);
 	printf("\nPeripheral vertex: ");
 
 	for (int i = 0; i < size; i++)
@@ -152,10 +164,10 @@ void peripheralVertex(int** Matrix, int size)
 	free(arreyEccentricity);
 }
 
-void centralVertex(int** Matrix, int size)
+void centralVertex(int** matrix, int size)
 {
-	int min = radius(Matrix, size);
-	int* arreyEccentricity = getEccentricityArrey(Matrix, size);
+	int min = radius(matrix, size);
+	int* arreyEccentricity = getEccentricityArrey(matrix, size);
 	printf("\nCentral vertex: ");
 
 	for (int i = 0; i < size; i++)
@@ -167,13 +179,13 @@ void centralVertex(int** Matrix, int size)
 	free(arreyEccentricity);
 }
 
-void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int vertex)
+void shortestPath(int* arreyDistance, int* ancestor, int** matrix, int size, int vertex)
 {
 	int* visited = (int*)calloc(size, size * sizeof(int));
 
 	std::priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> queue;
-	ArreyDistance[vertex] = 0;
-	predok[vertex] = vertex;
+	arreyDistance[vertex] = 0;
+	ancestor[vertex] = vertex;
 	queue.push({ 0, vertex });
 
 	while (!queue.empty())
@@ -182,18 +194,18 @@ void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int v
 		queue.pop();
 		vertex = c.second;
 		int weight = c.first;
-		if (weight > ArreyDistance[vertex])
+		if (weight > arreyDistance[vertex])
 			continue;
 		for (int i = 0; i < size; i++)
 		{
-			if (Matrix[vertex][i] != MAX)
+			if (matrix[vertex][i] != MAX)
 			{
 				int v = i;
-				int len = Matrix[vertex][i];
-				if (ArreyDistance[v] > ArreyDistance[vertex] + len) {
-					predok[v] = vertex;
-					ArreyDistance[v] = ArreyDistance[vertex] + len;
-					queue.push({ ArreyDistance[v], v });
+				int len = matrix[vertex][i];
+				if (arreyDistance[v] > arreyDistance[vertex] + len) {
+					ancestor[v] = vertex;
+					arreyDistance[v] = arreyDistance[vertex] + len;
+					queue.push({ arreyDistance[v], v });
 				}
 			}
 		}
@@ -202,54 +214,54 @@ void shortestPath(int* ArreyDistance, int* predok, int** Matrix, int size, int v
 	free(visited);
 }
 
-void printWay(int* Arr, int size, int vertex)
+void printWay(int* arr, int size, int vertex)
 {
-	if (Arr[vertex] != vertex)
-		printWay(Arr, size, Arr[vertex]);
+	if (arr[vertex] != vertex)
+		printWay(arr, size, arr[vertex]);
 	printf("%d ", vertex);
 }
 
-void print_arr(int** Arr, int size)
+void printMatrix(int** matrix, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
 		for (int j = 0; j < size; j++)
 		{
-			if(Arr[i][j] == MAX)
+			if(matrix[i][j] == MAX)
 				printf("%3c ",'-');
 			else
-				printf("%3d ", Arr[i][j]);
+				printf("%3d ", matrix[i][j]);
 		}
 		printf("\n");
 	}
 }
 
-void printArr(int* ArreyDistance, int size)
+void printArr(int* arreyDistance, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		if (ArreyDistance[i] == MAX)
-			printf("- ", ArreyDistance[i]);
+		if (arreyDistance[i] == MAX)
+			printf("- ", arreyDistance[i]);
 		else
-			printf("%d ", ArreyDistance[i]);
+			printf("%d ", arreyDistance[i]);
 	}
 }
 
-void printShortestPath(int* ArreyDistance, int size, int* predok, int vertex)
+void printShortestPath(int* arreyDistance, int size, int* ancestor, int vertex)
 {
 	for (int i = 0; i < size; i++)
 	{
-		if(ArreyDistance[i] == MAX)
-			printf("\nWeight: %d -> %d = -   ", vertex, i, ArreyDistance[i]);
+		if(arreyDistance[i] == MAX)
+			printf("\nWeight: %d -> %d = -   ", vertex, i, arreyDistance[i]);
 		else
-			printf("\nWeight: %d -> %d = %d   ", vertex, i, ArreyDistance[i]);
+			printf("\nWeight: %d -> %d = %d   ", vertex, i, arreyDistance[i]);
 		printf("Way: ");
-		printWay(predok, size, i);
+		printWay(ancestor, size, i);
 	}
 	printf("\n");
 }
 
-void fill_arr(int** Arr, int size, int oriented)
+void fillMatrix(int** matrix, int size, int directed, int weighted)
 {
 	for (int i = 0; i < size; i++)
 	{
@@ -257,48 +269,34 @@ void fill_arr(int** Arr, int size, int oriented)
 		{
 			if (i == j)
 			{
-				Arr[i][j] = 0;
+				matrix[i][j] = 0;
 				continue;
 			}
 			if (rand() % 2 == 1)
 			{
-				Arr[i][j] = rand() % 20 + 1;
-				if(oriented == 0)
-					Arr[j][i] = Arr[i][j];
+				if (weighted == 1)
+					matrix[i][j] = rand() % 20 + 1;
+				else
+					matrix[i][j] = 1;
+				if(directed == 0)
+					matrix[j][i] = matrix[i][j];
 			}
 			else
 			{
-				Arr[i][j] = MAX;
-				if(oriented == 0)
-					Arr[j][i] = MAX;
+				matrix[i][j] = MAX;
+				if(directed == 0)
+					matrix[j][i] = matrix[i][j];
 			}
 		}
 	}
-	/*Arr[0][0] = MAX;    Arr[0][1] = 4;    Arr[0][2] = MAX;    Arr[0][3] = 1;    Arr[0][4] = 3; Arr[0][5] = MAX;
-	Arr[1][0] = MAX;     Arr[1][1] = MAX;    Arr[1][2] = 3;     Arr[1][3] = MAX;   Arr[1][4] = MAX; Arr[1][5] = MAX;
-	Arr[2][0] = MAX;   Arr[2][1] = MAX;    Arr[2][2] = MAX;     Arr[2][3] = MAX;   Arr[2][4] = MAX; Arr[2][5] = MAX;
-	Arr[3][0] = MAX;    Arr[3][1] = MAX;    Arr[3][2] = MAX;    Arr[3][3] = MAX; Arr[3][4] = 1; Arr[3][5] = 2;
-	Arr[4][0] = MAX;    Arr[4][1] = MAX;    Arr[4][2] = 4;    Arr[4][3] = MAX; Arr[4][4] = MAX; Arr[4][5] = MAX;
-	Arr[5][0] = MAX;    Arr[5][1] = MAX;    Arr[5][2] = 2;    Arr[5][3] = MAX; Arr[5][4] = MAX; Arr[5][5] = MAX;*/
-
 }
 
-int* fill_visited(int* visited, int size)
+int* fillArreyDistance(int* arreyDistance, int size)
 {
 	for (int i = 0; i < size; i++)
 	{
-		visited[i] = -1;
+		arreyDistance[i] = MAX;
 	}
 
-	return visited;
-}
-
-int* fillArreyDistance(int* ArreyDistance, int size)
-{
-	for (int i = 0; i < size; i++)
-	{
-		ArreyDistance[i] = MAX;
-	}
-
-	return ArreyDistance;
+	return arreyDistance;
 }
