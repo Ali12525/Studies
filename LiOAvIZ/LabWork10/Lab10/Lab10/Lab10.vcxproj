@@ -139,7 +139,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="getWeightedAndDirected.cpp" />
+    <ClCompile Include="printCentralVertex.cpp" />
+    <ClCompile Include="dijkstraAlgorithm.cpp" />
+    <ClCompile Include="fillArreyDistance.cpp" />
+    <ClCompile Include="fillMatrix.cpp" />
+    <ClCompile Include="getDiameter.cpp" />
+    <ClCompile Include="getEccentricityArrey.cpp" />
+    <ClCompile Include="getRadius.cpp" />
     <ClCompile Include="Lab10.cpp" />
+    <ClCompile Include="printPeripheralVertex.cpp" />
+    <ClCompile Include="printArr.cpp" />
+    <ClCompile Include="printDiameter.cpp" />
+    <ClCompile Include="printMatrix.cpp" />
+    <ClCompile Include="printRadius.cpp" />
+    <ClCompile Include="printShortestPath.cpp" />
+    <ClCompile Include="printWay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h" />
