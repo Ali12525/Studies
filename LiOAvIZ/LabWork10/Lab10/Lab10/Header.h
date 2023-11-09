@@ -27,3 +27,6 @@ void printRadius(int** matrix, int size);
 void printPeripheralVertex(int** matrix, int size);
 void printCentralVertex(int** matrix, int size);
 pair<int, int> getWeightedAndDirected(int argc, char* argv[]);
+pair<int, int> getCentrHeavin(int** matrix, int size);
+int sum(int* arreyDistance, int size);
+int getMin(int* Arr, int size);

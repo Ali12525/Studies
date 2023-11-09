@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="getCentrHeavin.cpp" />
     <ClCompile Include="getWeightedAndDirected.cpp" />
     <ClCompile Include="printCentralVertex.cpp" />
     <ClCompile Include="dijkstraAlgorithm.cpp" />

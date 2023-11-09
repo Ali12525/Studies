@@ -1,4 +1,4 @@
-﻿  getWeightedAndDirected.cpp
+﻿  getCentrHeavin.cpp
   Lab10.cpp
 A:\Ycheba\Ali\Studies\LiOAvIZ\LabWork10\Lab10\Lab10\Lab10.cpp(5,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
   Создание кода...

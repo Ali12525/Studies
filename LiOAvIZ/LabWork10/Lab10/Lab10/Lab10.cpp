@@ -14,6 +14,8 @@ int main(int argc, char* argv[])
 	directed = weightedAndDirected.second;
 	printf("Enter the size of the adjacency matrix: ");
 	scanf("%d", &sizeMatrix);
+	printf("Enter from which vertex to count: ");
+	scanf("%d", &vertex);
 	int* ancestor = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
 	int* arreyDistance = (int*)calloc(sizeMatrix, sizeMatrix * sizeof(int));
 	arreyDistance = fillArreyDistance(arreyDistance, sizeMatrix);
@@ -37,6 +39,8 @@ int main(int argc, char* argv[])
 	printDiameter(matrix, sizeMatrix);
 	printPeripheralVertex(matrix, sizeMatrix);
 	printCentralVertex(matrix, sizeMatrix);
+	pair<int, int> c = getCentrHeavin(matrix, sizeMatrix);
+	printf("\nCentr heavin vertex: %d      Heavin: %d", c.second, c.first);
 	printf("\n");
 
 	for (int i = 0; i < sizeMatrix; i++)
