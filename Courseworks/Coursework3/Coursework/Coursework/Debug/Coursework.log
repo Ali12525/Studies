@@ -1,0 +1,7 @@
+﻿  Coursework.cpp
+A:\Ycheba\Ali\Studies\Courseworks\Coursework3\Coursework\Coursework\Coursework.cpp(5,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  fillArrey.cpp
+  graph.cpp
+  kuhnAlgorithm.cpp
+  Создание кода...
+  Coursework.vcxproj -> A:\Ycheba\Ali\Studies\Courseworks\Coursework3\Coursework\Debug\Coursework.exe
