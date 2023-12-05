@@ -46,6 +46,7 @@ void writeMatrixInFile(int** array, int total)
 	if (out.is_open())
 	{
 		out << "ChildId   GiftId" << std::endl;
+
 		for (size_t i = 0; i < total; i++)
 		{
 			out << array[i][0] << ",    " << array[i][1];
