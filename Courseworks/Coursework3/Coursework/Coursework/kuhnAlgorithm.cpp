@@ -2,7 +2,8 @@
 
 void kuhnAlgorithm(struct Graph* graph, int* pair, int sizeFirstShare, int sizeSecondShare)
 {
-	int* used1 = (int*)calloc(sizeFirstShare, sizeFirstShare * sizeof(int));
+	int* used1 = (int*)malloc(sizeFirstShare * sizeof(int));
+	used1 = fillArrey(used1, sizeFirstShare, 0);
 	pair = fillArrey(pair, sizeSecondShare, -1);
 
 	for (int i = 0; i < sizeFirstShare; i++)
@@ -21,13 +22,14 @@ void kuhnAlgorithm(struct Graph* graph, int* pair, int sizeFirstShare, int sizeS
 		}
 	}
 
-	int* visited = (int*)calloc(sizeFirstShare, sizeFirstShare * sizeof(int));
+	int* visited = (int*)malloc(sizeFirstShare * sizeof(int));
+	visited = fillArrey(visited, sizeFirstShare ,0);
 
 	for (int i = 0; i < sizeFirstShare; i++)
 	{
 		if (used1[i])
 			continue;
-		if (dfs(graph, i, visited, pair))
+		if (dfsKuhn(graph, i, visited, pair))
 			visited = fillArrey(visited, sizeFirstShare, 0);
 	}
 
@@ -35,7 +37,7 @@ void kuhnAlgorithm(struct Graph* graph, int* pair, int sizeFirstShare, int sizeS
 	free(used1);
 }
 
-int dfs(struct Graph* graph, int vertex, int* visited, int* pair)
+int dfsKuhn(struct Graph* graph, int vertex, int* visited, int* pair)
 {
 	if (visited[vertex])
 		return 0;
@@ -46,7 +48,7 @@ int dfs(struct Graph* graph, int vertex, int* visited, int* pair)
 	while (temp)
 	{
 		int v = temp->vertex;
-		if (pair[v] == -1 || dfs(graph, pair[v], visited, pair))
+		if (pair[v] == -1 || (visited[pair[v]] == 0 and dfsKuhn(graph, pair[v], visited, pair)))
 		{
 			pair[v] = vertex;
 			return 1;
@@ -69,10 +71,3 @@ void printKun(int* arr, int sizeSecondShare)
 		printf("%d - %d\n", arr[i], i);
 	}
 }
-
-/*pair = fillArrey(pair, size, -1);
-	for (int i = 0; i < size; i++)
-	{
-		if(dfs(graph, i, visited, pair))
-			visited = fillArrey(visited, size, 0);
-}*/
