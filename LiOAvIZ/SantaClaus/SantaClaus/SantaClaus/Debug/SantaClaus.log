@@ -1,18 +1,7 @@
-﻿  ArrayOperations.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(5,23): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(8,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(18,23): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(22,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(34,23): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(39,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(43,24): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(55,23): warning C4018: <: несоответствие типов со знаком и без знака
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\ArrayOperations.cpp(58,24): warning C4018: <: несоответствие типов со знаком и без знака
-  FileWork.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\FileWork.cpp(49,24): warning C4018: <: несоответствие типов со знаком и без знака
-  QsortRecursive.cpp
-  SantaClaus.cpp
-A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(5,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-  UNISTable.cpp
-  Создание кода...
+﻿  SantaClaus.cpp
+A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(84,15): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(89,26): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(95,30): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(125,30): warning C4018: <: несоответствие типов со знаком и без знака
+A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\SantaClaus\SantaClaus.cpp(205,30): warning C4018: <: несоответствие типов со знаком и без знака
   SantaClaus.vcxproj -> A:\Ycheba\Ali\Studies\LiOAvIZ\SantaClaus\SantaClaus\Debug\SantaClaus.exe

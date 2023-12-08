@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{000af37b-ea15-429f-8fc7-598a9dacfb0e}</ProjectGuid>
+    <ProjectGuid>{a31b3674-065e-43e2-89b2-2af554cf5018}</ProjectGuid>
     <RootNamespace>SantaClaus</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -139,14 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ArrayOperations.cpp" />
-    <ClCompile Include="FileWork.cpp" />
-    <ClCompile Include="QsortRecursive.cpp" />
+    <ClCompile Include="Child.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Present.cpp" />
     <ClCompile Include="SantaClaus.cpp" />
-    <ClCompile Include="UNISTable.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header.h" />
+    <ClInclude Include="Child.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Present.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

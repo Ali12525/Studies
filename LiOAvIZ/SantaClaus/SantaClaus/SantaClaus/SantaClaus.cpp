@@ -1,42 +1,221 @@
-﻿#include "Header.h"
+﻿#include <iostream>
+#include <vector>
+#include <stdlib.h>
+#include "Present.h"
+#include <time.h>
 
-int main()
+#define INF 1000000
+
+#define CHILD_COUNT 180
+#define TWEENS_COUNT 9
+
+#define PRESENTS_COUNT 100
+#define PRESENTS_PER_TYPE 2
+
+using namespace std;
+
+int n = 5;
+
+Present** a;      // Матрица эффективности a[разраб][задача]
+vector<int> xy, yx;             // Паросочетания: xy[разраб], yx[задача]
+vector<char> vx, vy;            // Альтернирующее дерево vx[разраб], vy[задача]
+vector<int> maxrow, mincol;     // Способности, изученность
+
+bool dotry(int i)
 {
-	srand(time(NULL));
+    if (vx[i])
+        return false;
 
-	clock_t start, end;
+    vx[i] = true;
 
-	
+    for (int j = 0; j < n; ++j)
+        if (a[i][j].Weight() - maxrow[i] - mincol[j] == 0)
+            vy[j] = true;
 
-	int** children = readMatrixFromFile("kids_wish.csv", CHILD_COUNT, CHILD_PRESENTS);
-	//Print2dArray(children, CHILD_COUNT, CHILD_PRESENTS);
+    for (int j = 0; j < n; ++j)
+        if (a[i][j].Weight() - maxrow[i] - mincol[j] == 0 && yx[j] == -1)
+        {
+            if (i < TWEENS_COUNT)
+            {
+                int koe = j + 1;
+                if (koe >= n)
+                    koe = j - 1;
 
-	int** presents = readMatrixFromFile("ded_moroz_wish.csv", PRESENTS_COUNT, PRESENTS_CHILD);
-	//Print2dArray(presents, PRESENTS_COUNT, PRESENTS_CHILD);
+                xy[i + 1] = koe;
+                yx[koe] = i + 1;
+            }
 
-	start = clock();
+            xy[i] = j;
+            yx[j] = i;
+            return true;
+        }
 
-	int*** weightChildren = Make3dArrayFrom2d(children, CHILD_COUNT, CHILD_PRESENTS);
-	//Print3dArray(weightChildren, CHILD_COUNT, CHILD_PRESENTS);
+    for (int j = 0; j < n; ++j)
+        if (a[i][j].Weight() - maxrow[i] - mincol[j] == 0 && dotry(yx[j]))
+        {
+            if (i < TWEENS_COUNT)
+            {
+                int koe = j + 1;
+                if (koe >= n)
+                    koe = j - 1;
 
-	std::cout << "\n" << std::endl;
+                xy[i + 1] = koe;
+                yx[koe] = i + 1;
+            }
 
-	int*** weightPresents = Make3dArrayFrom2d(presents, PRESENTS_COUNT, PRESENTS_CHILD);
-	//Print3dArray(weightPresents, PRESENTS_COUNT, PRESENTS_CHILD);
+            xy[i] = j;
+            yx[j] = i;
+            return true;
+        }
 
-	std::cout << "start calc" << std::endl;
+    return false;
+}
 
-	int unis = 0;
+Present* CreatePresent(int num, int weight)
+{
+    Present* tmp = new Present(num, weight);
+    //cout << "[" << tmp->Id() << ", " << tmp->Weight() << "] ";
 
-	int** table = UNISTable(weightChildren, weightPresents, &unis);
+    return tmp;
+}
 
-	//Print2dArray(table, CHILD_COUNT, 3);
+int main() {
 
-	end = clock();
+    srand(time(NULL));
 
-	std::cout << unis << " - unis " << (((double)end - start) / (double)CLOCKS_PER_SEC) / 60 << " min" << std::endl;
+    n = PRESENTS_COUNT * PRESENTS_PER_TYPE;
 
-	writeMatrixInFile(table, CHILD_COUNT);
+    a = (Present**)malloc(n * sizeof(Present*));
+    for (size_t i = 0; i < n; i++)
+    {
+        a[i] = (Present*)malloc(n * sizeof(Present));
+        if (i % 1000 == 0)
+            cout << i << endl;
 
-	return 0;
+        for (size_t j = 0; j < n; j += PRESENTS_PER_TYPE)
+        {
+            if (i >= CHILD_COUNT)
+            {
+                for (size_t k = 0; k < PRESENTS_PER_TYPE; k++)
+                {
+                    a[i][j + k] = *CreatePresent(j, -100);
+                }
+            }
+            else
+            {
+                int weight = rand() % 9 + 1;
+                int nn = rand() % 3;
+                if (nn == 1)
+                    weight = -1;
+
+                for (size_t k = 0; k < PRESENTS_PER_TYPE; k++)
+                {
+                    a[i][j + k] = *CreatePresent(j, weight);
+                }
+            }
+        }
+
+        // cout << endl;
+    }
+
+    cout << "end fill" << endl;
+
+    for (size_t i = 0; i < TWEENS_COUNT; i += 2)
+    {
+        for (size_t j = 0; j < n; j++)
+        {
+            int weight = a[i][j].Weight() + a[i + 1][j].Weight();
+            if (weight > 0)
+                weight += 1000;
+
+            a[i][j].SetWeight(weight);
+            a[i + 1][j].SetWeight(-10);
+        }
+    }
+
+    mincol.assign(n, 0);
+    maxrow.assign(n, 0);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            maxrow[i] = max(maxrow[i], a[i][j].Weight());
+
+    // razr
+    xy.assign(n, -1);
+    // zad
+    yx.assign(n, -1);
+
+    for (int c = 0; c < CHILD_COUNT; ) {
+        // razr
+        vx.assign(n, 0);
+        // zad
+        vy.assign(n, 0);
+
+        int k = 0;
+        for (int i = 0; i < n; ++i)
+        {
+            if (xy[i] == -1 && dotry(i))
+            {
+                if (i < TWEENS_COUNT)
+                {
+                    k += 2;
+                    i++;
+                }
+                else
+                    k++;
+            }
+        }
+
+        c += k;
+        cout << c << endl;
+
+        if (k == 0) {
+            int z = INF;
+            for (int i = 0; i < n; ++i)
+            {
+                if (i < TWEENS_COUNT)
+                {
+                    continue;
+                }
+                if (vx[i])
+                {
+                    for (int j = 0; j < n; ++j)
+                    {
+                        if (!vy[j])
+                            z = min(z, maxrow[i] + mincol[j] - a[i][j].Weight());
+                    }
+                }
+            }
+
+            for (int i = 0; i < n; ++i) {
+                if (i < TWEENS_COUNT)
+                {
+                    continue;
+                }
+                if (vx[i])
+                    maxrow[i] -= z;
+                if (vy[i])
+                    mincol[i] += z;
+
+            }
+        }
+    }
+
+    for (size_t i = 0; i < TWEENS_COUNT; i += 2)
+    {
+        for (size_t j = 0; j < n; j++)
+        {
+            //a[i + 1][j].SetWeight(a[i][j])
+            xy[i + 1] = xy[i];
+        }
+    }
+
+
+    int ans = 0;
+    for (int i = 0; i < n; ++i)
+        ans += a[i][xy[i]].Weight();
+
+    printf("%d\n", ans);
+
+    for (int i = 0; i < n; ++i)
+        cout << "r: " << i << " p: " << a[i][xy[i]].Id() << " w: " << a[i][xy[i]].Weight() << " n: " << xy[i] << endl;
 }
