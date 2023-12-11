@@ -139,14 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Child.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="ArrayOperations.cpp" />
+    <ClCompile Include="FileWork.cpp" />
     <ClCompile Include="Present.cpp" />
     <ClCompile Include="SantaClaus.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Child.h" />
-    <ClInclude Include="Entity.h" />
+    <ClInclude Include="ArrayOperations.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="FileWork.h" />
     <ClInclude Include="Present.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

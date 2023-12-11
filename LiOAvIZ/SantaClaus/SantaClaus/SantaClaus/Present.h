@@ -1,8 +1,6 @@
 #ifndef PRESENT_CLASS
 #define PRESENT_CLASS
 
-//#include "Entity.h"
-
 class Present
 {
 private:

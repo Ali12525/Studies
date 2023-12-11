@@ -1,16 +1,12 @@
 ﻿#include <iostream>
 #include <vector>
 #include <stdlib.h>
-#include "Present.h"
 #include <time.h>
 
-#define INF 1000000
-
-#define CHILD_COUNT 180
-#define TWEENS_COUNT 9
-
-#define PRESENTS_COUNT 100
-#define PRESENTS_PER_TYPE 2
+#include "Present.h"
+#include "Constants.h"
+#include "ArrayOperations.h"
+#include "FileWork.h"
 
 using namespace std;
 
@@ -71,13 +67,12 @@ bool dotry(int i)
     return false;
 }
 
-Present* CreatePresent(int num, int weight)
-{
-    Present* tmp = new Present(num, weight);
-    //cout << "[" << tmp->Id() << ", " << tmp->Weight() << "] ";
-
-    return tmp;
-}
+//Present* CreatePresent(int num, int weight)
+//{
+//    Present* tmp = new Present(num, weight);
+//
+//    return tmp;
+//}
 
 int main() {
 
@@ -89,34 +84,13 @@ int main() {
     for (size_t i = 0; i < n; i++)
     {
         a[i] = (Present*)malloc(n * sizeof(Present));
-        if (i % 1000 == 0)
-            cout << i << endl;
-
-        for (size_t j = 0; j < n; j += PRESENTS_PER_TYPE)
-        {
-            if (i >= CHILD_COUNT)
-            {
-                for (size_t k = 0; k < PRESENTS_PER_TYPE; k++)
-                {
-                    a[i][j + k] = *CreatePresent(j, -100);
-                }
-            }
-            else
-            {
-                int weight = rand() % 9 + 1;
-                int nn = rand() % 3;
-                if (nn == 1)
-                    weight = -1;
-
-                for (size_t k = 0; k < PRESENTS_PER_TYPE; k++)
-                {
-                    a[i][j + k] = *CreatePresent(j, weight);
-                }
-            }
-        }
-
-        // cout << endl;
     }
+
+    int** arrChild = readMatrixFromFile("kids_wish.csv", CHILD_COUNT, CHILD_PRESENTS);
+    int** arrPresent = readMatrixFromFile("ded_moroz_wish.csv", PRESENTS_COUNT, PRESENTS_CHILD);
+
+    AddWeightChild(a, arrChild);
+    AddWeightPresent(a, arrPresent);
 
     cout << "end fill" << endl;
 
