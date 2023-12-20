@@ -1,0 +1,12 @@
+#ifndef CONSTANTS
+#define CONSTANTS
+
+#define CHILD_COUNT 184000
+#define CHILD_PRESENTS 100
+
+#define CHILD_TWEENS 5520 
+
+#define PRESENTS_COUNT 1000
+#define PRESENTS_CHILD 184
+
+#endif
