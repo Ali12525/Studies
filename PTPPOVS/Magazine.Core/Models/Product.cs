@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magazine.Core.Models
 {
-    internal class Product
+    public class Product
     {
         private int id;
         private string definition;
