@@ -1,4 +1,4 @@
-@Magazine.WebApi_HostAddress = http://localhost:5075
+@Magazine.WebApi_HostAddress = http://localhost:5111
 
 GET {{Magazine.WebApi_HostAddress}}/weatherforecast/
 Accept: application/json
