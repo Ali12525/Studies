@@ -10,8 +10,14 @@
 int main()
 {
     setlocale(LC_ALL, "Rus");
-    HANDLE hMutex = OpenMutex(SYNCHRONIZE, FALSE, MUTEX_NAME);
-    if (hMutex == NULL)
+    HANDLE hMutex1 = OpenMutex(SYNCHRONIZE, FALSE, MUTEX_NAME);
+    if (hMutex1 == NULL)
+    {
+        printf("Не удалось открыть мьютекс (%d).\n", GetLastError());
+        return 1;
+    }
+    HANDLE hMutex2 = OpenMutex(SYNCHRONIZE, FALSE, MUTEX_NAME);
+    if (hMutex2 == NULL)
     {
         printf("Не удалось открыть мьютекс (%d).\n", GetLastError());
         return 1;
@@ -27,22 +33,27 @@ int main()
     {
         printf("Не удалось отобразить файл (%d).\n", GetLastError());
         CloseHandle(hFileMapping);
-        CloseHandle(hMutex);
+        CloseHandle(hMutex1);
+        CloseHandle(hMutex2);
         return 1;
     }
 
-    WaitForSingleObject(hMutex, INFINITE);
-    printf("\nПрограмма Read:\n");
-    int result = system((char*)lpMapAddress);
-    if (result == -1)
+    while (1)
     {
-        printf("Ошибка команды\n");
+        WaitForSingleObject(hMutex1, INFINITE);
+        printf("\nПрограмма Read:\n");
+        int result = system((char*)lpMapAddress);
+        if (result == -1)
+        {
+            printf("Ошибка команды\n");
+        }
+        ReleaseMutex(hMutex2);
     }
-    ReleaseMutex(hMutex);
 
     UnmapViewOfFile(lpMapAddress);
     CloseHandle(hFileMapping);
-    CloseHandle(hMutex);
+    CloseHandle(hMutex1);
+    CloseHandle(hMutex2);
 
     return 0;
 }

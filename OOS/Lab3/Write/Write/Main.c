@@ -12,13 +12,13 @@ void startReadProgram()
 {
     PROCESS_INFORMATION pi;
     STARTUPINFO si;
-    WCHAR name[] = L"E:\\OOS\\Lab3\\Read\\x64\\Debug\\Read.exe";
+    WCHAR name[] = L"E:\\OOS\\Lab3\\Write\\x64\\Debug\\Read.exe";
     
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
     
-    if (!CreateProcess(NULL, name, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    if (!CreateProcess(NULL, name, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
     {
         printf("CreateProcess failed (%d).\n", GetLastError());
         return;
@@ -31,8 +31,14 @@ void startReadProgram()
 int main() {
     setlocale(LC_ALL, "Rus");
     char command[100];
-    HANDLE hMutex = CreateMutex(NULL, TRUE, MUTEX_NAME);
-    if (hMutex == NULL)
+    HANDLE hMutex1 = CreateMutex(NULL, TRUE, MUTEX_NAME);
+    if (hMutex1 == NULL)
+    {
+        printf("Не удалось создать мьютекс (%d).\n", GetLastError());
+        return 1;
+    }
+    HANDLE hMutex2 = CreateMutex(NULL, TRUE, MUTEX_NAME);
+    if (hMutex2 == NULL)
     {
         printf("Не удалось создать мьютекс (%d).\n", GetLastError());
         return 1;
@@ -48,20 +54,27 @@ int main() {
     {
         printf("Не удалось отобразить файл (%d).\n", GetLastError());
         CloseHandle(hFileMapping);
-        CloseHandle(hMutex);
+        CloseHandle(hMutex1);
+        CloseHandle(hMutex2);
         return 1;
     }
     startReadProgram();
-    printf("Программа Write:\n");
-    printf("Введите команду: ");
-    fgets(command, sizeof(command), stdin);
-    command[strcspn(command, "\n")] = '\0';
-    sprintf_s((char*)lpMapAddress, MAX_DATA_SIZE, command);
-    ReleaseMutex(hMutex);
 
+    while (1)
+    {
+        printf("Программа Write:\n");
+        printf("Введите команду: ");
+        fgets(command, sizeof(command), stdin);
+        command[strcspn(command, "\n")] = '\0';
+        sprintf_s((char*)lpMapAddress, MAX_DATA_SIZE, command);
+        ReleaseMutex(hMutex1);
+        WaitForSingleObject(hMutex2, INFINITE);
+    }
+    
     UnmapViewOfFile(lpMapAddress);
     CloseHandle(hFileMapping);  
-    CloseHandle(hMutex);
+    CloseHandle(hMutex1);
+    CloseHandle(hMutex2);
 
     return 0;
 }
