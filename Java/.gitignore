@@ -1,0 +1,53 @@
+# Временные файлы NetBeans
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Компилированные файлы классов
+*.class
+
+# Лог-файлы
+*.log
+
+# Файлы BlueJ
+*.ctxt
+
+# Временные файлы Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Файлы пакетов
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Логи сбоев виртуальной машины Java
+hs_err_pid*
+replay_pid*
+
+# Логи и временные файлы системы
+.DS_Store
+Thumbs.db
+
+# Файлы конфигурации IDE
+.idea/
+.vscode/
+
+# Файлы настроек
+*.iml
+
+# Каталоги зависимостей
+/.mvn/
+/target/
+
+# Системные файлы ОС (например, macOS или Windows)
+*.bak
+*.swp
