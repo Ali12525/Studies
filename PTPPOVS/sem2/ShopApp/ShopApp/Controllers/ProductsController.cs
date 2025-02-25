@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShopApp.Models;
+using ShopApp.Services;
 
 // <summary>
 // Provides endpoints for interacting with products
@@ -8,50 +9,23 @@ using ShopApp.Models;
 [ApiController]
 public class ProductsController : ControllerBase
 {
-    private Dictionary<Guid, Product> _products;
-
-    public ProductsController()
+    private readonly IProductService _products;
+    public ProductsController(IProductService products)
     {
-        _products = new Dictionary<Guid, Product>();
-        this.InitProducts();
+        _products = products;
     }
-
-    private void InitProducts()
-    {
-        foreach (var item in Enumerable.Range(8, 180))
-        {
-            var product = new Product()
-            {
-                Description = $"Information about {item}",
-                Id = Guid.NewGuid(),
-                Price = Random.Shared.NextDouble()
-            };
-            _products.Add(product.Id, product);
-        }
-    }
-
     /// <summary>
-    /// Get Products
-    /// </summary>
-    /// <returns>Json array</returns>
-    [HttpGet]
-    public IEnumerable<Product> GetProducts(int start = 0, int take = 10)
-    {
-        return this._products.Skip(start).Take(take).Select(x => x.Value).ToArray();
-    }
-
-    /// <summary>
-    /// Creates a product with the specified description
+    /// Creates a product with the specified description and price.
     /// </summary>
     /// <param name="description">The description</param>
     /// <param name="price">The price of the product</param>
-    /// <returns>Returns the product ID if the product has been successfully added to the database. Otherwise, it returns an empty ID.</returns>
+    /// <returns>Returns the created product if successful. Otherwise, it returns <c>null</c></returns>
     [HttpPost]
-    public Guid CreateProduct(string description, double price)
+    public Product? CreateProduct(string description, double price)
     {
         if (string.IsNullOrEmpty(description) || price < 0)
         {
-            return Guid.Empty;
+            return null;
         }
         var product = new Product()
         {
@@ -59,22 +33,48 @@ public class ProductsController : ControllerBase
             Description = description,
             Price = price
         };
-        if (this._products.TryAdd(product.Id, product))
-        {
-            return product.Id;
-        }
-        return Guid.Empty;
+        return _products.Add(product);
     }
-    
+
     /// <summary>
     /// Get Information about product by id
     /// </summary>
     /// <param name="id">The ID of the product</param>
-    /// <returns>Returns product if the product exists. Otherwise, it returns null</returns>
+    /// <returns>Returns product if the product exists. Otherwise, it returns <c>null</c></returns>
     [HttpGet]
-    public Product? GetProduct(Guid id)
+    public Product? SearchProduct(Guid id)
     {
-        if (this._products.ContainsKey(id)) return this._products[id];
-        return null;
+        return _products.Search(id);
+    }
+
+    /// <summary>
+    /// Remove product by id
+    /// </summary>
+    /// <param name="id">The ID of the product</param>
+    /// <returns>Returns the removed product if it exists. Otherwise, it returns <c>null</c></returns>
+    [HttpPost]
+    public Product? RemoveProduct(Guid id)
+    {
+        return _products.Remove(id);
+    }
+
+    /// <summary>
+    /// Edit product by id, description and price
+    /// </summary>
+    /// <param name="id">The ID of the product</param>
+    /// <param name="description">The new description</param>
+    /// <param name="price">The new price of the product</param>
+    /// <returns>Returns the edited product if it exists. Otherwise, it returns <c>null</c></returns>
+    [HttpPost]
+    public Product? EditProduct(Guid id, string description, double price)
+    {
+        var product = _products.Search(id);
+        if (product == null || string.IsNullOrEmpty(description) || price < 0)
+        {
+            return null;
+        }
+        product.Description = description;
+        product.Price = price;
+        return _products.Edit(product);
     }
 }   

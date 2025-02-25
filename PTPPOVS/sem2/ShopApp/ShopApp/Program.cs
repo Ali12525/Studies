@@ -1,3 +1,5 @@
+using ShopApp.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -8,6 +10,9 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(basePath, "ShopApp.xml");
     options.IncludeXmlComments(xmlPath);
 });
+
+// Регистрация IProductService и его реализации
+builder.Services.AddSingleton<IProductService, ProductService>();
 
 var app = builder.Build();
 
