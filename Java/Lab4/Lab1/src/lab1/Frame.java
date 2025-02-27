@@ -5,9 +5,12 @@
  */
 package lab1;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -497,8 +500,91 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButtonClearTableActionPerformed
 
+    public static void saveToTextFile(File file, SavedState state) {
+        try (FileWriter writer = new FileWriter(file)) {
+            for (RecIntegral recIntegral : state.getListRecIntegral()) {
+                writer.write(recIntegral.getLowLim() + "," +
+                            recIntegral.getUpLim() + "," +
+                            recIntegral.getWidthLim() + "," +
+                            recIntegral.getResIntegral() + "\n");
+            }
+
+            writer.write("---\n");
+
+            for (RecIntegral recIntegral : state.getListTableData()) {
+                writer.write(recIntegral.getLowLim() + "," +
+                            recIntegral.getUpLim() + "," +
+                            recIntegral.getWidthLim() + "," +
+                            recIntegral.getResIntegral() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving the file: " + e.getMessage());
+        }
+    }
+    
+    public static SavedState loadFromTextFile(File file) {
+        LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
+        ArrayList<RecIntegral> listTableData = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            boolean isListRecIntegral = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("---")) {
+                    isListRecIntegral = false;
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                if (parts.length == 4) {
+                    double lowLim = Double.parseDouble(parts[0]);
+                    double upLim = Double.parseDouble(parts[1]);
+                    double widthLim = Double.parseDouble(parts[2]);
+                    double resIntegral = Double.parseDouble(parts[3]);
+
+                    RecIntegral recIntegral = new RecIntegral(lowLim, upLim, widthLim, resIntegral);
+
+                    if (isListRecIntegral) {
+                        listRecIntegral.add(recIntegral);
+                    } else {
+                        listTableData.add(recIntegral);
+                    }
+                }
+            }
+            
+            return new SavedState(listRecIntegral, listTableData);
+        } catch (IOException e) {
+            System.out.println("Error when uploading a file: " + e.getMessage());
+            return null;
+        }
+    }
+    
     private void bSaveObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatMouseClicked
         // TODO add your handling code here:
+        File file = getPathTXTFileToSaved();
+        if (file == null) {
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        int count = model.getRowCount();
+        for (int i = 0; i < count; i++) {
+            double lowLim = (double) model.getValueAt(i, 0);
+            double upLim = (double) model.getValueAt(i, 1);
+            double widthLim = (double) model.getValueAt(i, 2);
+            double resIntegral;
+            Object value = model.getValueAt(i, 3);
+            if (value instanceof Number) {
+                resIntegral = ((Number) value).doubleValue();
+            } else {
+                resIntegral = Double.MAX_VALUE;
+            }
+            RecIntegral dataIntegral = new RecIntegral(lowLim, upLim, widthLim, resIntegral);
+            listTableData.add(dataIntegral);
+        }
+        
+        SavedState state = new SavedState(listRecIntegral, listTableData);
+        saveToTextFile(file, state);
     }//GEN-LAST:event_bSaveObjectTextFormatMouseClicked
 
     private void bSaveObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatActionPerformed
@@ -507,6 +593,29 @@ public class Frame extends javax.swing.JFrame {
 
     private void bLoadObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatMouseClicked
         // TODO add your handling code here:
+        File file = getPathTXTFileToLoad();
+        if (file == null) {
+            return;
+        }
+        SavedState state = loadFromTextFile(file);
+        ArrayList<RecIntegral> tableData = state.getListTableData();
+        listRecIntegral = state.getListRecIntegral();
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        
+        for(RecIntegral dataRow : tableData) {
+            double lowLim = dataRow.getLowLim();
+            double upLim = dataRow.getUpLim();
+            double widthLim = dataRow.getWidthLim();
+            if (dataRow.getResIntegral() == Double.MAX_VALUE) {
+                model.addRow(new Object[]{lowLim, upLim, widthLim});
+            }
+            else {
+                double resIntegral = dataRow.getResIntegral();
+                model.addRow(new Object[]{lowLim, upLim, widthLim, resIntegral});
+            }
+        }
     }//GEN-LAST:event_bLoadObjectTextFormatMouseClicked
 
     private void bLoadObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatActionPerformed
@@ -530,30 +639,30 @@ public class Frame extends javax.swing.JFrame {
         }
     }
     
-    public static File getPathFileToSaved() {
+    private static File getFilePath(int mode, String extension, String description) {
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter serFilter = new FileNameExtensionFilter("Serialized Files (*.ser)", "ser");
-        fileChooser.setFileFilter(serFilter);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(description, extension.substring(1));
+        fileChooser.setFileFilter(filter);
 
         while (true) {
-            int option = fileChooser.showSaveDialog(null);
+            int option = (mode == JFileChooser.SAVE_DIALOG) ? fileChooser.showSaveDialog(null) : fileChooser.showOpenDialog(null);
 
             if (option == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 if (!file.getName().contains(".")) {
-                    file = new File(file.getAbsolutePath() + ".ser");
+                    file = new File(file.getAbsolutePath() + extension);
                 }
-                else if (!file.getName().toLowerCase().endsWith(".ser")) {
+                else if (!file.getName().toLowerCase().endsWith(extension)) {
                     JOptionPane.showMessageDialog(
                             null,
-                            "Файл должен иметь расширение .ser. Пожалуйста, выберите другой файл.",
+                            "Файл должен иметь расширение " + extension + ". Пожалуйста, выберите другой файл.",
                             "Ошибка",
                             JOptionPane.ERROR_MESSAGE
                     );
                     continue;
                 }
 
-                if (file.exists()) {
+                if (mode == JFileChooser.SAVE_DIALOG && file.exists()) {
                     int overwriteOption = JOptionPane.showConfirmDialog(
                             null,
                             "Файл уже существует. Перезаписать?",
@@ -565,52 +674,42 @@ public class Frame extends javax.swing.JFrame {
                     }
                 }
 
+                if (mode == JFileChooser.OPEN_DIALOG && !file.exists()) {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Файл не существует.",
+                            "Ошибка",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    return null;
+                }
+
                 return file;
             } else {
                 return null;
             }
         }
     }
-    
-    public static File getPathFileToLoad() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter serFilter = new FileNameExtensionFilter("Serialized Files (*.ser)", "ser");
-        fileChooser.setFileFilter(serFilter);
-        
-        while (true){
-            int option = fileChooser.showOpenDialog(null);
-            if (option == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
 
-                if (!file.getName().toLowerCase().endsWith(".ser")) {
-                    JOptionPane.showMessageDialog(
-                        null,
-                        "Можно выбрать только файлы с расширением .ser.",
-                        "Ошибка",
-                        JOptionPane.ERROR_MESSAGE
-                    );
-                    continue;
-                }
+    public static File getPathSerFileToSaved() {
+        return getFilePath(JFileChooser.SAVE_DIALOG, ".ser", "Serialized Files (*.ser)");
+    }
 
-                if (file.exists()) {
-                    return file;
-                } else {
-                    JOptionPane.showMessageDialog(
-                        null,
-                        "Файл не существует.",
-                        "Ошибка",
-                        JOptionPane.ERROR_MESSAGE
-                    );
-                    return null;
-                }
-            }
-        return null;
-        }
+    public static File getPathSerFileToLoad() {
+        return getFilePath(JFileChooser.OPEN_DIALOG, ".ser", "Serialized Files (*.ser)");
+    }
+
+    public static File getPathTXTFileToSaved() {
+        return getFilePath(JFileChooser.SAVE_DIALOG, ".txt", "Text Files (*.txt)");
+    }
+
+    public static File getPathTXTFileToLoad() {
+        return getFilePath(JFileChooser.OPEN_DIALOG, ".txt", "Text Files (*.txt)");
     }
     
     private void bSaveObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathFileToSaved();
+        File file = getPathSerFileToSaved();
         if (file == null) {
             return;
         }
@@ -641,7 +740,7 @@ public class Frame extends javax.swing.JFrame {
 
     private void bLoadObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathFileToLoad();
+        File file = getPathSerFileToLoad();
         if (file == null) {
             return;
         }

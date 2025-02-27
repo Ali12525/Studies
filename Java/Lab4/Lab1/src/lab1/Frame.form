@@ -329,9 +329,6 @@
         </Property>
         <Property name="text" type="java.lang.String" value="&#x412; &#x434;&#x432;&#x43e;&#x438;&#x447;&#x43d;&#x43e;&#x43c; &#x432;&#x438;&#x434;&#x435;"/>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="&#x412; &#x434;&#x432;&#x43e;&#x438;&#x447;&#x43d;&#x43e;&#x43c; &#x432;&#x438;&#x434;&#x435;"/>
-      </AccessibilityProperties>
     </Component>
   </SubComponents>
 </Form>
