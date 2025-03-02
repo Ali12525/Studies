@@ -1,14 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package lab1;
 
 /**
- *
- * @author student
+ * Исключение, которое выбрасывается при некорректных данных.
+ * Наследуется от класса Exception.
  */
 public class DataException extends Exception {
+    
+     /**
+     * Создает новое исключение с указанным сообщением.
+     *
+     * @param message Сообщение об ошибке.
+     */
     public DataException (String message){
         super(message);
     }

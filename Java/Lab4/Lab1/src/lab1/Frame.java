@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lab1;
 
 import java.io.BufferedReader;
@@ -20,10 +15,7 @@ import java.util.LinkedList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-/**
- *
- * @author student
- */
+
 public class Frame extends javax.swing.JFrame {
 
     /**
@@ -329,7 +321,6 @@ public class Frame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
-    ArrayList<RecIntegral> listTableData = new ArrayList<>();
     
     private void jTextFieldSHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSHActionPerformed
         // TODO add your handling code here:
@@ -360,10 +351,8 @@ public class Frame extends javax.swing.JFrame {
         {
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             
-            
             int selectRow = jTable1.getSelectedRow();
-            if(selectRow == -1)
-                return;
+            if(selectRow == -1) return;
             model.removeRow(selectRow);
         }
     }//GEN-LAST:event_jButtonDelMouseClicked
@@ -396,20 +385,16 @@ public class Frame extends javax.swing.JFrame {
         }
         
         if (isReversed)
-        {
             sum = -sum;
-        }
         
         return sum;
     }
     
     private void jButtonResMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonResMouseClicked
         // TODO add your handling code here:
-        if(jTable1.getRowCount() == 0)
-            return;
+        if(jTable1.getRowCount() == 0) return;
         int selectRow = jTable1.getSelectedRow();
-        if(selectRow == -1)
-            return;
+        if(selectRow == -1) return;
         double lowerBorder = (double) jTable1.getValueAt(selectRow, 0);
         double upperBorder = (double) jTable1.getValueAt(selectRow, 1);
         double weight = (double) jTable1.getValueAt(selectRow, 2);
@@ -511,20 +496,20 @@ public class Frame extends javax.swing.JFrame {
 
             writer.write("---\n");
 
-            for (RecIntegral recIntegral : state.getListTableData()) {
+            for (RecIntegral recIntegral : state.getArrListTableData()) {
                 writer.write(recIntegral.getLowLim() + "," +
                             recIntegral.getUpLim() + "," +
                             recIntegral.getWidthLim() + "," +
                             recIntegral.getResIntegral() + "\n");
             }
         } catch (IOException e) {
-            System.out.println("Error saving the file: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
         }
     }
     
     public static SavedState loadFromTextFile(File file) {
         LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
-        ArrayList<RecIntegral> listTableData = new ArrayList<>();
+        ArrayList<RecIntegral> arrTableData = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -548,14 +533,14 @@ public class Frame extends javax.swing.JFrame {
                     if (isListRecIntegral) {
                         listRecIntegral.add(recIntegral);
                     } else {
-                        listTableData.add(recIntegral);
+                        arrTableData.add(recIntegral);
                     }
                 }
             }
             
-            return new SavedState(listRecIntegral, listTableData);
+            return new SavedState(listRecIntegral, arrTableData);
         } catch (IOException e) {
-            System.out.println("Error when uploading a file: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -563,11 +548,35 @@ public class Frame extends javax.swing.JFrame {
     private void bSaveObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatMouseClicked
         // TODO add your handling code here:
         File file = getPathTXTFileToSaved();
-        if (file == null) {
-            return;
+        if (file == null) return;
+        ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
+        SavedState state = new SavedState(listRecIntegral, arrTableData);
+        saveToTextFile(file, state);
+    }//GEN-LAST:event_bSaveObjectTextFormatMouseClicked
+
+    private void bSaveObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bSaveObjectTextFormatActionPerformed
+
+    private void bLoadObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatMouseClicked
+        // TODO add your handling code here:
+        File file = getPathTXTFileToLoad();
+        if (file == null) return;
+        SavedState state = loadFromTextFile(file);
+        if (state != null) {
+            listRecIntegral = state.getListRecIntegral();
+            setDataToTable(state.getArrListTableData());
         }
+    }//GEN-LAST:event_bLoadObjectTextFormatMouseClicked
+
+    private void bLoadObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bLoadObjectTextFormatActionPerformed
+
+    private ArrayList<RecIntegral> getDataArrListFromTable() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         int count = model.getRowCount();
+        ArrayList<RecIntegral> data = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             double lowLim = (double) model.getValueAt(i, 0);
             double upLim = (double) model.getValueAt(i, 1);
@@ -579,54 +588,28 @@ public class Frame extends javax.swing.JFrame {
             } else {
                 resIntegral = Double.MAX_VALUE;
             }
-            RecIntegral dataIntegral = new RecIntegral(lowLim, upLim, widthLim, resIntegral);
-            listTableData.add(dataIntegral);
+            data.add(new RecIntegral(lowLim, upLim, widthLim, resIntegral));
         }
-        
-        SavedState state = new SavedState(listRecIntegral, listTableData);
-        saveToTextFile(file, state);
-    }//GEN-LAST:event_bSaveObjectTextFormatMouseClicked
+        return data;
+    }
 
-    private void bSaveObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bSaveObjectTextFormatActionPerformed
-
-    private void bLoadObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatMouseClicked
-        // TODO add your handling code here:
-        File file = getPathTXTFileToLoad();
-        if (file == null) {
-            return;
-        }
-        SavedState state = loadFromTextFile(file);
-        ArrayList<RecIntegral> tableData = state.getListTableData();
-        listRecIntegral = state.getListRecIntegral();
-        
+    private void setDataToTable(ArrayList<RecIntegral> data) {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
-        
-        for(RecIntegral dataRow : tableData) {
-            double lowLim = dataRow.getLowLim();
-            double upLim = dataRow.getUpLim();
-            double widthLim = dataRow.getWidthLim();
-            if (dataRow.getResIntegral() == Double.MAX_VALUE) {
-                model.addRow(new Object[]{lowLim, upLim, widthLim});
-            }
-            else {
-                double resIntegral = dataRow.getResIntegral();
-                model.addRow(new Object[]{lowLim, upLim, widthLim, resIntegral});
+        for (RecIntegral row : data) {
+            if (row.getResIntegral() == Double.MAX_VALUE) {
+                model.addRow(new Object[]{row.getLowLim(), row.getUpLim(), row.getWidthLim()});
+            } else {
+                model.addRow(new Object[]{row.getLowLim(), row.getUpLim(), row.getWidthLim(), row.getResIntegral()});
             }
         }
-    }//GEN-LAST:event_bLoadObjectTextFormatMouseClicked
-
-    private void bLoadObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bLoadObjectTextFormatActionPerformed
-
+    }
+    
     public static void saveToBinaryFile(File file, SavedState data) {
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
         oos.writeObject(data);
     } catch (IOException e) {
-        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -634,7 +617,7 @@ public class Frame extends javax.swing.JFrame {
     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
         return (SavedState) ois.readObject();
     } catch (IOException | ClassNotFoundException e) {
-        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
         return null;
         }
     }
@@ -649,6 +632,7 @@ public class Frame extends javax.swing.JFrame {
 
             if (option == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
+                if (file == null) return null;
                 if (!file.getName().contains(".")) {
                     file = new File(file.getAbsolutePath() + extension);
                 }
@@ -710,27 +694,10 @@ public class Frame extends javax.swing.JFrame {
     private void bSaveObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectBinFormatMouseClicked
         // TODO add your handling code here:
         File file = getPathSerFileToSaved();
-        if (file == null) {
-            return;
-        }
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        int count = model.getRowCount();
-        for (int i = 0; i < count; i++) {
-            double lowLim = (double) model.getValueAt(i, 0);
-            double upLim = (double) model.getValueAt(i, 1);
-            double widthLim = (double) model.getValueAt(i, 2);
-            double resIntegral;
-            Object value = model.getValueAt(i, 3);
-            if (value instanceof Number) {
-                resIntegral = ((Number) value).doubleValue();
-            } else {
-                resIntegral = Double.MAX_VALUE;
-            }
-            RecIntegral dataIntegral = new RecIntegral(lowLim, upLim, widthLim, resIntegral);
-            listTableData.add(dataIntegral);
-        }
+        if (file == null) return;
         
-        SavedState state = new SavedState(listRecIntegral, listTableData);
+        ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
+        SavedState state = new SavedState(listRecIntegral, arrTableData);
         saveToBinaryFile(file, state);
     }//GEN-LAST:event_bSaveObjectBinFormatMouseClicked
 
@@ -741,27 +708,11 @@ public class Frame extends javax.swing.JFrame {
     private void bLoadObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectBinFormatMouseClicked
         // TODO add your handling code here:
         File file = getPathSerFileToLoad();
-        if (file == null) {
-            return;
-        }
+        if (file == null) return;
         SavedState state = loadFromBinaryFile(file);
-        ArrayList<RecIntegral> tableData = state.getListTableData();
-        listRecIntegral = state.getListRecIntegral();
-        
-        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        model.setRowCount(0);
-        
-        for(RecIntegral dataRow : tableData) {
-            double lowLim = dataRow.getLowLim();
-            double upLim = dataRow.getUpLim();
-            double widthLim = dataRow.getWidthLim();
-            if (dataRow.getResIntegral() == Double.MAX_VALUE) {
-                model.addRow(new Object[]{lowLim, upLim, widthLim});
-            }
-            else {
-                double resIntegral = dataRow.getResIntegral();
-                model.addRow(new Object[]{lowLim, upLim, widthLim, resIntegral});
-            }
+        if (state != null) {
+            listRecIntegral = state.getListRecIntegral();
+            setDataToTable(state.getArrListTableData());
         }
     }//GEN-LAST:event_bLoadObjectBinFormatMouseClicked
 
