@@ -2,7 +2,7 @@
   "6e5bb1f2-8f3d-4c3e-bce7-fcbabf42310d": {
     "Id": "6e5bb1f2-8f3d-4c3e-bce7-fcbabf42310d",
     "Description": "Product 1",
-    "Price": 100.5
+    "Price": 102
   },
   "23a742ad-1b88-43e5-981c-16adcb70cc9f": {
     "Id": "23a742ad-1b88-43e5-981c-16adcb70cc9f",

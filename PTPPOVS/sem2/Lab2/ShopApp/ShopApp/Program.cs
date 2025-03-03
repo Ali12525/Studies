@@ -11,7 +11,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-// Регистрация IProductService и его реализации
 builder.Services.AddSingleton<IProductService, ProductService>();
 
 var app = builder.Build();
