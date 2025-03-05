@@ -357,6 +357,13 @@ public class Frame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonDelMouseClicked
 
+    private void validDataWeight(double lowerBorder, double upperBorder, double weight) throws DataException {
+        double absA = Math.abs(upperBorder - lowerBorder);
+        if ((absA) < weight) {
+            throw new DataException("Интервал должен быть не меньше шага");
+        }
+    }
+    
     public double calculateIntegral(double lowerBorder, double upperBorder, double weight) {
         boolean isReversed = false;
         
@@ -418,13 +425,15 @@ public class Frame extends javax.swing.JFrame {
             double upLim = Double.parseDouble(jTextFieldVG.getText());
             validData(upLim);
             
+            
+            validDataWeight(lowLim, upLim, widthLim);
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.addRow(new Object[]{lowLim, upLim, widthLim});
         }
         catch(DataException | NumberFormatException ex){
             // Вывод сообщения об ошибке
             javax.swing.JOptionPane.showMessageDialog(this,
-            "Ошибка ввода! Значение должно быть числом в пределах от 0.000001 до 1000000.",
+            ex.getMessage(),
             "Ошибка",
             javax.swing.JOptionPane.ERROR_MESSAGE);
         }

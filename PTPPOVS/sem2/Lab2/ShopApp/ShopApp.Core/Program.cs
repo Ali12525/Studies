@@ -1,17 +1,13 @@
-using ShopApp.Services;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     var basePath = AppContext.BaseDirectory;
-    var xmlPath = Path.Combine(basePath, "ShopApp.xml");
+    var xmlPath = Path.Combine(basePath, "ShopApp.Core.xml");
     options.IncludeXmlComments(xmlPath);
 });
-
-builder.Services.AddSingleton<IProductService, ProductService>();
 
 var app = builder.Build();
 

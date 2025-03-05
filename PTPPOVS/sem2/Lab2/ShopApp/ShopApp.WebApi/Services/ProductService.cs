@@ -32,7 +32,7 @@ namespace ShopApp.Services
         {
             if (!File.Exists(_databaseFilePath))
             {
-                return; // Если файла нет, просто выходим
+                return;
             }
 
             try
@@ -66,18 +66,18 @@ namespace ShopApp.Services
         {
             try
             {
-                _fileMutex.WaitOne(); // Блокируем доступ к файлу
+                _fileMutex.WaitOne();
 
                 string json = JsonSerializer.Serialize(_products, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_databaseFilePath, json);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при сохранении базы данных: {ex.Message}");
+                Console.WriteLine($"Error save file: {ex.Message}");
             }
             finally
             {
-                _fileMutex.ReleaseMutex(); // Разблокируем доступ
+                _fileMutex.ReleaseMutex();
             }
         }
 

@@ -1,0 +1,27 @@
+{
+  "2e2c520d-aa38-42ea-bd8d-4174566577cb": {
+    "Id": "2e2c520d-aa38-42ea-bd8d-4174566577cb",
+    "Description": "ananas",
+    "Price": 1000
+  },
+  "d2235d8c-a0c7-4982-916c-476377c8ce8f": {
+    "Id": "d2235d8c-a0c7-4982-916c-476377c8ce8f",
+    "Description": "ananas",
+    "Price": 1000
+  },
+  "e15bbdd2-766a-4fa4-85a4-f8472e1bba61": {
+    "Id": "e15bbdd2-766a-4fa4-85a4-f8472e1bba61",
+    "Description": "ananas",
+    "Price": 1000
+  },
+  "cb63e20e-7516-41a8-8305-3d76ea631516": {
+    "Id": "cb63e20e-7516-41a8-8305-3d76ea631516",
+    "Description": "ananas",
+    "Price": 1000
+  },
+  "ae763bb3-85d5-40eb-a8cc-0581c463be2f": {
+    "Id": "ae763bb3-85d5-40eb-a8cc-0581c463be2f",
+    "Description": "ananas",
+    "Price": 1000
+  }
+}
