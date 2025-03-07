@@ -49,10 +49,13 @@ public class Frame extends javax.swing.JFrame {
         jButtonFillTable = new javax.swing.JButton();
         bSaveObjectTextFormat = new javax.swing.JButton();
         bLoadObjectTextFormat = new javax.swing.JButton();
-        bSaveObjectBinFormat = new javax.swing.JButton();
-        bLoadObjectBinFormat = new javax.swing.JButton();
-        label4 = new java.awt.Label();
-        label5 = new java.awt.Label();
+        bSaveObjectSerBinFormat = new javax.swing.JButton();
+        bLoadObjectSerBinFormat = new javax.swing.JButton();
+        textTXT = new java.awt.Label();
+        textSer = new java.awt.Label();
+        textExtern = new java.awt.Label();
+        bSaveObjecExternBinFormat = new javax.swing.JButton();
+        bLoadObjecExterntBinFormat = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -192,53 +195,95 @@ public class Frame extends javax.swing.JFrame {
             }
         });
 
-        bSaveObjectBinFormat.setText("Сохранить");
-        bSaveObjectBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
+        bSaveObjectSerBinFormat.setText("Сохранить");
+        bSaveObjectSerBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                bSaveObjectBinFormatMouseClicked(evt);
+                bSaveObjectSerBinFormatMouseClicked(evt);
             }
         });
-        bSaveObjectBinFormat.addActionListener(new java.awt.event.ActionListener() {
+        bSaveObjectSerBinFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bSaveObjectBinFormatActionPerformed(evt);
+                bSaveObjectSerBinFormatActionPerformed(evt);
             }
         });
 
-        bLoadObjectBinFormat.setText("Загрузить");
-        bLoadObjectBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
+        bLoadObjectSerBinFormat.setText("Загрузить");
+        bLoadObjectSerBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                bLoadObjectBinFormatMouseClicked(evt);
+                bLoadObjectSerBinFormatMouseClicked(evt);
             }
         });
-        bLoadObjectBinFormat.addActionListener(new java.awt.event.ActionListener() {
+        bLoadObjectSerBinFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bLoadObjectBinFormatActionPerformed(evt);
+                bLoadObjectSerBinFormatActionPerformed(evt);
             }
         });
 
-        label4.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        label4.setText("В текстовом виде");
+        textTXT.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        textTXT.setText("В текстовом виде");
 
-        label5.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        label5.setText("В двоичном виде");
+        textSer.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        textSer.setText("В двоичном виде с сериализацией");
+
+        textExtern.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        textExtern.setText("В двоичном виде с экстернализацией");
+
+        bSaveObjecExternBinFormat.setText("Сохранить");
+        bSaveObjecExternBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bSaveObjecExternBinFormatMouseClicked(evt);
+            }
+        });
+        bSaveObjecExternBinFormat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bSaveObjecExternBinFormatActionPerformed(evt);
+            }
+        });
+
+        bLoadObjecExterntBinFormat.setText("Загрузить");
+        bLoadObjecExterntBinFormat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bLoadObjecExterntBinFormatMouseClicked(evt);
+            }
+        });
+        bLoadObjecExterntBinFormat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bLoadObjecExterntBinFormatActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(bSaveObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(bLoadObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(24, 24, 24)
-                        .addComponent(bSaveObjectBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(bLoadObjectBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 609, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 835, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(bSaveObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(bLoadObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(textTXT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(11, 11, 11)
+                                    .addComponent(bSaveObjectSerBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(bLoadObjectSerBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(textSer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(bSaveObjecExternBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(bLoadObjecExterntBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(textExtern, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -246,44 +291,27 @@ public class Frame extends javax.swing.JFrame {
                                     .addComponent(label1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
                                 .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jTextFieldVG, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jTextFieldNG, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                                    .addComponent(jTextFieldSH)))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jTextFieldVG, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
-                                    .addComponent(jButtonRes, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jTextFieldNG, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
-                                        .addComponent(jTextFieldSH))
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(134, 134, 134)
-                                            .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jButtonClearTable, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(jButtonDel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(jButtonFillTable, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(15, Short.MAX_VALUE))
+                                .addComponent(jButtonRes, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonClearTable, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonDel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonFillTable, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButtonDel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButtonRes, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(16, 16, 16))
-                    .addGroup(layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldNG, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -291,31 +319,43 @@ public class Frame extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldVG, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(23, 23, 23)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextFieldSH, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonClearTable, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(64, 64, 64))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButtonFillTable, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButtonDel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonRes, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(16, 16, 16)
+                        .addComponent(jButtonClearTable, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonFillTable, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(textTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(textSer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(textExtern, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bSaveObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bLoadObjectTextFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bSaveObjectBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bLoadObjectBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bSaveObjectSerBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bLoadObjectSerBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bSaveObjecExternBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bLoadObjecExterntBinFormat, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
-        label5.getAccessibleContext().setAccessibleName("В двоичном виде");
+        textExtern.getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -356,13 +396,6 @@ public class Frame extends javax.swing.JFrame {
             model.removeRow(selectRow);
         }
     }//GEN-LAST:event_jButtonDelMouseClicked
-
-    private void validDataWeight(double lowerBorder, double upperBorder, double weight) throws DataException {
-        double absA = Math.abs(upperBorder - lowerBorder);
-        if ((absA) < weight) {
-            throw new DataException("Интервал должен быть не меньше шага");
-        }
-    }
     
     public double calculateIntegral(double lowerBorder, double upperBorder, double weight) {
         boolean isReversed = false;
@@ -409,7 +442,14 @@ public class Frame extends javax.swing.JFrame {
         jTable1.setValueAt(calculateIntegral(lowerBorder, upperBorder, weight), selectRow, 3);
     }//GEN-LAST:event_jButtonResMouseClicked
 
-    private void validData(double data) throws DataException {
+    private void validDataWeight(double lowerBorder, double upperBorder, double weight) throws DataException {
+        double absA = Math.abs(upperBorder - lowerBorder);
+        if ((absA) < weight) {
+            throw new DataException("Интервал должен быть не меньше шага");
+        }
+    }
+    
+    private void validateDataRange(double data) throws DataException {
         if (data == 0 || (data >= 0.01 && data <= 10)) {
             throw new DataException("Значение должно быть в пределах от 0.000001 до 1000000.");
         }
@@ -419,19 +459,17 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
         try{
             double widthLim = Double.parseDouble(jTextFieldSH.getText());
-            validData(widthLim);
+            validateDataRange(widthLim);
             double lowLim = Double.parseDouble(jTextFieldNG.getText());
-            validData(lowLim);
+            validateDataRange(lowLim);
             double upLim = Double.parseDouble(jTextFieldVG.getText());
-            validData(upLim);
-            
+            validateDataRange(upLim);
             
             validDataWeight(lowLim, upLim, widthLim);
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.addRow(new Object[]{lowLim, upLim, widthLim});
         }
         catch(DataException | NumberFormatException ex){
-            // Вывод сообщения об ошибке
             javax.swing.JOptionPane.showMessageDialog(this,
             ex.getMessage(),
             "Ошибка",
@@ -631,6 +669,23 @@ public class Frame extends javax.swing.JFrame {
         }
     }
     
+    public static void saveToBinaryExternFile(File file, SavedStateExtern data) {
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+        oos.writeObject(data);
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public static SavedStateExtern loadFromBinaryExternFile(File file) {
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+        return (SavedStateExtern) ois.readObject();
+    } catch (IOException | ClassNotFoundException e) {
+        JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+        return null;
+        }
+    }
+    
     private static File getFilePath(int mode, String extension, String description) {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(description, extension.substring(1));
@@ -700,7 +755,15 @@ public class Frame extends javax.swing.JFrame {
         return getFilePath(JFileChooser.OPEN_DIALOG, ".txt", "Text Files (*.txt)");
     }
     
-    private void bSaveObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectBinFormatMouseClicked
+    public static File getPathExternFileToSaved() {
+        return getFilePath(JFileChooser.SAVE_DIALOG, ".dat", "Externalizable Files (*.dat)");
+    }
+
+    public static File getPathExternFileToLoad() {
+        return getFilePath(JFileChooser.OPEN_DIALOG, ".dat", "Externalizable Files (*.dat)");
+    }
+    
+    private void bSaveObjectSerBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectSerBinFormatMouseClicked
         // TODO add your handling code here:
         File file = getPathSerFileToSaved();
         if (file == null) return;
@@ -708,13 +771,13 @@ public class Frame extends javax.swing.JFrame {
         ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
         SavedState state = new SavedState(listRecIntegral, arrTableData);
         saveToBinaryFile(file, state);
-    }//GEN-LAST:event_bSaveObjectBinFormatMouseClicked
+    }//GEN-LAST:event_bSaveObjectSerBinFormatMouseClicked
 
-    private void bSaveObjectBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectBinFormatActionPerformed
+    private void bSaveObjectSerBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectSerBinFormatActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_bSaveObjectBinFormatActionPerformed
+    }//GEN-LAST:event_bSaveObjectSerBinFormatActionPerformed
 
-    private void bLoadObjectBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectBinFormatMouseClicked
+    private void bLoadObjectSerBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectSerBinFormatMouseClicked
         // TODO add your handling code here:
         File file = getPathSerFileToLoad();
         if (file == null) return;
@@ -723,11 +786,40 @@ public class Frame extends javax.swing.JFrame {
             listRecIntegral = state.getListRecIntegral();
             setDataToTable(state.getArrListTableData());
         }
-    }//GEN-LAST:event_bLoadObjectBinFormatMouseClicked
+    }//GEN-LAST:event_bLoadObjectSerBinFormatMouseClicked
 
-    private void bLoadObjectBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjectBinFormatActionPerformed
+    private void bLoadObjectSerBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjectSerBinFormatActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_bLoadObjectBinFormatActionPerformed
+    }//GEN-LAST:event_bLoadObjectSerBinFormatActionPerformed
+
+    private void bSaveObjecExternBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjecExternBinFormatMouseClicked
+        // TODO add your handling code here:
+        File file = getPathExternFileToSaved();
+        if (file == null) return;
+        
+        ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
+        SavedStateExtern state = new SavedStateExtern(listRecIntegral, arrTableData);
+        saveToBinaryExternFile(file, state);
+    }//GEN-LAST:event_bSaveObjecExternBinFormatMouseClicked
+
+    private void bSaveObjecExternBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjecExternBinFormatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bSaveObjecExternBinFormatActionPerformed
+
+    private void bLoadObjecExterntBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjecExterntBinFormatMouseClicked
+        // TODO add your handling code here:
+        File file = getPathExternFileToLoad();
+        if (file == null) return;
+        SavedStateExtern state = loadFromBinaryExternFile(file);
+        if (state != null) {
+            listRecIntegral = state.getListRecIntegral();
+            setDataToTable(state.getArrListTableData());
+        }
+    }//GEN-LAST:event_bLoadObjecExterntBinFormatMouseClicked
+
+    private void bLoadObjecExterntBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjecExterntBinFormatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bLoadObjecExterntBinFormatActionPerformed
 
     /**
      * @param args the command line arguments
@@ -765,9 +857,11 @@ public class Frame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bLoadObjectBinFormat;
+    private javax.swing.JButton bLoadObjecExterntBinFormat;
+    private javax.swing.JButton bLoadObjectSerBinFormat;
     private javax.swing.JButton bLoadObjectTextFormat;
-    private javax.swing.JButton bSaveObjectBinFormat;
+    private javax.swing.JButton bSaveObjecExternBinFormat;
+    private javax.swing.JButton bSaveObjectSerBinFormat;
     private javax.swing.JButton bSaveObjectTextFormat;
     private javax.swing.JButton jButtonAdd;
     private javax.swing.JButton jButtonClearTable;
@@ -782,7 +876,8 @@ public class Frame extends javax.swing.JFrame {
     private java.awt.Label label1;
     private java.awt.Label label2;
     private java.awt.Label label3;
-    private java.awt.Label label4;
-    private java.awt.Label label5;
+    private java.awt.Label textExtern;
+    private java.awt.Label textSer;
+    private java.awt.Label textTXT;
     // End of variables declaration//GEN-END:variables
 }
