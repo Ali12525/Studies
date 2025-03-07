@@ -1,23 +1,12 @@
 package lab1;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Frame extends javax.swing.JFrame {
-
+    private final FileManager fileManager = new FileManager(this);
     /**
      * Creates new form Frame
      */
@@ -442,19 +431,6 @@ public class Frame extends javax.swing.JFrame {
         jTable1.setValueAt(calculateIntegral(lowerBorder, upperBorder, weight), selectRow, 3);
     }//GEN-LAST:event_jButtonResMouseClicked
 
-    private void validDataWeight(double lowerBorder, double upperBorder, double weight) throws DataException {
-        double absA = Math.abs(upperBorder - lowerBorder);
-        if ((absA) < weight) {
-            throw new DataException("Интервал должен быть не меньше шага");
-        }
-    }
-    
-    private void validateDataRange(double data) throws DataException {
-        if (data == 0 || (data >= 0.01 && data <= 10)) {
-            throw new DataException("Значение должно быть в пределах от 0.000001 до 1000000.");
-        }
-    }
-    
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
         // TODO add your handling code here:
         try{
@@ -531,73 +507,13 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButtonClearTableActionPerformed
 
-    public static void saveToTextFile(File file, SavedState state) {
-        try (FileWriter writer = new FileWriter(file)) {
-            for (RecIntegral recIntegral : state.getListRecIntegral()) {
-                writer.write(recIntegral.getLowLim() + "," +
-                            recIntegral.getUpLim() + "," +
-                            recIntegral.getWidthLim() + "," +
-                            recIntegral.getResIntegral() + "\n");
-            }
-
-            writer.write("---\n");
-
-            for (RecIntegral recIntegral : state.getArrListTableData()) {
-                writer.write(recIntegral.getLowLim() + "," +
-                            recIntegral.getUpLim() + "," +
-                            recIntegral.getWidthLim() + "," +
-                            recIntegral.getResIntegral() + "\n");
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    public static SavedState loadFromTextFile(File file) {
-        LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
-        ArrayList<RecIntegral> arrTableData = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            boolean isListRecIntegral = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (line.equals("---")) {
-                    isListRecIntegral = false;
-                    continue;
-                }
-
-                String[] parts = line.split(",");
-                if (parts.length == 4) {
-                    double lowLim = Double.parseDouble(parts[0]);
-                    double upLim = Double.parseDouble(parts[1]);
-                    double widthLim = Double.parseDouble(parts[2]);
-                    double resIntegral = Double.parseDouble(parts[3]);
-
-                    RecIntegral recIntegral = new RecIntegral(lowLim, upLim, widthLim, resIntegral);
-
-                    if (isListRecIntegral) {
-                        listRecIntegral.add(recIntegral);
-                    } else {
-                        arrTableData.add(recIntegral);
-                    }
-                }
-            }
-            
-            return new SavedState(listRecIntegral, arrTableData);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-    }
-    
     private void bSaveObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathTXTFileToSaved();
+        File file = fileManager.getPathTXTFileToSaved();
         if (file == null) return;
         ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
         SavedState state = new SavedState(listRecIntegral, arrTableData);
-        saveToTextFile(file, state);
+        fileManager.saveToTextFile(file, state);
     }//GEN-LAST:event_bSaveObjectTextFormatMouseClicked
 
     private void bSaveObjectTextFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectTextFormatActionPerformed
@@ -606,9 +522,9 @@ public class Frame extends javax.swing.JFrame {
 
     private void bLoadObjectTextFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectTextFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathTXTFileToLoad();
+        File file = fileManager.getPathTXTFileToLoad();
         if (file == null) return;
-        SavedState state = loadFromTextFile(file);
+        SavedState state = fileManager.loadFromTextFile(file);
         if (state != null) {
             listRecIntegral = state.getListRecIntegral();
             setDataToTable(state.getArrListTableData());
@@ -651,125 +567,14 @@ public class Frame extends javax.swing.JFrame {
         }
     }
     
-    public static void saveToBinaryFile(File file, SavedState data) {
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-        oos.writeObject(data);
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    public static SavedState loadFromBinaryFile(File file) {
-    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        return (SavedState) ois.readObject();
-    } catch (IOException | ClassNotFoundException e) {
-        JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-        return null;
-        }
-    }
-    
-    public static void saveToBinaryExternFile(File file, SavedStateExtern data) {
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-        oos.writeObject(data);
-    } catch (IOException e) {
-        JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    
-    public static SavedStateExtern loadFromBinaryExternFile(File file) {
-    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-        return (SavedStateExtern) ois.readObject();
-    } catch (IOException | ClassNotFoundException e) {
-        JOptionPane.showMessageDialog(null, "Ошибка при загрузке файла: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-        return null;
-        }
-    }
-    
-    private static File getFilePath(int mode, String extension, String description) {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(description, extension.substring(1));
-        fileChooser.setFileFilter(filter);
-
-        while (true) {
-            int option = (mode == JFileChooser.SAVE_DIALOG) ? fileChooser.showSaveDialog(null) : fileChooser.showOpenDialog(null);
-
-            if (option == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                if (file == null) return null;
-                if (!file.getName().contains(".")) {
-                    file = new File(file.getAbsolutePath() + extension);
-                }
-                else if (!file.getName().toLowerCase().endsWith(extension)) {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Файл должен иметь расширение " + extension + ". Пожалуйста, выберите другой файл.",
-                            "Ошибка",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    continue;
-                }
-
-                if (mode == JFileChooser.SAVE_DIALOG && file.exists()) {
-                    int overwriteOption = JOptionPane.showConfirmDialog(
-                            null,
-                            "Файл уже существует. Перезаписать?",
-                            "Предупреждение",
-                            JOptionPane.YES_NO_OPTION
-                    );
-                    if (overwriteOption != JOptionPane.YES_OPTION) {
-                        return null;
-                    }
-                }
-
-                if (mode == JFileChooser.OPEN_DIALOG && !file.exists()) {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Файл не существует.",
-                            "Ошибка",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    return null;
-                }
-
-                return file;
-            } else {
-                return null;
-            }
-        }
-    }
-
-    public static File getPathSerFileToSaved() {
-        return getFilePath(JFileChooser.SAVE_DIALOG, ".ser", "Serialized Files (*.ser)");
-    }
-
-    public static File getPathSerFileToLoad() {
-        return getFilePath(JFileChooser.OPEN_DIALOG, ".ser", "Serialized Files (*.ser)");
-    }
-
-    public static File getPathTXTFileToSaved() {
-        return getFilePath(JFileChooser.SAVE_DIALOG, ".txt", "Text Files (*.txt)");
-    }
-
-    public static File getPathTXTFileToLoad() {
-        return getFilePath(JFileChooser.OPEN_DIALOG, ".txt", "Text Files (*.txt)");
-    }
-    
-    public static File getPathExternFileToSaved() {
-        return getFilePath(JFileChooser.SAVE_DIALOG, ".dat", "Externalizable Files (*.dat)");
-    }
-
-    public static File getPathExternFileToLoad() {
-        return getFilePath(JFileChooser.OPEN_DIALOG, ".dat", "Externalizable Files (*.dat)");
-    }
-    
     private void bSaveObjectSerBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjectSerBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathSerFileToSaved();
+        File file = fileManager.getPathSerFileToSaved();
         if (file == null) return;
         
         ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
         SavedState state = new SavedState(listRecIntegral, arrTableData);
-        saveToBinaryFile(file, state);
+        fileManager.saveToBinaryFile(file, state);
     }//GEN-LAST:event_bSaveObjectSerBinFormatMouseClicked
 
     private void bSaveObjectSerBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjectSerBinFormatActionPerformed
@@ -778,9 +583,9 @@ public class Frame extends javax.swing.JFrame {
 
     private void bLoadObjectSerBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjectSerBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathSerFileToLoad();
+        File file = fileManager.getPathSerFileToLoad();
         if (file == null) return;
-        SavedState state = loadFromBinaryFile(file);
+        SavedState state = fileManager.loadFromBinaryFile(file);
         if (state != null) {
             listRecIntegral = state.getListRecIntegral();
             setDataToTable(state.getArrListTableData());
@@ -793,12 +598,12 @@ public class Frame extends javax.swing.JFrame {
 
     private void bSaveObjecExternBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bSaveObjecExternBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathExternFileToSaved();
+        File file = fileManager.getPathExternFileToSaved();
         if (file == null) return;
         
         ArrayList<RecIntegral> arrTableData = getDataArrListFromTable();
         SavedStateExtern state = new SavedStateExtern(listRecIntegral, arrTableData);
-        saveToBinaryExternFile(file, state);
+        fileManager.saveToBinaryExternFile(file, state);
     }//GEN-LAST:event_bSaveObjecExternBinFormatMouseClicked
 
     private void bSaveObjecExternBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveObjecExternBinFormatActionPerformed
@@ -807,9 +612,9 @@ public class Frame extends javax.swing.JFrame {
 
     private void bLoadObjecExterntBinFormatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bLoadObjecExterntBinFormatMouseClicked
         // TODO add your handling code here:
-        File file = getPathExternFileToLoad();
+        File file = fileManager.getPathExternFileToLoad();
         if (file == null) return;
-        SavedStateExtern state = loadFromBinaryExternFile(file);
+        SavedStateExtern state = fileManager.loadFromBinaryExternFile(file);
         if (state != null) {
             listRecIntegral = state.getListRecIntegral();
             setDataToTable(state.getArrListTableData());
