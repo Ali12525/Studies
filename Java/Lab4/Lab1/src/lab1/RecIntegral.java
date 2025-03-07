@@ -13,6 +13,13 @@ public class RecIntegral implements Serializable {
     private double lowLim;
     private double upLim;
     private double resIntegral;
+    
+     /**
+     * Конструктор с необязательным resIntegral (по умолчанию Double.MAX_VALUE)
+     */
+    public RecIntegral(double lowLim, double upLim, double widthLim) {
+        this(lowLim, upLim, widthLim, Double.MAX_VALUE);
+    }
 
     /**
      * Конструктор для создания объекта RecIntegral.

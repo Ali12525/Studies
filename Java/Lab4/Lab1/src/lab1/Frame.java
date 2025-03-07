@@ -458,18 +458,17 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
         // TODO add your handling code here:
         try{
-            double widthLim = Double.parseDouble(jTextFieldSH.getText());
-            validateDataRange(widthLim);
-            double lowLim = Double.parseDouble(jTextFieldNG.getText());
-            validateDataRange(lowLim);
-            double upLim = Double.parseDouble(jTextFieldVG.getText());
-            validateDataRange(upLim);
+            RecIntegral data = InputValidator.validateAndParse(
+                jTextFieldNG.getText(),
+                jTextFieldVG.getText(),
+                jTextFieldSH.getText()
+            );
             
-            validDataWeight(lowLim, upLim, widthLim);
-            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.addRow(new Object[]{lowLim, upLim, widthLim});
+            ((DefaultTableModel) jTable1.getModel()).addRow(
+                new Object[]{data.getLowLim(), data.getUpLim(), data.getWidthLim()}
+            );
         }
-        catch(DataException | NumberFormatException ex){
+        catch(DataException ex){
             javax.swing.JOptionPane.showMessageDialog(this,
             ex.getMessage(),
             "Ошибка",
