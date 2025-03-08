@@ -23,7 +23,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public Product? CreateProduct(string description, double price)
     {
-        if (string.IsNullOrEmpty(description) || price < 0)
+        if (string.IsNullOrWhiteSpace(description) || price < 0)
         {
             return null;
         }
@@ -69,7 +69,7 @@ public class ProductsController : ControllerBase
     public Product? EditProduct(Guid id, string description, double price)
     {
         var product = _products.Search(id);
-        if (product == null || string.IsNullOrEmpty(description) || price < 0)
+        if (product == null || string.IsNullOrWhiteSpace(description) || price < 0)
         {
             return null;
         }

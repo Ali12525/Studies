@@ -6,7 +6,7 @@ using Moq;
 namespace ShopAppTests.Services
 {
     [TestFixture]
-    internal class TestsProductService
+    internal class TestsIntegrationProductService
     {
         private IProductService _productService;
         private Mock<IConfiguration> _mockConfig;

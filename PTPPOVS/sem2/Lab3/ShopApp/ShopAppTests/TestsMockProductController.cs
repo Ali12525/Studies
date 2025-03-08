@@ -5,7 +5,7 @@ using Moq;
 namespace ShopAppTests.Controllers
 {
     [TestFixture]
-    public class TestsProductController
+    public class TestsMockProductController
     {
         private ProductsController _controller;
         private Mock<IProductService> _mockProductService;
