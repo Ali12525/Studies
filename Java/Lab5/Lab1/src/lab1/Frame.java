@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);
@@ -397,29 +401,27 @@ public class Frame extends javax.swing.JFrame {
         double weight = (double) jTable1.getValueAt(selectRow, 2);
         
         double totalIntegral = 0;
-        int numberOfThreads = 6;
+        int numberOfThreads = 4;
         double intervalLength = upperBorder - lowerBorder;
         double subIntervalLength = intervalLength / numberOfThreads;
-            
+        
         IntegralTask[] tasks = new IntegralTask[numberOfThreads];
-        Thread[] threads = new Thread[numberOfThreads];
-            
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+
         for (int i = 0; i < numberOfThreads; i++) {
             double subLower = lowerBorder + i * subIntervalLength;
             double subUpper = (i == numberOfThreads - 1) ? upperBorder : subLower + subIntervalLength;
             tasks[i] = new IntegralTask(subLower, subUpper, weight);
-            threads[i] = new Thread(tasks[i]);
-            threads[i].start();
+            executor.execute(tasks[i]);
         }
-            
-        for (int i = 0; i < numberOfThreads; i++) {
-            try {
-                threads[i].join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-            
+
         for (IntegralTask task : tasks) {
             totalIntegral += task.getResult();
         }
