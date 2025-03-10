@@ -4,10 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
 public class Frame extends javax.swing.JFrame {
