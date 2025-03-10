@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingWorker;
 
 public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);
@@ -400,33 +401,47 @@ public class Frame extends javax.swing.JFrame {
         double upperBorder = (double) jTable1.getValueAt(selectRow, 1);
         double weight = (double) jTable1.getValueAt(selectRow, 2);
         
-        double totalIntegral = 0;
-        int numberOfThreads = 4;
+        int numberOfThreads = 6;
         double intervalLength = upperBorder - lowerBorder;
         double subIntervalLength = intervalLength / numberOfThreads;
         
-        IntegralTask[] tasks = new IntegralTask[numberOfThreads];
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        new SwingWorker<Double, Void>() {
+            @Override
+            protected Double doInBackground() {
+                double totalIntegral = 0;
+                IntegralTask[] tasks = new IntegralTask[numberOfThreads];
+                ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
-        for (int i = 0; i < numberOfThreads; i++) {
-            double subLower = lowerBorder + i * subIntervalLength;
-            double subUpper = (i == numberOfThreads - 1) ? upperBorder : subLower + subIntervalLength;
-            tasks[i] = new IntegralTask(subLower, subUpper, weight);
-            executor.execute(tasks[i]);
-        }
+                for (int i = 0; i < numberOfThreads; i++) {
+                    double subLower = lowerBorder + i * subIntervalLength;
+                    double subUpper = (i == numberOfThreads - 1) ? upperBorder : subLower + subIntervalLength;
+                    tasks[i] = new IntegralTask(subLower, subUpper, weight);
+                    executor.execute(tasks[i]);
+                }
 
-        executor.shutdown();
-        try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                executor.shutdown();
+                try {
+                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-        for (IntegralTask task : tasks) {
-            totalIntegral += task.getResult();
-        }
-    
-        jTable1.setValueAt(totalIntegral, selectRow, 3);
+                for (IntegralTask task : tasks) {
+                    totalIntegral += task.getResult();
+                }
+                return totalIntegral;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    double result = get();
+                    jTable1.setValueAt(result, selectRow, 3);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.execute();
     }//GEN-LAST:event_jButtonResMouseClicked
 
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
