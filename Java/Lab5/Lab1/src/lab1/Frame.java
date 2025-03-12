@@ -397,36 +397,13 @@ public class Frame extends javax.swing.JFrame {
         double lowerBorder = (double) jTable1.getValueAt(selectRow, 0);
         double upperBorder = (double) jTable1.getValueAt(selectRow, 1);
         double weight = (double) jTable1.getValueAt(selectRow, 2);
-        
         int numberOfThreads = 6;
-        double intervalLength = upperBorder - lowerBorder;
-        double subIntervalLength = intervalLength / numberOfThreads;
         
         new SwingWorker<Double, Void>() {
             @Override
             protected Double doInBackground() {
-                double totalIntegral = 0;
-                IntegralTask[] tasks = new IntegralTask[numberOfThreads];
-                ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-
-                for (int i = 0; i < numberOfThreads; i++) {
-                    double subLower = lowerBorder + i * subIntervalLength;
-                    double subUpper = (i == numberOfThreads - 1) ? upperBorder : subLower + subIntervalLength;
-                    tasks[i] = new IntegralTask(subLower, subUpper, weight);
-                    executor.execute(tasks[i]);
-                }
-
-                executor.shutdown();
-                try {
-                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                for (IntegralTask task : tasks) {
-                    totalIntegral += task.getResult();
-                }
-                return totalIntegral;
+                DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(lowerBorder, upperBorder, weight, numberOfThreads);
+                return calculator.calculate();
             }
 
             @Override
