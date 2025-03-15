@@ -12,6 +12,8 @@ cseg    segment para
 main proc far
         assume cs:cseg, ds:dseg, ss:stseg
         push ds
+	mov ax, 0
+	push ax
         mov     ax, dseg
         mov     ds, ax
 
@@ -28,9 +30,7 @@ main proc far
         call    is_there_null
 
 end_proc:
-        pop     ds
-        mov     ax, 4c00h
-        int     21h
+        ret
 main endp
 
 is_there_null proc near
