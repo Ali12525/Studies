@@ -393,29 +393,40 @@ public class Frame extends javax.swing.JFrame {
         if (jTable1.getRowCount() == 0) return;
         int selectRow = jTable1.getSelectedRow();
         if (selectRow == -1) return;
-
-        double lowerBorder = (double) jTable1.getValueAt(selectRow, 0);
-        double upperBorder = (double) jTable1.getValueAt(selectRow, 1);
-        double weight = (double) jTable1.getValueAt(selectRow, 2);
-        int numberOfThreads = 6;
         
-        new SwingWorker<Double, Void>() {
-            @Override
-            protected Double doInBackground() {
-                DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(lowerBorder, upperBorder, weight, numberOfThreads);
-                return calculator.calculate();
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    double result = get();
-                    jTable1.setValueAt(result, selectRow, 3);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        try{
+            RecIntegral data = InputValidator.validateAndParse(
+                jTable1.getValueAt(selectRow, 0).toString(),
+                jTable1.getValueAt(selectRow, 1).toString(),
+                jTable1.getValueAt(selectRow, 2).toString()
+            );
+   
+            int numberOfThreads = 6;
+        
+            new SwingWorker<Double, Void>() {
+                @Override
+                protected Double doInBackground() {
+                    DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(data.getLowLim(), data.getUpLim(), data.getWidthLim(), numberOfThreads);
+                    return calculator.calculate();
                 }
-            }
-        }.execute();
+
+                @Override
+                protected void done() {
+                    try {
+                        double result = get();
+                        jTable1.setValueAt(result, selectRow, 3);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.execute();
+        }
+        catch(DataException ex){
+            javax.swing.JOptionPane.showMessageDialog(this,
+            ex.getMessage(),
+            "Ошибка",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButtonResMouseClicked
 
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
