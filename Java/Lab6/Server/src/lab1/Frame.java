@@ -19,7 +19,7 @@ public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);
     private static final int PORT = 12345;
     private static final int MAX_CLIENTS = 1;
-    private static List<Socket> clientSockets; // Поле для хранения списка клиентов
+    private static List<ClientConnection> clientConnections = new ArrayList<>(); // Поле для хранения списка клиентов
     /**
      * Creates new form Frame
      */
@@ -402,93 +402,93 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonResMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonResMouseClicked
         // TODO add your handling code here:
         if (jTable1.getRowCount() == 0) return;
-    int selectRow = jTable1.getSelectedRow();
-    if (selectRow == -1) return;
+        int selectRow = jTable1.getSelectedRow();
+        if (selectRow == -1) return;
 
-    try {
-        RecIntegral data = InputValidator.validateAndParse(
-            jTable1.getValueAt(selectRow, 0).toString(),
-            jTable1.getValueAt(selectRow, 1).toString(),
-            jTable1.getValueAt(selectRow, 2).toString()
-        );
+        try {
+            RecIntegral data = InputValidator.validateAndParse(
+                jTable1.getValueAt(selectRow, 0).toString(),
+                jTable1.getValueAt(selectRow, 1).toString(),
+                jTable1.getValueAt(selectRow, 2).toString()
+            );
 
-        // Используем SwingWorker для выполнения задачи в фоновом потоке
-        new SwingWorker<Double, Void>() {
-            @Override
-            protected Double doInBackground() {
-                return distributeTasks(data.getLowLim(), data.getUpLim(), data.getWidthLim());
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    double result = get();
-                    jTable1.setValueAt(result, selectRow, 3);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            // Используем SwingWorker для выполнения задачи в фоновом потоке
+            new SwingWorker<Double, Void>() {
+                @Override
+                protected Double doInBackground() {
+                    return distributeTasks(data.getLowLim(), data.getUpLim(), data.getWidthLim());
                 }
-            }
-        }.execute();
-    } catch (DataException ex) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            ex.getMessage(),
-            "Ошибка",
-            javax.swing.JOptionPane.ERROR_MESSAGE);
-    }
+
+                @Override
+                protected void done() {
+                    try {
+                        double result = get();
+                        jTable1.setValueAt(result, selectRow, 3);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.execute();
+        } catch (DataException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                ex.getMessage(),
+                "Ошибка",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButtonResMouseClicked
 
     private Double distributeTasks(double lowLim, double upLim, double widthLim) {
-    if (clientSockets.isEmpty()) {
-        System.out.println("Нет подключенных клиентов.");
+        if (clientConnections.isEmpty()) {
+            System.out.println("Нет подключенных клиентов.");
+            return 0.0;
+        }
+
+        int numberOfClients = clientConnections.size();
+        double intervalWidth = (upLim - lowLim) / numberOfClients;
+
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfClients);
+        List<Future<Double>> futures = new ArrayList<>();
+
+        for (int i = 0; i < numberOfClients; i++) {
+            double low = lowLim + i * intervalWidth;
+            double high = low + intervalWidth;
+            ClientConnection connection = clientConnections.get(i);
+            futures.add(executor.submit(() -> sendTaskToClient(connection, low, high, widthLim)));
+        }
+
+        double totalResult = 0.0;
+        for (Future<Double> future : futures) {
+            try {
+                totalResult += future.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        executor.shutdown();
+        return totalResult;
+    }
+
+    private Double sendTaskToClient(ClientConnection connection, double low, double high, double width) {
+        try {
+            // Используем уже созданные потоки
+            ObjectOutputStream oos = connection.getOos();
+            ObjectInputStream ois = connection.getOis();
+
+            CommandData task = new CommandData("calculate", low, high, width);
+            oos.writeObject(task);
+            oos.flush();
+
+            CommandData result = (CommandData) ois.readObject();
+            if ("result".equals(result.getCommandType())) {
+                return result.getResIntegral();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Ошибка при отправке задачи клиенту.");
+            e.printStackTrace();
+        }
         return 0.0;
     }
 
-    int numberOfClients = clientSockets.size();
-    double intervalWidth = (upLim - lowLim) / numberOfClients;
-
-    ExecutorService executor = Executors.newFixedThreadPool(numberOfClients);
-    List<Future<Double>> futures = new ArrayList<>();
-
-    for (int i = 0; i < numberOfClients; i++) {
-        double low = lowLim + i * intervalWidth;
-        double high = low + intervalWidth;
-
-        Socket clientSocket = clientSockets.get(i);
-        futures.add(executor.submit(() -> sendTaskToClient(clientSocket, low, high, widthLim)));
-    }
-
-    double totalResult = 0.0;
-    for (Future<Double> future : futures) {
-        try {
-            totalResult += future.get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    executor.shutdown();
-    return totalResult;
-}
-    
-    private Double sendTaskToClient(Socket clientSocket, double low, double high, double width) {
-    try {
-        ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-        ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-
-        CommandData task = new CommandData("calculate", low, high, width);
-        oos.writeObject(task);
-        oos.flush();
-
-        CommandData result = (CommandData) ois.readObject();
-        if ("result".equals(result.getCommandType())) {
-            return result.getResIntegral();
-        }
-    } catch (IOException | ClassNotFoundException e) {
-        System.out.println("Ошибка при отправке задачи клиенту.");
-        e.printStackTrace();
-    }
-    return 0.0;
-}
     
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
         // TODO add your handling code here:
@@ -714,18 +714,21 @@ public class Frame extends javax.swing.JFrame {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
         
-        clientSockets = new ArrayList<>();
-        
         // Запуск сервера в отдельном потоке
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(PORT)) {
                 System.out.println("Сервер запущен на порту " + PORT);
-
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
-                    synchronized (clientSockets) {
-                        clientSockets.add(clientSocket);
-                        System.out.println("Клиент подключен: " + clientSocket.getInetAddress());
+                    try {
+                        ClientConnection connection = new ClientConnection(clientSocket);
+                        synchronized (clientConnections) {
+                            clientConnections.add(connection);
+                            System.out.println("Клиент подключен: " + clientSocket.getInetAddress());
+                        }
+                    } catch (IOException ex) {
+                        System.out.println("Ошибка при создании потоков для клиента.");
+                        ex.printStackTrace();
                     }
                 }
             } catch (IOException e) {
