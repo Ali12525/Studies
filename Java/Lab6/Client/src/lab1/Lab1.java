@@ -9,8 +9,7 @@ public class Lab1 {
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
-        
-        // Адрес и порт сервера
+
         String serverAddress = "localhost";
         int serverPort = 12345;
 
@@ -21,26 +20,36 @@ public class Lab1 {
             System.out.println("Подключено к серверу.");
 
             while (true) {
-                // Получаем задачу от сервера
-                CommandData task = (CommandData) ois.readObject();
+                Object obj = ois.readObject();
+                if (!(obj instanceof CommandData)) {
+                    System.out.println("Ошибка: получен неизвестный объект");
+                    break;
+                }
+
+                CommandData task = (CommandData) obj;
                 System.out.println("Задача получена: " + task);
 
-                // Проверяем тип команды
-                if ("calculate".equals(task.getCommandType())) {
-                    // Вычисляем интеграл на заданном интервале
-                    DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(task.getLowLim(), task.getUpLim(), task.getWidthLim(), 1);
-                    double result = calculator.calculate();
-                    
-                    System.out.println("Результат вычислен " + result);
+                if ("exit".equals(task.getCommandType())) {
+                    System.out.println("Получена команда выхода. Завершение работы...");
+                    break;
+                }
 
-                    // Отправляем результат серверу
+                if ("calculate".equals(task.getCommandType())) {
+                    DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(
+                            task.getLowLim(), task.getUpLim(), task.getWidthLim(), 1);
+                    double result = calculator.calculate();
+
+                    System.out.println("Результат вычислен: " + result);
+
                     oos.writeObject(new CommandData("result", result));
                     oos.flush();
                 }
             }
+        } catch (EOFException e) {
+            System.out.println("Сервер завершил соединение.");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            System.out.println("Ошибка");
+            System.out.println("Ошибка соединения.");
         }
     }
 }

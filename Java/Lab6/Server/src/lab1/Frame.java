@@ -471,26 +471,24 @@ public class Frame extends javax.swing.JFrame {
 }
     
     private Double sendTaskToClient(Socket clientSocket, double low, double high, double width) {
-    try (ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-         ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream())) {
+    try {
+        ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+        ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
 
-        // Создаем задачу для клиента
         CommandData task = new CommandData("calculate", low, high, width);
-
-        // Отправляем задачу клиенту
         oos.writeObject(task);
         oos.flush();
 
-        // Ждем результат от клиента
         CommandData result = (CommandData) ois.readObject();
         if ("result".equals(result.getCommandType())) {
-            return result.getResIntegral(); // Возвращаем результат
+            return result.getResIntegral();
         }
     } catch (IOException | ClassNotFoundException e) {
+        System.out.println("Ошибка при отправке задачи клиенту.");
         e.printStackTrace();
     }
-    return 0.0; // В случае ошибки возвращаем 0
-    }
+    return 0.0;
+}
     
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
         // TODO add your handling code here:
