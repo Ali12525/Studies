@@ -1,4 +1,4 @@
-package lab1;
+package MyPackage;
 
 import java.io.Serializable;
 

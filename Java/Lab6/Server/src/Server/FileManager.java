@@ -1,4 +1,4 @@
-package lab1;
+package Server;
 
 import javax.swing.JFrame;
 import java.io.*;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import MyPackage.RecIntegral;
 
 public class FileManager {
     private final JFrame parentFrame;

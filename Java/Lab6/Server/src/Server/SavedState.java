@@ -1,8 +1,9 @@
-package lab1;
+package Server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import MyPackage.RecIntegral;
 
 /**
  * Класс для хранения состояния приложения, включающего два списка объектов RecIntegral.

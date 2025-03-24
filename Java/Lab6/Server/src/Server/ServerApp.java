@@ -1,4 +1,4 @@
-package lab1;
+package Server;
 
 import javax.swing.*;
 import javax.swing.UIManager.*;
@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import MyPackage.CommandData;
 
 public class ServerApp {
     private static final int PORT = 12345;

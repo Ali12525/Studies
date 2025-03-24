@@ -1,10 +1,11 @@
-package lab1;
+package Server;
 
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
 import javax.swing.SwingWorker;
+import MyPackage.RecIntegral;
 
 public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);

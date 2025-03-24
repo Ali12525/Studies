@@ -1,4 +1,6 @@
-package lab1;
+package Server;
+
+import MyPackage.RecIntegral;
 
 public class InputValidator {
     public static RecIntegral validateAndParse(String lower, String upper, String step) throws DataException {

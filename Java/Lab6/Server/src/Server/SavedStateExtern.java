@@ -1,4 +1,4 @@
-package lab1;
+package Server;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import MyPackage.RecIntegral;
 
 /**
  * Класс для хранения состояния приложения с использованием интерфейса Externalizable.

@@ -1,4 +1,4 @@
-package lab1;
+package Client;
 
 public class IntegralTask implements Runnable {
     private double lowerBorder;
