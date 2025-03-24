@@ -4,16 +4,15 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class Lab1 {
+public class Main {
 
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
+        final int PORT = 12345;
+        final String SERVER_ADDRES = "localhost";
 
-        String serverAddress = "localhost";
-        int serverPort = 12345;
-
-        try (Socket socket = new Socket(serverAddress, serverPort);
+        try (Socket socket = new Socket(SERVER_ADDRES, PORT);
              ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
 

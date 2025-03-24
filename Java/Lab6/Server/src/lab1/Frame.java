@@ -18,8 +18,8 @@ import javax.swing.SwingWorker;
 public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);
     private static final int PORT = 12345;
-    private static final int MAX_CLIENTS = 1;
-    private static List<ClientConnection> clientConnections = new ArrayList<>(); // Поле для хранения списка клиентов
+    private static List<ClientConnection> clientConnections = new ArrayList<>();
+    LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
     /**
      * Creates new form Frame
      */
@@ -361,8 +361,6 @@ public class Frame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
     
     private void jTextFieldSHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSHActionPerformed
         // TODO add your handling code here:
@@ -739,7 +737,6 @@ public class Frame extends javax.swing.JFrame {
                 Frame frame = new Frame();
                 frame.setTitle("Вычисление интегралов");
                 frame.setVisible(true);
-                //new Frame().setVisible(true);
             }
         });
     }
