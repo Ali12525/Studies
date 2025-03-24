@@ -1,29 +1,24 @@
 package lab1;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.*;
 import javax.swing.SwingWorker;
 
 public class Frame extends javax.swing.JFrame {
     private final FileManager fileManager = new FileManager(this);
-    private static final int PORT = 12345;
-    private static List<ClientConnection> clientConnections = new ArrayList<>();
     LinkedList<RecIntegral> listRecIntegral = new LinkedList<>();
+    private ServerApp serverApp;
     /**
      * Creates new form Frame
      */
     public Frame() {
+        initComponents();
+    }
+    
+    public Frame(ServerApp serverApp) {
+        this.serverApp = serverApp;
         initComponents();
     }
 
@@ -413,7 +408,7 @@ public class Frame extends javax.swing.JFrame {
             new SwingWorker<Double, Void>() {
                 @Override
                 protected Double doInBackground() {
-                    return distributeTasks(data.getLowLim(), data.getUpLim(), data.getWidthLim());
+                    return serverApp.distributeTasks(data.getLowLim(), data.getUpLim(), data.getWidthLim());
                 }
 
                 @Override
@@ -427,65 +422,14 @@ public class Frame extends javax.swing.JFrame {
                 }
             }.execute();
         } catch (DataException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this,
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
                 ex.getMessage(),
                 "Ошибка",
                 javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButtonResMouseClicked
 
-    private Double distributeTasks(double lowLim, double upLim, double widthLim) {
-        if (clientConnections.isEmpty()) {
-            System.out.println("Нет подключенных клиентов.");
-            return 0.0;
-        }
-
-        int numberOfClients = clientConnections.size();
-        double intervalWidth = (upLim - lowLim) / numberOfClients;
-
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfClients);
-        List<Future<Double>> futures = new ArrayList<>();
-
-        for (int i = 0; i < numberOfClients; i++) {
-            double low = lowLim + i * intervalWidth;
-            double high = low + intervalWidth;
-            ClientConnection connection = clientConnections.get(i);
-            futures.add(executor.submit(() -> sendTaskToClient(connection, low, high, widthLim)));
-        }
-
-        double totalResult = 0.0;
-        for (Future<Double> future : futures) {
-            try {
-                totalResult += future.get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        executor.shutdown();
-        return totalResult;
-    }
-
-    private Double sendTaskToClient(ClientConnection connection, double low, double high, double width) {
-        try {
-            ObjectOutputStream oos = connection.getOos();
-            ObjectInputStream ois = connection.getOis();
-
-            CommandData task = new CommandData("calculate", low, high, width);
-            oos.writeObject(task);
-            oos.flush();
-
-            CommandData result = (CommandData) ois.readObject();
-            if ("result".equals(result.getCommandType())) {
-                return result.getResIntegral();
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Ошибка при отправке задачи клиенту.");
-            e.printStackTrace();
-        }
-        return 0.0;
-    }
-
-    
     private void jButtonAddMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMouseClicked
         // TODO add your handling code here:
         try{
@@ -679,67 +623,6 @@ public class Frame extends javax.swing.JFrame {
     private void bLoadObjecExterntBinFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoadObjecExterntBinFormatActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_bLoadObjecExterntBinFormatActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Frame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-        System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
-        
-        new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-                System.out.println("Сервер запущен на порту " + PORT);
-                while (true) {
-                    Socket clientSocket = serverSocket.accept();
-                    try {
-                        ClientConnection connection = new ClientConnection(clientSocket);
-                        synchronized (clientConnections) {
-                            clientConnections.add(connection);
-                            System.out.println("Клиент подключен: " + clientSocket.getInetAddress());
-                        }
-                    } catch (IOException ex) {
-                        System.out.println("Ошибка при создании потоков для клиента.");
-                        ex.printStackTrace();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Frame frame = new Frame();
-                frame.setTitle("Вычисление интегралов");
-                frame.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bLoadObjecExterntBinFormat;
