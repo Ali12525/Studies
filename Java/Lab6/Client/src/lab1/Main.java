@@ -11,6 +11,7 @@ public class Main {
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
         final int PORT = 12345;
         final String SERVER_ADDRES = "localhost";
+        final int COUNT_THREAD = 1;
 
         try (Socket socket = new Socket(SERVER_ADDRES, PORT);
              ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -35,7 +36,7 @@ public class Main {
 
                 if ("calculate".equals(task.getCommandType())) {
                     DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(
-                            task.getLowLim(), task.getUpLim(), task.getWidthLim(), 1);
+                            task.getLowLim(), task.getUpLim(), task.getWidthLim(), COUNT_THREAD);
                     double result = calculator.calculate();
 
                     System.out.println("Результат вычислен: " + result);

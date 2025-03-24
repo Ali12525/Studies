@@ -12,7 +12,6 @@ public class ClientConnection {
 
     public ClientConnection(Socket socket) throws IOException {
         this.socket = socket;
-        // Создаем потоки один раз при подключении клиента.
         this.oos = new ObjectOutputStream(socket.getOutputStream());
         this.ois = new ObjectInputStream(socket.getInputStream());
     }
