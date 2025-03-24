@@ -36,8 +36,7 @@ public class Main {
                 }
 
                 if ("calculate".equals(task.getCommandType())) {
-                    DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(
-                            task.getLowLim(), task.getUpLim(), task.getWidthLim(), COUNT_THREAD);
+                    DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(task.getRecIntegral(), COUNT_THREAD);
                     double result = calculator.calculate();
 
                     System.out.println("Результат вычислен: " + result);

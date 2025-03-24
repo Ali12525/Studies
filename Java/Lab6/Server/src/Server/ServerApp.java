@@ -10,6 +10,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import MyPackage.CommandData;
+import MyPackage.RecIntegral;
 
 public class ServerApp {
     private static final int PORT = 12345;
@@ -106,7 +107,7 @@ public class ServerApp {
         try {
             ObjectOutputStream oos = connection.getOos();
             ObjectInputStream ois = connection.getOis();
-            CommandData task = new CommandData("calculate", low, high, width);
+            CommandData task = new CommandData("calculate", new RecIntegral(low, high, width));
             
             oos.writeObject(task);
             oos.flush();

@@ -1,48 +1,49 @@
 package Client;
 
+import MyPackage.RecIntegral;
+
 public class IntegralTask implements Runnable {
-    private double lowerBorder;
-    private double upperBorder;
-    private double weight;
+    private RecIntegral integral;
     private double result;
 
-    public IntegralTask(double lowerBorder, double upperBorder, double weight) {
-        this.lowerBorder = lowerBorder;
-        this.upperBorder = upperBorder;
-        this.weight = weight;
+    public IntegralTask(RecIntegral integral) {
+        this.integral = integral;
     }
     
     @Override
     public void run() {
-        result = calculateIntegral(lowerBorder, upperBorder, weight);
+        result = calculateIntegral(integral);
     }
 
     public double getResult() {
         return result;
     }
     
-    private double calculateIntegral(double lowerBorder, double upperBorder, double weight) {
-        boolean isReversed = lowerBorder > upperBorder;
+    private double calculateIntegral(RecIntegral integral) {
+        double lowLim = integral.getLowLim();
+        double upLim = integral.getUpLim();
+        double widthLim = integral.getWidthLim();
+        boolean isReversed = lowLim > integral.getUpLim();
         
         if (isReversed) {
-            double tempBorder = lowerBorder;
-            lowerBorder = upperBorder;
-            upperBorder = tempBorder;
+            double tempBorder = lowLim;
+            lowLim = upLim;
+            upLim = tempBorder;
         }
         
-        double currentLowerBorder = lowerBorder;    
-        long count = (long)((upperBorder - lowerBorder) / weight);
+        double currentLowerBorder = lowLim;    
+        long count = (long)((upLim - lowLim) / integral.getWidthLim());
         double sum = 0;
             
         for (long j = 0; j < count; j++) {
-            sum += ((weight / 2) * (Math.sqrt(currentLowerBorder) + Math.sqrt(currentLowerBorder + weight)));
-            currentLowerBorder += weight;
+            sum += ((widthLim / 2) * (Math.sqrt(currentLowerBorder) + Math.sqrt(currentLowerBorder + widthLim)));
+            currentLowerBorder += widthLim;
         }
             
-        if((upperBorder - lowerBorder) / weight > count) {
-            currentLowerBorder -= weight;
-            double lastStepWeigth = upperBorder - (currentLowerBorder);
-            sum += ((lastStepWeigth / 2) * (Math.sqrt(currentLowerBorder) + Math.sqrt(upperBorder)));
+        if((upLim - lowLim) / widthLim > count) {
+            currentLowerBorder -= widthLim;
+            double lastStepWeigth = upLim - (currentLowerBorder);
+            sum += ((lastStepWeigth / 2) * (Math.sqrt(currentLowerBorder) + Math.sqrt(upLim)));
         }
         
         return isReversed ? -sum : sum;

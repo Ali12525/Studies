@@ -1,31 +1,30 @@
 package Client;
 
 import java.util.concurrent.*;
+import MyPackage.RecIntegral;
 
 public class DistributedIntegralCalculator {
-    private final double lowerBorder;
-    private final double upperBorder;
-    private final double weight;
+    private final RecIntegral integral;
     private final int numberOfThreads;
 
-    public DistributedIntegralCalculator(double lowerBorder, double upperBorder, double weight, int numberOfThreads) {
-        this.lowerBorder = lowerBorder;
-        this.upperBorder = upperBorder;
-        this.weight = weight;
+    public DistributedIntegralCalculator(RecIntegral integral, int numberOfThreads) {
+        this.integral = integral;
         this.numberOfThreads = numberOfThreads;
     }
 
     public double calculate() {
-        double intervalLength = upperBorder - lowerBorder;
+        double lowLim = integral.getLowLim();
+        double upLim = integral.getUpLim();
+        double intervalLength = upLim - lowLim;
         double subIntervalLength = intervalLength / numberOfThreads;
         double totalIntegral = 0;
         IntegralTask[] tasks = new IntegralTask[numberOfThreads];
         ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
         for (int i = 0; i < numberOfThreads; i++) {
-            double subLower = lowerBorder + i * subIntervalLength;
-            double subUpper = (i == numberOfThreads - 1) ? upperBorder : subLower + subIntervalLength;
-            tasks[i] = new IntegralTask(subLower, subUpper, weight);
+            double subLower = lowLim + i * subIntervalLength;
+            double subUpper = (i == numberOfThreads - 1) ? upLim : subLower + subIntervalLength;
+            tasks[i] = new IntegralTask(new RecIntegral(subLower, subUpper, integral.getWidthLim()));
             executor.execute(tasks[i]);
         }
 
