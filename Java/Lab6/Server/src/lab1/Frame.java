@@ -412,7 +412,6 @@ public class Frame extends javax.swing.JFrame {
                 jTable1.getValueAt(selectRow, 2).toString()
             );
 
-            // Используем SwingWorker для выполнения задачи в фоновом потоке
             new SwingWorker<Double, Void>() {
                 @Override
                 protected Double doInBackground() {
@@ -470,7 +469,6 @@ public class Frame extends javax.swing.JFrame {
 
     private Double sendTaskToClient(ClientConnection connection, double low, double high, double width) {
         try {
-            // Используем уже созданные потоки
             ObjectOutputStream oos = connection.getOos();
             ObjectInputStream ois = connection.getOis();
 
@@ -714,7 +712,6 @@ public class Frame extends javax.swing.JFrame {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
         
-        // Запуск сервера в отдельном потоке
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(PORT)) {
                 System.out.println("Сервер запущен на порту " + PORT);
@@ -739,7 +736,10 @@ public class Frame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Frame().setVisible(true);
+                Frame frame = new Frame();
+                frame.setTitle("Вычисление интегралов");
+                frame.setVisible(true);
+                //new Frame().setVisible(true);
             }
         });
     }
