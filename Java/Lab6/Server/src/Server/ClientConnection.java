@@ -51,4 +51,33 @@ public class ClientConnection {
     public Socket getSocket() {
         return socket;
     }
+    
+    /**
+     * Корректное закрытие соединения и потоков.
+     */
+    public void close() {
+        try {
+            if (oos != null)
+                oos.close();
+        } catch (IOException e) {
+            System.err.println("Ошибка при закрытии ObjectOutputStream.");
+            e.printStackTrace();
+        }
+        
+        try {
+            if (ois != null)
+                ois.close();
+        } catch (IOException e) {
+            System.err.println("Ошибка при закрытии ObjectInputStream.");
+            e.printStackTrace();
+        }
+        
+        try {
+            if (socket != null && !socket.isClosed())
+                socket.close();
+        } catch (IOException e) {
+            System.err.println("Ошибка при закрытии Socket.");
+            e.printStackTrace();
+        }
+    }
 }

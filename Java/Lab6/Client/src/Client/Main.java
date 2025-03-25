@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 import MyPackage.CommandData;
+import java.net.SocketException;
 
 public class Main {
     public static void main(String[] args) {
@@ -45,6 +46,8 @@ public class Main {
                     oos.flush();
                 }
             }
+        } catch (SocketException e) {
+            System.out.println("Соединение с сервером разорвано.");
         } catch (EOFException e) {
             System.out.println("Сервер завершил соединение.");
         } catch (IOException | ClassNotFoundException e) {

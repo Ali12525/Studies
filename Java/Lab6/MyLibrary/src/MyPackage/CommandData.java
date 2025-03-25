@@ -23,6 +23,12 @@ public class CommandData implements Serializable {
 
     @Override
     public String toString() {
+        if (integral == null) {
+            return "CommandData{" +
+                    "commandType='" + commandType + '\'' +
+                    ", integral=null" +
+                    '}';
+        }
         return "CommandData{" +
                 "commandType='" + commandType + '\'' +
                 ", lowLim=" + integral.getLowLim() +

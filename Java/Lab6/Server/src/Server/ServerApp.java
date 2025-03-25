@@ -21,6 +21,11 @@ public class ServerApp {
         setUtf8Output();
         
         ServerApp app = new ServerApp();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            app.shutdown();
+        }));
+        
         app.startServer();
 
         SwingUtilities.invokeLater(() -> {
@@ -147,4 +152,25 @@ public class ServerApp {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
     }
+    
+    /**
+    * Отключает сервер, уведомляя всех подключенных клиентов о завершении работы
+    * и закрывая соответствующие соединения.
+    */
+    public void shutdown() {
+        System.out.println("Сервер завершает работу. Уведомление клиентов.");
+        for (ClientConnection connection : clientConnections) {
+            try {
+                ObjectOutputStream oos = connection.getOos();
+                oos.writeObject(new CommandData("exit", (RecIntegral) null));
+                oos.flush();
+            } catch (IOException ex) {
+                System.err.println("Не удалось отправить команду завершения клиенту.");
+                ex.printStackTrace();
+            } finally {
+                connection.close();
+            }
+        }
+    }
+
 }
