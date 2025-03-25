@@ -22,6 +22,7 @@ public class ServerApp {
         
         ServerApp app = new ServerApp();
         
+        // Регистрируем shutdown hook для корректного завершения сервера, когда пользователь закрывает окно
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             app.shutdown();
         }));
