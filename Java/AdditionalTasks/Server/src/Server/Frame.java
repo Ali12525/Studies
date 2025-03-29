@@ -422,6 +422,13 @@ public class Frame extends javax.swing.JFrame {
                     }
                 }
             }.execute();
+        } catch (StepException ex) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                ex.getMessage() + "\nЗначение шага: " + ex.getStepValue(),
+                "Ошибка",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            );
         } catch (DataException ex) {
             javax.swing.JOptionPane.showMessageDialog(
                 this,
@@ -443,8 +450,14 @@ public class Frame extends javax.swing.JFrame {
             ((DefaultTableModel) jTable1.getModel()).addRow(
                 new Object[]{data.getLowLim(), data.getUpLim(), data.getWidthLim()}
             );
-        }
-        catch(DataException ex){
+        } catch (StepException ex) {
+            javax.swing.JOptionPane.showMessageDialog(
+                this,
+                ex.getMessage() + "\nЗначение шага: " + ex.getStepValue(),
+                "Ошибка",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        } catch(DataException ex){
             javax.swing.JOptionPane.showMessageDialog(this,
             ex.getMessage(),
             "Ошибка",
