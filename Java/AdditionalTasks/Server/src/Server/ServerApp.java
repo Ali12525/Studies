@@ -14,7 +14,8 @@ import MyPackage.RecIntegral;
 
 public class ServerApp {
     private static final int PORT = 12345;
-    private final List<ClientConnection> clientConnections = Collections.synchronizedList(new ArrayList<>());
+    private final List<ClientInfo> clientInfos = Collections.synchronizedList(new ArrayList<>());
+    private DatagramSocket socket;
 
     public static void main(String[] args) {
         setLookAndFeel();
@@ -22,10 +23,7 @@ public class ServerApp {
         
         ServerApp app = new ServerApp();
         
-        // Регистрируем shutdown hook для корректного завершения сервера, когда пользователь закрывает окно
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            app.shutdown();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(app::shutdown));
         
         app.startServer();
 
@@ -38,44 +36,47 @@ public class ServerApp {
     }
     
     /**
-     * Запуск серверного потока для приёма подключений клиентов.
+     * Запускаем поток, который прослушивает UDP-порт для регистрации клиентов.
      */
     private void startServer() {
         new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            try {
+                socket = new DatagramSocket(PORT);
                 System.out.println("Сервер запущен на порту " + PORT);
+                byte[] buf = new byte[4096];
                 while (true) {
-                    Socket clientSocket = serverSocket.accept();
-                    try {
-                        ClientConnection connection = new ClientConnection(clientSocket);
-                        clientConnections.add(connection);
-                        System.out.println("Клиент подключен: " + clientSocket.getInetAddress());
-                    } catch (IOException ex) {
-                        System.err.println("Ошибка при создании соединения с клиентом.");
-                        ex.printStackTrace();
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    socket.receive(packet);
+                    ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData(), 0, packet.getLength());
+                    ObjectInputStream ois = new ObjectInputStream(bais);
+                    Object obj = ois.readObject();
+                    if (obj instanceof CommandData) {
+                        CommandData cmd = (CommandData) obj;
+                        if ("register".equals(cmd.getCommandType())) {
+                            ClientInfo client = new ClientInfo(packet.getAddress(), packet.getPort());
+                            if (!clientInfos.contains(client)) {
+                                clientInfos.add(client);
+                                System.out.println("Клиент зарегистрирован: " + packet.getAddress());
+                            }
+                        }
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }).start();
     }
     
     /**
-     * Распределение вычислительной задачи по всем подключенным клиентам.
-     *
-     * @param lowLim начальное значение интегрирования
-     * @param upLim конечное значение интегрирования
-     * @param widthLim шаг вычисления
-     * @return суммарный результат интегрирования
+     * Распределяет вычислительную задачу между всеми зарегистрированными клиентами.
      */
     public double distributeTasks(double lowLim, double upLim, double widthLim) {
-        if (clientConnections.isEmpty()) {
-            System.out.println("Нет подключенных клиентов.");
+        if (clientInfos.isEmpty()) {
+            System.out.println("Нет зарегистрированных клиентов.");
             return 0.0;
         }
         
-        int numberOfClients = clientConnections.size();
+        int numberOfClients = clientInfos.size();
         double intervalWidth = (upLim - lowLim) / numberOfClients;
         ExecutorService executor = Executors.newFixedThreadPool(numberOfClients);
         List<Future<Double>> futures = new ArrayList<>();
@@ -83,8 +84,8 @@ public class ServerApp {
         for (int i = 0; i < numberOfClients; i++) {
             double low = lowLim + i * intervalWidth;
             double high = low + intervalWidth;
-            ClientConnection connection = clientConnections.get(i);
-            futures.add(executor.submit(() -> sendTaskToClient(connection, low, high, widthLim)));
+            ClientInfo client = clientInfos.get(i);
+            futures.add(executor.submit(() -> sendTaskToClient(client, low, high, widthLim)));
         }
         
         double totalResult = futures.stream().mapToDouble(future -> {
@@ -101,37 +102,104 @@ public class ServerApp {
     }
     
     /**
-     * Отправка задачи на вычисление конкретному клиенту и получение результата.
-     *
-     * @param connection соединение с клиентом
-     * @param low        нижняя граница интервала
-     * @param high       верхняя граница интервала
-     * @param width      шаг интегрирования
-     * @return результат вычисления или 0.0 в случае ошибки
+     * Отправка задачи конкретному клиенту и получение результата.
      */
-    private double sendTaskToClient(ClientConnection connection, double low, double high, double width) {
-        try {
-            ObjectOutputStream oos = connection.getOos();
-            ObjectInputStream ois = connection.getOis();
-            CommandData task = new CommandData("calculate", new RecIntegral(low, high, width));
-            
-            oos.writeObject(task);
-            oos.flush();
-            
-            CommandData result = (CommandData) ois.readObject();
-            if ("result".equals(result.getCommandType())) {
-                return result.getResIntegral();
+    private double sendTaskToClient(ClientInfo client, double low, double high, double width) {
+        int maxAttempts = 5;
+        int attempts = 0;
+        boolean taskAckReceived = false;
+
+        // Отправка задачи и ожидание подтверждения
+        while (attempts < maxAttempts && !taskAckReceived) {
+            try {
+                CommandData task = new CommandData("calculate", new RecIntegral(low, high, width));
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(task);
+                oos.flush();
+                byte[] data = baos.toByteArray();
+                DatagramPacket packet = new DatagramPacket(data, data.length, client.getAddress(), client.getPort());
+                socket.send(packet);
+
+                // Ожидаем подтверждения получения задачи
+                byte[] ackBuf = new byte[4096];
+                DatagramPacket ackPacket = new DatagramPacket(ackBuf, ackBuf.length);
+                socket.setSoTimeout(1000);
+                socket.receive(ackPacket);
+
+                ByteArrayInputStream ackBais = new ByteArrayInputStream(ackPacket.getData(), 0, ackPacket.getLength());
+                ObjectInputStream ackOis = new ObjectInputStream(ackBais);
+                CommandData ackData = (CommandData) ackOis.readObject();
+                if ("taskReceived".equals(ackData.getCommandType())) {
+                    taskAckReceived = true;
+                    System.out.println("Клиент подтвердил получение задачи.");
+                    
+                    // Отправляем подтверждение клиенту
+                    CommandData taskAck = new CommandData("taskAcknowledged", (RecIntegral) null);
+                    ByteArrayOutputStream taskAckBaos = new ByteArrayOutputStream();
+                    ObjectOutputStream taskAckOos = new ObjectOutputStream(taskAckBaos);
+                    taskAckOos.writeObject(taskAck);
+                    byte[] taskAckData = taskAckBaos.toByteArray();
+                    DatagramPacket taskAckPacket = new DatagramPacket(
+                        taskAckData, 
+                        taskAckData.length, 
+                        client.getAddress(), 
+                        client.getPort()
+                    );
+                    socket.send(taskAckPacket);
+                    
+                    break;
+                }
+            } catch (SocketTimeoutException e) {
+                attempts++;
+                System.err.println("Подтверждение получения задачи не получено, попытка " + attempts);
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Ошибка при отправке задачи клиенту: " + client.getAddress());
+                e.printStackTrace();
+                return 0.0;
             }
+        }
+        if (!taskAckReceived) {
+            System.err.println("Не удалось получить подтверждение получения задачи от клиента " 
+                    + client.getAddress() + " после " + maxAttempts + " попыток.");
+            return 0.0;
+        }
+
+        // Ожидание результата от клиента
+        try {
+            byte[] resultBuf = new byte[4096];
+            DatagramPacket resultPacket = new DatagramPacket(resultBuf, resultBuf.length);
+            socket.setSoTimeout(10000);
+            socket.receive(resultPacket);
+            ByteArrayInputStream resultBais = new ByteArrayInputStream(resultPacket.getData(), 0, resultPacket.getLength());
+            ObjectInputStream resultOis = new ObjectInputStream(resultBais);
+            CommandData resultData = (CommandData) resultOis.readObject();
+            if (!"result".equals(resultData.getCommandType())) {
+                throw new IOException("Получен некорректный тип команды: " + resultData.getCommandType());
+            }
+            double result = resultData.getResIntegral();
+
+            // Отправляем подтверждение клиенту, что результат получен
+            CommandData resultAck = new CommandData("resultReceived", (RecIntegral) null);
+            ByteArrayOutputStream ackResBaos = new ByteArrayOutputStream();
+            ObjectOutputStream ackResOos = new ObjectOutputStream(ackResBaos);
+            ackResOos.writeObject(resultAck);
+            ackResOos.flush();
+            byte[] ackResData = ackResBaos.toByteArray();
+            DatagramPacket ackResPacket = new DatagramPacket(ackResData, ackResData.length, client.getAddress(), client.getPort());
+            socket.send(ackResPacket);
+
+            return result;
+        } catch (SocketTimeoutException e) {
+            System.err.println("Не удалось получить результат от клиента " + client.getAddress() + " в течение установленного таймаута.");
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Ошибка при отправке задачи клиенту.");
+            System.err.println("Ошибка при получении результата от клиента: " + client.getAddress());
             e.printStackTrace();
         }
         return 0.0;
     }
+
     
-    /**
-     * Установка Nimbus Look and Feel.
-     */
     private static void setLookAndFeel() {
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -146,32 +214,34 @@ public class ServerApp {
         }
     }
     
-    /**
-     * Настройка вывода в консоль с использованием UTF-8.
-     */
     private static void setUtf8Output() {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
     }
     
     /**
-    * Отключает сервер, уведомляя всех подключенных клиентов о завершении работы
-    * и закрывая соответствующие соединения.
-    */
+     * Завершает работу сервера, уведомляя всех клиентов.
+     */
     public void shutdown() {
         System.out.println("Сервер завершает работу. Уведомление клиентов.");
-        for (ClientConnection connection : clientConnections) {
+        // Отправляем команду "exit" всем зарегистрированным клиентам
+        for (ClientInfo client : clientInfos) {
             try {
-                ObjectOutputStream oos = connection.getOos();
-                oos.writeObject(new CommandData("exit", (RecIntegral) null));
+                CommandData exitCmd = new CommandData("exit", (RecIntegral) null);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(exitCmd);
                 oos.flush();
+                byte[] data = baos.toByteArray();
+                DatagramPacket packet = new DatagramPacket(data, data.length, client.getAddress(), client.getPort());
+                socket.send(packet);
             } catch (IOException ex) {
-                System.err.println("Не удалось отправить команду завершения клиенту.");
+                System.err.println("Не удалось отправить команду завершения клиенту: " + client.getAddress());
                 ex.printStackTrace();
-            } finally {
-                connection.close();
             }
         }
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
     }
-
-}
+}   
