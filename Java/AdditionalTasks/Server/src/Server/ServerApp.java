@@ -46,7 +46,18 @@ public class ServerApp {
                 byte[] buf = new byte[4096];
                 while (true) {
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                    socket.receive(packet);
+                    try {
+                        socket.receive(packet);
+                    } catch (SocketTimeoutException e) {
+                        continue;
+                    } catch (SocketException e) {
+                        if (socket.isClosed()) {
+                            System.out.println("Сокет закрыт, завершаем работу потока приёма.");
+                            break;
+                        } else {
+                            e.printStackTrace();
+                        }
+                    }
                     ByteArrayInputStream bais = new ByteArrayInputStream(packet.getData(), 0, packet.getLength());
                     ObjectInputStream ois = new ObjectInputStream(bais);
                     Object obj = ois.readObject();
@@ -120,18 +131,17 @@ public class ServerApp {
                 DatagramPacket packet = new DatagramPacket(data, data.length, client.getAddress(), client.getPort());
                 socket.send(packet);
 
+                
                 // Ожидание подтверждения получения задачи
                 byte[] ackBuf = new byte[4096];
                 DatagramPacket ackPacket = new DatagramPacket(ackBuf, ackBuf.length);
                 socket.setSoTimeout(1000);
                 socket.receive(ackPacket);
 
-                // Проверяем, что пакет пришел от нужного клиента
                 if (!ackPacket.getAddress().equals(client.getAddress()) || ackPacket.getPort() != client.getPort()) {
                     continue;
                 }
 
-                // Десериализация и проверка типа команды
                 ByteArrayInputStream ackBais = new ByteArrayInputStream(ackPacket.getData(), 0, ackPacket.getLength());
                 ObjectInputStream ackOis = new ObjectInputStream(ackBais);
                 CommandData ackData = (CommandData) ackOis.readObject();
@@ -139,7 +149,7 @@ public class ServerApp {
                     taskAckReceived = true;
                     System.out.println("Клиент подтвердил получение задачи.");
 
-                    // Отправка подтверждения клиенту
+                    // Отправка подтверждения клиенту о получении подтверждения
                     CommandData taskAck = new CommandData("taskAcknowledged", (RecIntegral) null);
                     ByteArrayOutputStream taskAckBaos = new ByteArrayOutputStream();
                     ObjectOutputStream taskAckOos = new ObjectOutputStream(taskAckBaos);
@@ -177,19 +187,17 @@ public class ServerApp {
                     throw new SocketTimeoutException("Таймаут получения результата.");
                 }
 
-                // Проверяем источник пакета
                 if (!resultPacket.getAddress().equals(client.getAddress()) || resultPacket.getPort() != client.getPort()) {
                     continue;
                 }
 
-                // Десериализация и проверка команды
                 ByteArrayInputStream resultBais = new ByteArrayInputStream(resultPacket.getData(), 0, resultPacket.getLength());
                 ObjectInputStream resultOis = new ObjectInputStream(resultBais);
                 CommandData resultData = (CommandData) resultOis.readObject();
                 if ("result".equals(resultData.getCommandType())) {
                     double result = resultData.getResIntegral();
 
-                    // Отправка подтверждения клиенту
+                    // Отправка подтверждения клиенту о получении результата
                     CommandData resultAck = new CommandData("resultReceived", (RecIntegral) null);
                     ByteArrayOutputStream ackResBaos = new ByteArrayOutputStream();
                     ObjectOutputStream ackResOos = new ObjectOutputStream(ackResBaos);

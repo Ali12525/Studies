@@ -12,7 +12,7 @@ public class Main {
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
         final int SERVER_PORT = 12345;
         final String SERVER_ADDRESS = "localhost";
-        final int COUNT_THREAD = 4;
+        final int COUNT_THREAD = 2;
         
         try (DatagramSocket socket = new DatagramSocket()) {
             // Регистрируемся на сервере

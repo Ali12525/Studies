@@ -18,17 +18,4 @@ public class ClientInfo {
     public int getPort() {
         return port;
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof ClientInfo)) return false;
-        ClientInfo other = (ClientInfo) obj;
-        return address.equals(other.address) && port == other.port;
-    }
-    
-    @Override
-    public int hashCode() {
-        return address.hashCode() + port;
-    }
 }
