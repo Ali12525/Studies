@@ -118,7 +118,7 @@ public class Main {
                     DatagramPacket responsePacket = new DatagramPacket(resData, resData.length, packet.getAddress(), packet.getPort());
                     
                     // Реализуем логику повторной отправки результата при отсутствии подтверждения
-                    int maxAttempts = 3;
+                    int maxAttempts = 5;
                     int attempts = 0;
                     boolean resultAckReceived = false;
                     while (attempts < maxAttempts && !resultAckReceived) {
@@ -126,7 +126,7 @@ public class Main {
                         try {
                             byte[] ackResBuf = new byte[4096];
                             DatagramPacket ackResPacket = new DatagramPacket(ackResBuf, ackResBuf.length);
-                            socket.setSoTimeout(1500);
+                            socket.setSoTimeout(1000);
                             socket.receive(ackResPacket);
                             ByteArrayInputStream ackResBais = new ByteArrayInputStream(ackResPacket.getData(), 0, ackResPacket.getLength());
                             ObjectInputStream ackResOis = new ObjectInputStream(ackResBais);

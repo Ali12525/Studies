@@ -105,95 +105,109 @@ public class ServerApp {
      * Отправка задачи конкретному клиенту и получение результата.
      */
     private double sendTaskToClient(ClientInfo client, double low, double high, double width) {
-        int maxAttempts = 5;
+        int maxAttempts = 3;
         int attempts = 0;
         boolean taskAckReceived = false;
 
-        // Отправка задачи и ожидание подтверждения
         while (attempts < maxAttempts && !taskAckReceived) {
             try {
+                // Отправка задачи клиенту
                 CommandData task = new CommandData("calculate", new RecIntegral(low, high, width));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
                 oos.writeObject(task);
-                oos.flush();
                 byte[] data = baos.toByteArray();
                 DatagramPacket packet = new DatagramPacket(data, data.length, client.getAddress(), client.getPort());
                 socket.send(packet);
 
-                // Ожидаем подтверждения получения задачи
+                // Ожидание подтверждения получения задачи
                 byte[] ackBuf = new byte[4096];
                 DatagramPacket ackPacket = new DatagramPacket(ackBuf, ackBuf.length);
                 socket.setSoTimeout(1000);
                 socket.receive(ackPacket);
 
+                // Проверяем, что пакет пришел от нужного клиента
+                if (!ackPacket.getAddress().equals(client.getAddress()) || ackPacket.getPort() != client.getPort()) {
+                    continue;
+                }
+
+                // Десериализация и проверка типа команды
                 ByteArrayInputStream ackBais = new ByteArrayInputStream(ackPacket.getData(), 0, ackPacket.getLength());
                 ObjectInputStream ackOis = new ObjectInputStream(ackBais);
                 CommandData ackData = (CommandData) ackOis.readObject();
                 if ("taskReceived".equals(ackData.getCommandType())) {
                     taskAckReceived = true;
                     System.out.println("Клиент подтвердил получение задачи.");
-                    
-                    // Отправляем подтверждение клиенту
+
+                    // Отправка подтверждения клиенту
                     CommandData taskAck = new CommandData("taskAcknowledged", (RecIntegral) null);
                     ByteArrayOutputStream taskAckBaos = new ByteArrayOutputStream();
                     ObjectOutputStream taskAckOos = new ObjectOutputStream(taskAckBaos);
                     taskAckOos.writeObject(taskAck);
                     byte[] taskAckData = taskAckBaos.toByteArray();
-                    DatagramPacket taskAckPacket = new DatagramPacket(
-                        taskAckData, 
-                        taskAckData.length, 
-                        client.getAddress(), 
-                        client.getPort()
-                    );
+                    DatagramPacket taskAckPacket = new DatagramPacket(taskAckData, taskAckData.length, client.getAddress(), client.getPort());
                     socket.send(taskAckPacket);
-                    
-                    break;
                 }
             } catch (SocketTimeoutException e) {
                 attempts++;
-                System.err.println("Подтверждение получения задачи не получено, попытка " + attempts);
+                System.err.println("Подтверждение не получено, попытка " + attempts);
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("Ошибка при отправке задачи клиенту: " + client.getAddress());
                 e.printStackTrace();
                 return 0.0;
             }
         }
+
         if (!taskAckReceived) {
-            System.err.println("Не удалось получить подтверждение получения задачи от клиента " 
-                    + client.getAddress() + " после " + maxAttempts + " попыток.");
+            System.err.println("Не удалось получить подтверждение от клиента " + client.getAddress());
             return 0.0;
         }
 
         // Ожидание результата от клиента
         try {
-            byte[] resultBuf = new byte[4096];
-            DatagramPacket resultPacket = new DatagramPacket(resultBuf, resultBuf.length);
-            socket.setSoTimeout(10000);
-            socket.receive(resultPacket);
-            ByteArrayInputStream resultBais = new ByteArrayInputStream(resultPacket.getData(), 0, resultPacket.getLength());
-            ObjectInputStream resultOis = new ObjectInputStream(resultBais);
-            CommandData resultData = (CommandData) resultOis.readObject();
-            if (!"result".equals(resultData.getCommandType())) {
-                throw new IOException("Получен некорректный тип команды: " + resultData.getCommandType());
+            long startTime = System.currentTimeMillis();
+            long timeout = 10000;
+            while (System.currentTimeMillis() - startTime < timeout) {
+                byte[] resultBuf = new byte[4096];
+                DatagramPacket resultPacket = new DatagramPacket(resultBuf, resultBuf.length);
+                socket.setSoTimeout((int) (timeout - (System.currentTimeMillis() - startTime)));
+                try {
+                    socket.receive(resultPacket);
+                } catch (SocketTimeoutException e) {
+                    throw new SocketTimeoutException("Таймаут получения результата.");
+                }
+
+                // Проверяем источник пакета
+                if (!resultPacket.getAddress().equals(client.getAddress()) || resultPacket.getPort() != client.getPort()) {
+                    continue;
+                }
+
+                // Десериализация и проверка команды
+                ByteArrayInputStream resultBais = new ByteArrayInputStream(resultPacket.getData(), 0, resultPacket.getLength());
+                ObjectInputStream resultOis = new ObjectInputStream(resultBais);
+                CommandData resultData = (CommandData) resultOis.readObject();
+                if ("result".equals(resultData.getCommandType())) {
+                    double result = resultData.getResIntegral();
+
+                    // Отправка подтверждения клиенту
+                    CommandData resultAck = new CommandData("resultReceived", (RecIntegral) null);
+                    ByteArrayOutputStream ackResBaos = new ByteArrayOutputStream();
+                    ObjectOutputStream ackResOos = new ObjectOutputStream(ackResBaos);
+                    ackResOos.writeObject(resultAck);
+                    byte[] ackResData = ackResBaos.toByteArray();
+                    DatagramPacket ackResPacket = new DatagramPacket(ackResData, ackResData.length, client.getAddress(), client.getPort());
+                    socket.send(ackResPacket);
+
+                    return result;
+                } else {
+                    System.err.println("Ожидался результат, получена команда: " + resultData.getCommandType());
+                }
             }
-            double result = resultData.getResIntegral();
-
-            // Отправляем подтверждение клиенту, что результат получен
-            CommandData resultAck = new CommandData("resultReceived", (RecIntegral) null);
-            ByteArrayOutputStream ackResBaos = new ByteArrayOutputStream();
-            ObjectOutputStream ackResOos = new ObjectOutputStream(ackResBaos);
-            ackResOos.writeObject(resultAck);
-            ackResOos.flush();
-            byte[] ackResData = ackResBaos.toByteArray();
-            DatagramPacket ackResPacket = new DatagramPacket(ackResData, ackResData.length, client.getAddress(), client.getPort());
-            socket.send(ackResPacket);
-
-            return result;
+            throw new SocketTimeoutException("Таймаут получения результата.");
         } catch (SocketTimeoutException e) {
-            System.err.println("Не удалось получить результат от клиента " + client.getAddress() + " в течение установленного таймаута.");
+            System.err.println("Не удалось получить результат от клиента " + client.getAddress());
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Ошибка при получении результата от клиента: " + client.getAddress());
+            System.err.println("Ошибка при получении результата: " + e.getMessage());
             e.printStackTrace();
         }
         return 0.0;
