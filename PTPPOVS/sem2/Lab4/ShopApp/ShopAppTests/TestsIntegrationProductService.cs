@@ -60,7 +60,9 @@ namespace ShopAppTests.Services
 
             Assert.Multiple(() =>
             {
-                Assert.That(result, Is.EqualTo(_testProduct), "Incorrect product returned on removal");
+                Assert.That(result.Id, Is.EqualTo(_testProduct.Id), "Product Id does not match");
+                Assert.That(result.Description, Is.EqualTo(_testProduct.Description), "Product Description does not match");
+                Assert.That(result.Price, Is.EqualTo(_testProduct.Price), "Product Price does not match");
                 Assert.That(_productService.Search(_testProduct.Id), Is.Null, "Product still exists after removal");
             });
         }
@@ -108,7 +110,12 @@ namespace ShopAppTests.Services
         {
             _productService.Add(_testProduct);
             var result = _productService.Search(_testProduct.Id);
-            Assert.That(result, Is.EqualTo(_testProduct), "Product not found");
+            Assert.Multiple(() =>
+            {
+                Assert.That(result?.Id, Is.EqualTo(_testProduct.Id), "Product Id does not match");
+                Assert.That(result?.Description, Is.EqualTo(_testProduct.Description), "Product Description does not match");
+                Assert.That(result?.Price, Is.EqualTo(_testProduct.Price), "Product Price does not match");
+            });
         }
 
         [Test]

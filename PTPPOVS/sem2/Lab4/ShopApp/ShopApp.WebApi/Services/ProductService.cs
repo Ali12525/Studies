@@ -14,11 +14,9 @@ namespace ShopApp.Services
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductService"/> class.
-        /// Теперь используется DataBase для взаимодействия с SQLite.
         /// </summary>
         public ProductService(IConfiguration config)
         {
-            // Можно использовать конфигурацию для других целей, если потребуется
             _database = new DataBase();
         }
 
@@ -98,7 +96,6 @@ namespace ShopApp.Services
         {
             try
             {
-                // Получаем все продукты и ищем нужный по Id
                 var products = _database.GetProducts();
                 return products.FirstOrDefault(p => p.Id == id);
             }
