@@ -1,0 +1,7 @@
+{
+  "e7db4618-add7-448b-bf5c-8bc0a68bc15c": {
+    "Id": "e7db4618-add7-448b-bf5c-8bc0a68bc15c",
+    "Description": "ananas",
+    "Price": 100
+  }
+}
