@@ -79,7 +79,7 @@ public class Main {
                             // Ждем ответа от сервера
                             byte[] ackResponseBuf = new byte[4096];
                             DatagramPacket ackResponsePacket = new DatagramPacket(ackResponseBuf, ackResponseBuf.length);
-                            socket.setSoTimeout(1000);
+                            socket.setSoTimeout(500);
                             socket.receive(ackResponsePacket);
 
                             // Проверяем подтверждение подтверждения
@@ -126,7 +126,7 @@ public class Main {
                         try {
                             byte[] ackResBuf = new byte[4096];
                             DatagramPacket ackResPacket = new DatagramPacket(ackResBuf, ackResBuf.length);
-                            socket.setSoTimeout(1000);
+                            socket.setSoTimeout(1500);
                             socket.receive(ackResPacket);
                             ByteArrayInputStream ackResBais = new ByteArrayInputStream(ackResPacket.getData(), 0, ackResPacket.getLength());
                             ObjectInputStream ackResOis = new ObjectInputStream(ackResBais);
