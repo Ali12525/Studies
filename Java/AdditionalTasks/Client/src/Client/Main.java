@@ -15,7 +15,6 @@ public class Main {
         final int COUNT_THREAD = 2;
         
         try (DatagramSocket socket = new DatagramSocket()) {
-            // Регистрируемся на сервере
             CommandData registerCmd = new CommandData("register", (RecIntegral) null);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -72,7 +71,6 @@ public class Main {
 
                     while (ackAttempts < maxAckAttempts && !taskAcknowledged) {
                         try {
-                            // Отправляем подтверждение
                             socket.send(ackPacket);
                             System.out.println("Отправляем подтверждение получения задачи: " + ack);
 
@@ -102,13 +100,10 @@ public class Main {
                         continue;
                     }
                     
-                    
-                    // Выполняем вычисление
                     DistributedIntegralCalculator calculator = new DistributedIntegralCalculator(task.getRecIntegral(), COUNT_THREAD);
                     double result = calculator.calculate();
                     System.out.println("Результат вычислен: " + result);
                     
-                    // Отправляем результат серверу
                     CommandData resultCmd = new CommandData("result", result);
                     ByteArrayOutputStream resBaos = new ByteArrayOutputStream();
                     ObjectOutputStream resOos = new ObjectOutputStream(resBaos);
@@ -117,7 +112,6 @@ public class Main {
                     byte[] resData = resBaos.toByteArray();
                     DatagramPacket responsePacket = new DatagramPacket(resData, resData.length, packet.getAddress(), packet.getPort());
                     
-                    // Реализуем логику повторной отправки результата при отсутствии подтверждения
                     int maxAttempts = 5;
                     int attempts = 0;
                     boolean resultAckReceived = false;
