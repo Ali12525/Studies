@@ -19,7 +19,7 @@ namespace ShopApp.Models
         /// Product description from the manufacturer
         /// </summary>
         [Required]
-        [MaxLength(500)]
+        [MaxLength(500)]    
         public string Description { get; set; }
 
         /// <summary>
