@@ -1,7 +1,10 @@
 ﻿using ShopApp.Services;
 using ShopApp.Models;
-using Microsoft.Extensions.Configuration;
-using Moq;
+using NUnit.Framework;
+using System;
+using System.IO;
+using ShopApp.WebApi.DB;
+using Microsoft.Data.Sqlite;
 
 namespace ShopAppTests.Services
 {
@@ -9,16 +12,17 @@ namespace ShopAppTests.Services
     internal class TestsIntegrationProductService
     {
         private IProductService _productService;
-        private Mock<IConfiguration> _mockConfig;
         private Product _testProduct;
+        private string _testDbPath = "test_db.db";
 
         [SetUp]
         public void Setup()
         {
-            _mockConfig = new Mock<IConfiguration>();
-            _mockConfig.Setup(c => c["DataBaseFilePath"]).Returns("test_db.txt");
+            CleanupDatabase();
 
-            _productService = new ProductService(_mockConfig.Object);
+            var db = new DataBase($"Data Source={_testDbPath};");
+            _productService = new ProductService(db);
+
             _testProduct = new Product
             {
                 Id = Guid.NewGuid(),
@@ -27,18 +31,35 @@ namespace ShopAppTests.Services
             };
         }
 
-        // Tests for Add method
+        [TearDown]
+        public void Teardown()
+        {
+            CleanupDatabase();
+        }
+
+        private void CleanupDatabase()
+        {
+            SqliteConnection.ClearAllPools();
+
+            if (File.Exists(_testDbPath))
+            {
+                File.Delete(_testDbPath);
+            }
+        }
+
+        // Add tests
         [TestCase("Product Description", 10)]
         [TestCase("", 15)]
         [TestCase("Product Description", 10.15)]
         public void TestAddMethod_ShouldAddProduct_WhenNew(string description, double price)
         {
-            Product product = new Product
+            var product = new Product
             {
                 Id = Guid.NewGuid(),
                 Description = description,
                 Price = price
             };
+
             var result = _productService.Add(product);
             Assert.That(result, Is.EqualTo(product), "Product was not added correctly");
         }
@@ -51,7 +72,7 @@ namespace ShopAppTests.Services
             Assert.That(result, Is.Null, "A duplicate product has been added.");
         }
 
-        // Tests for Remove method
+        // Remove tests
         [Test]
         public void TestRemoveMethod_ShouldRemoveProduct_WhenExists()
         {
@@ -60,10 +81,10 @@ namespace ShopAppTests.Services
 
             Assert.Multiple(() =>
             {
-                Assert.That(result.Id, Is.EqualTo(_testProduct.Id), "Product Id does not match");
-                Assert.That(result.Description, Is.EqualTo(_testProduct.Description), "Product Description does not match");
-                Assert.That(result.Price, Is.EqualTo(_testProduct.Price), "Product Price does not match");
-                Assert.That(_productService.Search(_testProduct.Id), Is.Null, "Product still exists after removal");
+                Assert.That(result.Id, Is.EqualTo(_testProduct.Id));
+                Assert.That(result.Description, Is.EqualTo(_testProduct.Description));
+                Assert.That(result.Price, Is.EqualTo(_testProduct.Price));
+                Assert.That(_productService.Search(_testProduct.Id), Is.Null);
             });
         }
 
@@ -71,14 +92,15 @@ namespace ShopAppTests.Services
         public void TestRemoveMethod_ShouldReturnNull_WhenNotExists()
         {
             var result = _productService.Remove(Guid.NewGuid());
-            Assert.That(result, Is.Null, "Non-existent product was removed");
+            Assert.That(result, Is.Null);
         }
 
-        // Tests for Edit method
+        // Edit tests
         [Test]
         public void TestEditMethod_ShouldEditProduct_WhenExists()
         {
             _productService.Add(_testProduct);
+
             var updatedProduct = new Product
             {
                 Id = _testProduct.Id,
@@ -90,10 +112,10 @@ namespace ShopAppTests.Services
 
             Assert.Multiple(() =>
             {
-                Assert.That(result, Is.EqualTo(updatedProduct), "Product was not updated");
-                var searchedProduct = _productService.Search(updatedProduct.Id);
-                Assert.That(searchedProduct?.Description, Is.EqualTo(updatedProduct.Description), "Description was not updated");
-                Assert.That(searchedProduct?.Price, Is.EqualTo(updatedProduct.Price), "Price was not updated");
+                Assert.That(result, Is.EqualTo(updatedProduct));
+                var searched = _productService.Search(updatedProduct.Id);
+                Assert.That(searched?.Description, Is.EqualTo(updatedProduct.Description));
+                Assert.That(searched?.Price, Is.EqualTo(updatedProduct.Price));
             });
         }
 
@@ -101,20 +123,21 @@ namespace ShopAppTests.Services
         public void TestEditMethod_ShouldReturnNull_WhenNotExists()
         {
             var result = _productService.Edit(_testProduct);
-            Assert.That(result, Is.Null, "Edited non-existent product");
+            Assert.That(result, Is.Null);
         }
 
-        // Tests for Search method
+        // Search tests
         [Test]
         public void TestSearchMethod_ShouldFindProduct_WhenExists()
         {
             _productService.Add(_testProduct);
             var result = _productService.Search(_testProduct.Id);
+
             Assert.Multiple(() =>
             {
-                Assert.That(result?.Id, Is.EqualTo(_testProduct.Id), "Product Id does not match");
-                Assert.That(result?.Description, Is.EqualTo(_testProduct.Description), "Product Description does not match");
-                Assert.That(result?.Price, Is.EqualTo(_testProduct.Price), "Product Price does not match");
+                Assert.That(result?.Id, Is.EqualTo(_testProduct.Id));
+                Assert.That(result?.Description, Is.EqualTo(_testProduct.Description));
+                Assert.That(result?.Price, Is.EqualTo(_testProduct.Price));
             });
         }
 
@@ -122,16 +145,7 @@ namespace ShopAppTests.Services
         public void TestSearchMethod_ShouldReturnNull_WhenNotExists()
         {
             var result = _productService.Search(Guid.NewGuid());
-            Assert.That(result, Is.Null, "Non-existent product was found");
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            if (File.Exists("test_db.txt"))
-            {
-                File.Delete("test_db.txt");
-            }
+            Assert.That(result, Is.Null);
         }
     }
 }

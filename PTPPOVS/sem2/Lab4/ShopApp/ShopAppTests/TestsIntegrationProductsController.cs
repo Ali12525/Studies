@@ -1,6 +1,10 @@
 ﻿using ShopApp.Services;
-using Microsoft.Extensions.Configuration;
-using Moq;
+using ShopApp.Models;
+using NUnit.Framework;
+using System;
+using System.IO;
+using ShopApp.WebApi.DB;
+using Microsoft.Data.Sqlite;
 
 namespace ShopAppTests.Controllers
 {
@@ -9,16 +13,27 @@ namespace ShopAppTests.Controllers
     {
         private ProductsController _controller;
         private IProductService _productService;
-        private Mock<IConfiguration> _mockConfig;
-        private string _testDbPath = "test_integDB.txt";
+        private string _testDbPath = "test_db.db";
 
         [SetUp]
         public void Setup()
         {
-            _mockConfig = new Mock<IConfiguration>();
-            _mockConfig.Setup(c => c["DataBaseFilePath"]).Returns(_testDbPath);
-            _productService = new ProductService(_mockConfig.Object);
+            CleanupDatabase();
+
+            var db = new DataBase($"Data Source={_testDbPath};");
+            _productService = new ProductService(db);
             _controller = new ProductsController(_productService);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            CleanupDatabase();
+        }
+
+        private void CleanupDatabase()
+        {
+            SqliteConnection.ClearAllPools();
 
             if (File.Exists(_testDbPath))
             {
@@ -38,7 +53,7 @@ namespace ShopAppTests.Controllers
             if (string.IsNullOrWhiteSpace(description) || price < 0)
             {
                 Assert.That(result, Is.Null, "Should reject invalid input");
-            }    
+            }
             else
             {
                 Assert.Multiple(() =>
@@ -75,7 +90,6 @@ namespace ShopAppTests.Controllers
         public void SearchProduct_ShouldReturnNull_WhenProductDoesNotExist()
         {
             var result = _controller.SearchProduct(Guid.NewGuid());
-
             Assert.That(result, Is.Null);
         }
 
@@ -85,8 +99,7 @@ namespace ShopAppTests.Controllers
         {
             var product = _controller.CreateProduct("To Delete", 9.99);
             var removed = _controller.RemoveProduct(product.Id);
-            var fromDb = _productService.Search(product.Id);
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(removed, Is.Not.Null, "Null returned for removed product");
@@ -135,15 +148,6 @@ namespace ShopAppTests.Controllers
                     Assert.That(fromDb.Description, Is.EqualTo(newDescription), "Database description not updated");
                     Assert.That(fromDb.Price, Is.EqualTo(newPrice), "Database price not updated");
                 });
-            }
-        }
-
-        [TearDown]
-        public void Cleanup()
-        {
-            if (File.Exists(_testDbPath))
-            {
-                File.Delete(_testDbPath);
             }
         }
     }

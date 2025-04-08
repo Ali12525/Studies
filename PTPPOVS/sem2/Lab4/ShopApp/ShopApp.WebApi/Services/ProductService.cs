@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 using ShopApp.Models;
-using ShopApp.WebApi.BD;
+using ShopApp.WebApi.DB;
+using ShopApp.Core.DB;
 
 namespace ShopApp.Services
 {
@@ -10,14 +11,14 @@ namespace ShopApp.Services
     /// </summary>
     public class ProductService : IProductService
     {
-        private readonly DataBase _database;
+        private readonly IDataBase _database;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductService"/> class.
         /// </summary>
-        public ProductService(IConfiguration config)
+        public ProductService(IDataBase database)
         {
-            _database = new DataBase();
+            _database = database;
         }
 
         /// <summary>

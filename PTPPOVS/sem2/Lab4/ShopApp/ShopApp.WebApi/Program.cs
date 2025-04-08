@@ -1,4 +1,6 @@
 ﻿using ShopApp.Services;
+using ShopApp.Core.DB;
+using ShopApp.WebApi.DB;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddSingleton<IProductService, ProductService>();
+var connectionString = builder.Configuration.GetConnectionString("Default");
+builder.Services.AddSingleton<IDataBase>(sp => new DataBase(connectionString));
 
 var app = builder.Build();
 

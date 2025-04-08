@@ -4,15 +4,15 @@ using System.Linq;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 using ShopApp.Models;
-using ShopApp.WebApi.BD;
+using ShopApp.WebApi.DB;
 
-namespace ShopAppTests.BD
+namespace ShopAppTests.DB
 {
     [TestFixture]
     public class DataBaseTests
     {
-        private const string TestDbFile = "shopapp.db";
-        private const string CONNECTION_STRING = "Data Source=shopapp.db;";
+        private const string TestDbFile = "test_db.db";
+        private const string CONNECTION_STRING = $"Data Source={TestDbFile};";
 
         [SetUp]
         public void Setup()
@@ -39,7 +39,7 @@ namespace ShopAppTests.BD
         [Test]
         public void Constructor_ShouldCreateTableAndIndex()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
 
             using (var connection = new SqliteConnection(CONNECTION_STRING))
             {
@@ -63,7 +63,7 @@ namespace ShopAppTests.BD
         [Test]
         public void GetProducts_ShouldReturnEmptyList_WhenDatabaseEmpty()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
             var result = db.GetProducts();
 
             Assert.AreEqual(0, result.Count, "Expected an empty product list.");
@@ -72,7 +72,7 @@ namespace ShopAppTests.BD
         [Test]
         public void InsertProduct_ShouldAddProductToDatabase()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -96,7 +96,7 @@ namespace ShopAppTests.BD
         [Test]
         public void UpdateProduct_ShouldModifyExistingProduct()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
             var original = new Product
             {
                 Id = Guid.NewGuid(),
@@ -125,7 +125,7 @@ namespace ShopAppTests.BD
         [Test]
         public void DeleteProduct_ShouldRemoveProductFromDatabase()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -141,7 +141,7 @@ namespace ShopAppTests.BD
         [Test]
         public void GetProducts_ShouldReturnMultipleProducts()
         {
-            var db = new DataBase();
+            var db = new DataBase(CONNECTION_STRING);
             var products = new[]
             {
                 new Product { Id = Guid.NewGuid(), Description = "First", Price = 1.0 },
