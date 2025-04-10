@@ -23,6 +23,7 @@ public class Frame extends javax.swing.JFrame {
         initComponents();
         listModel = new DefaultListModel<>();
         jListFiles.setModel(listModel);
+        refreshFileList();
     }
 
     /**
