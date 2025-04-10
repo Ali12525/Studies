@@ -1,12 +1,28 @@
 package client;
 
+import java.io.File;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
 public class Frame extends javax.swing.JFrame {
 
+    private String currentPath = "";
+    private FileManagerClient client;
+    private DefaultListModel<String> listModel;
     /**
      * Creates new form Frame
      */
     public Frame() {
         initComponents();
+    }
+    
+    public Frame(FileManagerClient client) {
+        this.client = client;
+        initComponents();
+        listModel = new DefaultListModel<>();
+        jListFiles.setModel(listModel);
     }
 
     /**
@@ -53,25 +69,31 @@ public class Frame extends javax.swing.JFrame {
         jMenu13 = new javax.swing.JMenu();
         jPopupMenu6 = new javax.swing.JPopupMenu();
         jPanel1 = new javax.swing.JPanel();
+        jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
+        jEditorPane1 = new javax.swing.JEditorPane();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jMenuBar6 = new javax.swing.JMenuBar();
-        jMenu14 = new javax.swing.JMenu();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        jMenuItem7 = new javax.swing.JMenuItem();
-        jMenuItem8 = new javax.swing.JMenuItem();
-        jMenuItem9 = new javax.swing.JMenuItem();
-        jMenu15 = new javax.swing.JMenu();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
-        jMenu4 = new javax.swing.JMenu();
-        jMenu5 = new javax.swing.JMenu();
-        jMenu16 = new javax.swing.JMenu();
-        jMenu17 = new javax.swing.JMenu();
+        jTextFieldSearch = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jListFiles = new javax.swing.JList<>();
+        jButtonBack = new javax.swing.JButton();
+        jButtonRefresh = new javax.swing.JButton();
+        jButtonSearch = new javax.swing.JButton();
+        jMenuBar = new javax.swing.JMenuBar();
+        jMenuSortName = new javax.swing.JMenu();
+        jMenuName = new javax.swing.JMenuItem();
+        jMenuSortSize = new javax.swing.JMenuItem();
+        jMenuSortType = new javax.swing.JMenuItem();
+        jMenuDate = new javax.swing.JMenuItem();
+        jMenuView = new javax.swing.JMenu();
+        jMenuViewTile = new javax.swing.JMenuItem();
+        jMenuViewList = new javax.swing.JMenuItem();
+        jMenuUpload = new javax.swing.JMenu();
+        jMenuDelete = new javax.swing.JMenu();
+        jMenuCreateFolder = new javax.swing.JMenu();
+        jMenuRename = new javax.swing.JMenu();
+        jMenuCopy = new javax.swing.JMenu();
+        jMenuDownload = new javax.swing.JMenu();
 
         jMenu1.setText("jMenu1");
 
@@ -159,125 +181,444 @@ public class Frame extends javax.swing.JFrame {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        jCheckBoxMenuItem2.setSelected(true);
+        jCheckBoxMenuItem2.setText("jCheckBoxMenuItem2");
+
+        jScrollPane1.setViewportView(jEditorPane1);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jScrollPane1.setViewportView(jTree1);
-
-        jTextField1.setText("Поиск:");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                jTextFieldSearchActionPerformed(evt);
             }
         });
 
-        jTextField2.setText("D:\\Ycheba\\Ali\\Studies\\Java\\Coursework\\Coursework");
-
-        jMenuBar6.setBackground(new java.awt.Color(102, 102, 255));
-        jMenuBar6.setBorderPainted(false);
-        jMenuBar6.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jMenuBar6.setFont(jMenuBar6.getFont());
-        jMenuBar6.setMinimumSize(new java.awt.Dimension(400, 50));
-        jMenuBar6.setOpaque(true);
-        jMenuBar6.setPreferredSize(new java.awt.Dimension(400, 35));
-
-        jMenu14.setText("Сортировать");
-
-        jMenuItem6.setText("Названию");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+        jListFiles.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = {};
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jListFiles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListFilesMouseClicked(evt);
             }
         });
-        jMenu14.add(jMenuItem6);
+        jScrollPane2.setViewportView(jListFiles);
 
-        jMenuItem7.setText("Размеру");
-        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+        jButtonBack.setText("Назад");
+        jButtonBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem7ActionPerformed(evt);
+                jButtonBackActionPerformed(evt);
             }
         });
-        jMenu14.add(jMenuItem7);
 
-        jMenuItem8.setText("Типу");
-        jMenu14.add(jMenuItem8);
-
-        jMenuItem9.setText("Дате изменения");
-        jMenu14.add(jMenuItem9);
-
-        jMenuBar6.add(jMenu14);
-
-        jMenu15.setText("Вид");
-
-        jMenuItem3.setText("Крупная плитка");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        jButtonRefresh.setText("Обновить");
+        jButtonRefresh.setMaximumSize(new java.awt.Dimension(72, 25));
+        jButtonRefresh.setMinimumSize(new java.awt.Dimension(72, 25));
+        jButtonRefresh.setName(""); // NOI18N
+        jButtonRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                jButtonRefreshActionPerformed(evt);
             }
         });
-        jMenu15.add(jMenuItem3);
 
-        jMenuItem4.setText("Плитка");
-        jMenu15.add(jMenuItem4);
+        jButtonSearch.setText("Поиск");
+        jButtonSearch.setMaximumSize(new java.awt.Dimension(72, 25));
+        jButtonSearch.setMinimumSize(new java.awt.Dimension(72, 25));
+        jButtonSearch.setName(""); // NOI18N
+        jButtonSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSearchActionPerformed(evt);
+            }
+        });
 
-        jMenuItem5.setText("Список");
-        jMenu15.add(jMenuItem5);
+        jMenuBar.setBorderPainted(false);
+        jMenuBar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jMenuBar.setFont(jMenuBar.getFont());
+        jMenuBar.setMinimumSize(new java.awt.Dimension(400, 50));
+        jMenuBar.setOpaque(true);
+        jMenuBar.setPreferredSize(new java.awt.Dimension(400, 35));
 
-        jMenuBar6.add(jMenu15);
+        jMenuSortName.setText("Сортировать");
 
-        jMenu4.setText("Скопировать");
-        jMenuBar6.add(jMenu4);
+        jMenuName.setText("Названию");
+        jMenuName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuNameActionPerformed(evt);
+            }
+        });
+        jMenuSortName.add(jMenuName);
 
-        jMenu5.setText("Удалить");
-        jMenuBar6.add(jMenu5);
+        jMenuSortSize.setText("Размеру");
+        jMenuSortSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSortSizeActionPerformed(evt);
+            }
+        });
+        jMenuSortName.add(jMenuSortSize);
 
-        jMenu16.setText("Создать");
-        jMenuBar6.add(jMenu16);
+        jMenuSortType.setText("Типу");
+        jMenuSortName.add(jMenuSortType);
 
-        jMenu17.setText("Загрузить");
-        jMenuBar6.add(jMenu17);
+        jMenuDate.setText("Дате изменения");
+        jMenuDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuDateActionPerformed(evt);
+            }
+        });
+        jMenuSortName.add(jMenuDate);
 
-        setJMenuBar(jMenuBar6);
+        jMenuBar.add(jMenuSortName);
+
+        jMenuView.setText("Вид");
+
+        jMenuViewTile.setText("Плитка");
+        jMenuView.add(jMenuViewTile);
+
+        jMenuViewList.setText("Список");
+        jMenuView.add(jMenuViewList);
+
+        jMenuBar.add(jMenuView);
+
+        jMenuUpload.setText("Загрузить");
+        jMenuUpload.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuUploadMouseClicked(evt);
+            }
+        });
+        jMenuUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuUploadActionPerformed(evt);
+            }
+        });
+        jMenuBar.add(jMenuUpload);
+
+        jMenuDelete.setText("Удалить");
+        jMenuDelete.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuDeleteMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuDelete);
+
+        jMenuCreateFolder.setText("Создать папку");
+        jMenuCreateFolder.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuCreateFolderMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuCreateFolder);
+
+        jMenuRename.setText("Переименовать");
+        jMenuRename.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuRenameMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuRename);
+
+        jMenuCopy.setText("Копировать");
+        jMenuCopy.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuCopyMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuCopy);
+
+        jMenuDownload.setText("Скачать");
+        jMenuDownload.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuDownloadMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuDownload);
+
+        setJMenuBar(jMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(279, 279, 279)
+                        .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(424, Short.MAX_VALUE))
-            .addComponent(jScrollPane1)
+                    .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void jMenuNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuNameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }//GEN-LAST:event_jMenuNameActionPerformed
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    private void jMenuSortSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortSizeActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    }//GEN-LAST:event_jMenuSortSizeActionPerformed
 
-    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+    private void jTextFieldSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSearchActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem7ActionPerformed
+    }//GEN-LAST:event_jTextFieldSearchActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void jMenuDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuDateActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_jMenuDateActionPerformed
 
+    private void jButtonBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackActionPerformed
+        // TODO add your handling code here:
+        if (!currentPath.isEmpty()) {
+            int sepIndex = currentPath.lastIndexOf(File.separator);
+            if (sepIndex == -1)
+                currentPath = "";
+            else
+                currentPath = currentPath.substring(0, sepIndex);
+            refreshFileList();
+        } 
+    }//GEN-LAST:event_jButtonBackActionPerformed
+
+    private void jMenuUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuUploadActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuUploadActionPerformed
+
+    private void jMenuUploadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuUploadMouseClicked
+        // TODO add your handling code here:
+        uploadFile();
+    }//GEN-LAST:event_jMenuUploadMouseClicked
+
+    private void jMenuDownloadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuDownloadMouseClicked
+        // TODO add your handling code here:
+        downloadFile();
+    }//GEN-LAST:event_jMenuDownloadMouseClicked
+
+    private void jMenuDeleteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuDeleteMouseClicked
+        // TODO add your handling code here:
+        deleteItem();
+    }//GEN-LAST:event_jMenuDeleteMouseClicked
+
+    private void jMenuCreateFolderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuCreateFolderMouseClicked
+        // TODO add your handling code here:
+        createFolder();
+    }//GEN-LAST:event_jMenuCreateFolderMouseClicked
+
+    private void jMenuRenameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuRenameMouseClicked
+        // TODO add your handling code here:
+        renameItem();
+    }//GEN-LAST:event_jMenuRenameMouseClicked
+
+    private void jMenuCopyMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuCopyMouseClicked
+        // TODO add your handling code here:
+        copyItem();
+    }//GEN-LAST:event_jMenuCopyMouseClicked
+
+    private void jButtonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchActionPerformed
+        // TODO add your handling code here:
+        String query = jTextFieldSearch.getText().trim();
+        List<String> results = client.search(query);
+        listModel.clear();
+        if (results != null) {
+            for (String s : results) {
+                listModel.addElement(s);
+            }
+        }
+    }//GEN-LAST:event_jButtonSearchActionPerformed
+
+    private void jButtonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefreshActionPerformed
+        // TODO add your handling code here:
+        refreshFileList();
+    }//GEN-LAST:event_jButtonRefreshActionPerformed
+
+    private void jListFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListFilesMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2) {
+                    String selectedItem = jListFiles.getSelectedValue();
+                    if (selectedItem != null) {
+                        // Формируем новый относительный путь
+                        String newPath = currentPath.isEmpty() ? selectedItem : currentPath + File.separator + selectedItem;
+                        // Пробуем запросить содержимое папки
+                        List<String> folderContents = client.listFolder(newPath);
+                        if (folderContents != null) {
+                            currentPath = newPath;
+                            refreshFileList();
+                        } else {
+                            JOptionPane.showMessageDialog(Frame.this, "Это не папка или произошла ошибка");
+                        }
+                    }
+                }
+    }//GEN-LAST:event_jListFilesMouseClicked
+
+    // Обновление списка файлов – запрашиваем содержимое текущего каталога с сервера
+    private void refreshFileList() {
+        List<String> files;
+        if (currentPath.isEmpty()) {
+            // Если текущий путь пустой – получаем содержимое корневой папки пользователя.
+            files = client.listFolder("");
+        } else {
+            files = client.listFolder(currentPath);
+        }
+        listModel.clear();
+        if (files != null) {
+            for (String s : files) {
+                listModel.addElement(s);
+            }
+        }
+    }
+    
+    // Обработчик загрузки файла
+    private void uploadFile() {
+        JFileChooser fc = new JFileChooser();
+        int res = fc.showOpenDialog(this);
+        if (res == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            // Спрашиваем у пользователя куда сохранить (относительный путь)
+            String destPath = JOptionPane.showInputDialog(this, "Enter destination path (relative):", file.getName());
+            if (destPath == null || destPath.trim().isEmpty())
+                destPath = file.getName();
+            // Если загружаем в текущий каталог, добавляем префикс (если currentPath не пустой)
+            String relativeDest = currentPath.isEmpty() ? destPath : currentPath + File.separator + destPath;
+            if (client.uploadFile(file, relativeDest)) {
+                JOptionPane.showMessageDialog(this, "Upload successful");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Upload failed");
+            }
+        }
+    }
+    
+    // Обработчик скачивания файла
+    private void downloadFile() {
+        String filePath = jListFiles.getSelectedValue();
+        if (filePath == null) {
+            JOptionPane.showMessageDialog(this, "Select a file from the list");
+            return;
+        }
+        // Формируем относительный путь до файла с учетом текущего каталога
+        String relativePath = currentPath.isEmpty() ? filePath : currentPath + File.separator + filePath;
+        JFileChooser fc = new JFileChooser();
+        fc.setSelectedFile(new File(filePath));
+        int res = fc.showSaveDialog(this);
+        if (res == JFileChooser.APPROVE_OPTION) {
+            File saveTo = fc.getSelectedFile();
+            if (client.downloadFile(relativePath, saveTo)) {
+                JOptionPane.showMessageDialog(this, "Download successful");
+            } else {
+                JOptionPane.showMessageDialog(this, "Download failed");
+            }
+        }
+    }
+    
+    // Создание папки
+    private void createFolder() {
+        String folderName = JOptionPane.showInputDialog(this, "Enter folder name (relative path):");
+        if (folderName != null && !folderName.trim().isEmpty()) {
+            String relativePath = currentPath.isEmpty() ? folderName : currentPath + File.separator + folderName;
+            if (client.createFolder(relativePath)) {
+                JOptionPane.showMessageDialog(this, "Folder created successfully");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to create folder");
+            }
+        }
+    }
+    
+    // Удаление файла или папки
+    private void deleteItem() {
+        String item = jListFiles.getSelectedValue();
+        if (item == null) {
+            JOptionPane.showMessageDialog(this, "Select an item from the list");
+            return;
+        }
+        String relativePath = currentPath.isEmpty() ? item : currentPath + File.separator + item;
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete: " + item + "?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (client.delete(relativePath)) {
+                JOptionPane.showMessageDialog(this, "Deleted successfully");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Deletion failed");
+            }
+        }
+    }
+    
+    // Копирование файла или папки
+    private void copyItem() {
+        String source = jListFiles.getSelectedValue();
+        if (source == null) {
+            JOptionPane.showMessageDialog(this, "Select an item to copy");
+            return;
+        }
+        String sourcePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
+        String dest = JOptionPane.showInputDialog(this, "Enter destination path (relative):");
+        if (dest != null && !dest.trim().isEmpty()) {
+            if (client.copy(sourcePath, dest)) {
+                JOptionPane.showMessageDialog(this, "Copy successful");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Copy failed");
+            }
+        }
+    }
+    
+    // Переименование файла или папки
+    private void renameItem() {
+        String oldName = jListFiles.getSelectedValue();
+        if (oldName == null) {
+            JOptionPane.showMessageDialog(this, "Select an item to rename");
+            return;
+        }
+        String newName = JOptionPane.showInputDialog(this, "Enter new name:");
+        if (newName != null && !newName.trim().isEmpty()) {
+            String relativePath = currentPath.isEmpty() ? oldName : currentPath + File.separator + oldName;
+            if (client.rename(relativePath, newName)) {
+                JOptionPane.showMessageDialog(this, "Rename successful");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Rename failed");
+            }
+        }
+    }
+    
+    // Перемещение файла или папки
+    private void moveItem() {
+        String source = jListFiles.getSelectedValue();
+        if (source == null) {
+            JOptionPane.showMessageDialog(this, "Select an item to move");
+            return;
+        }
+        String sourcePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
+        String dest = JOptionPane.showInputDialog(this, "Enter destination folder (relative):");
+        if (dest != null && !dest.trim().isEmpty()) {
+            if (client.move(sourcePath, dest)) {
+                JOptionPane.showMessageDialog(this, "Move successful");
+                refreshFileList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Move failed");
+            }
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -317,40 +658,47 @@ public class Frame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
+    private javax.swing.JButton jButtonBack;
+    private javax.swing.JButton jButtonRefresh;
+    private javax.swing.JButton jButtonSearch;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
+    private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JFrame jFrame2;
+    private javax.swing.JList<String> jListFiles;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu10;
     private javax.swing.JMenu jMenu11;
     private javax.swing.JMenu jMenu12;
     private javax.swing.JMenu jMenu13;
-    private javax.swing.JMenu jMenu14;
-    private javax.swing.JMenu jMenu15;
-    private javax.swing.JMenu jMenu16;
-    private javax.swing.JMenu jMenu17;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenu jMenu4;
-    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;
     private javax.swing.JMenu jMenu7;
     private javax.swing.JMenu jMenu8;
     private javax.swing.JMenu jMenu9;
+    private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuBar jMenuBar3;
     private javax.swing.JMenuBar jMenuBar4;
     private javax.swing.JMenuBar jMenuBar5;
-    private javax.swing.JMenuBar jMenuBar6;
+    private javax.swing.JMenu jMenuCopy;
+    private javax.swing.JMenu jMenuCreateFolder;
+    private javax.swing.JMenuItem jMenuDate;
+    private javax.swing.JMenu jMenuDelete;
+    private javax.swing.JMenu jMenuDownload;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JMenuItem jMenuItem7;
-    private javax.swing.JMenuItem jMenuItem8;
-    private javax.swing.JMenuItem jMenuItem9;
+    private javax.swing.JMenuItem jMenuName;
+    private javax.swing.JMenu jMenuRename;
+    private javax.swing.JMenu jMenuSortName;
+    private javax.swing.JMenuItem jMenuSortSize;
+    private javax.swing.JMenuItem jMenuSortType;
+    private javax.swing.JMenu jMenuUpload;
+    private javax.swing.JMenu jMenuView;
+    private javax.swing.JMenuItem jMenuViewList;
+    private javax.swing.JMenuItem jMenuViewTile;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
@@ -359,9 +707,8 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu5;
     private javax.swing.JPopupMenu jPopupMenu6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTree jTree1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextField jTextFieldSearch;
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
     private java.awt.Menu menu3;
