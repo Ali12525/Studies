@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 public class Frame extends javax.swing.JFrame {
 
     private String currentPath = "";
+    private String copiedFilePath = null;
     private FileManagerClient client;
     private DefaultListModel<String> listModel;
     /**
@@ -95,6 +96,7 @@ public class Frame extends javax.swing.JFrame {
         jMenuRename = new javax.swing.JMenu();
         jMenuCopy = new javax.swing.JMenu();
         jMenuDownload = new javax.swing.JMenu();
+        jMenuInsert = new javax.swing.JMenu();
 
         jMenu1.setText("jMenu1");
 
@@ -335,6 +337,14 @@ public class Frame extends javax.swing.JFrame {
         });
         jMenuBar.add(jMenuDownload);
 
+        jMenuInsert.setText("Вставить");
+        jMenuInsert.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuInsertMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuInsert);
+
         setJMenuBar(jMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -470,6 +480,11 @@ public class Frame extends javax.swing.JFrame {
                 }
     }//GEN-LAST:event_jListFilesMouseClicked
 
+    private void jMenuInsertMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuInsertMouseClicked
+        // TODO add your handling code here:
+        insertCopiedItem();
+    }//GEN-LAST:event_jMenuInsertMouseClicked
+
     // Обновление списка файлов – запрашиваем содержимое текущего каталога с сервера
     private void refreshFileList() {
         List<String> files;
@@ -562,23 +577,37 @@ public class Frame extends javax.swing.JFrame {
         }
     }
     
-    // Копирование файла или папки
+    // Метод для копирования (вызывается при нажатии на "Копировать")
     private void copyItem() {
         String source = jListFiles.getSelectedValue();
         if (source == null) {
             JOptionPane.showMessageDialog(this, "Select an item to copy");
             return;
         }
-        String sourcePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
-        String dest = JOptionPane.showInputDialog(this, "Enter destination path (relative):");
-        if (dest != null && !dest.trim().isEmpty()) {
-            if (client.copy(sourcePath, dest)) {
-                JOptionPane.showMessageDialog(this, "Copy successful");
-                refreshFileList();
-            } else {
-                JOptionPane.showMessageDialog(this, "Copy failed");
-            }
+        // Формируем относительный путь исходного элемента
+        copiedFilePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
+    }
+    
+    // Метод для вставки (вызывается при нажатии на "Вставить")
+    private void insertCopiedItem() {
+        if (copiedFilePath == null) {
+            JOptionPane.showMessageDialog(this, "No file has been copied. Please click 'Copy' first.");
+            return;
         }
+        // Определяем имя копируемого файла (например, "file.txt")
+        File f = new File(copiedFilePath);
+        String fileName = f.getName();
+        // Формируем целевой путь для вставки в текущем каталоге
+        String destination = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
+        // Вызываем метод копирования на стороне клиента:
+        if (client.copy(copiedFilePath, destination)) {
+            JOptionPane.showMessageDialog(this, "Paste successful");
+            refreshFileList();
+        } else {
+            JOptionPane.showMessageDialog(this, "Paste failed");
+        }
+        // Очистка буфера копирования
+        copiedFilePath = null;
     }
     
     // Переименование файла или папки
@@ -688,6 +717,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuDate;
     private javax.swing.JMenu jMenuDelete;
     private javax.swing.JMenu jMenuDownload;
+    private javax.swing.JMenu jMenuInsert;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuName;
