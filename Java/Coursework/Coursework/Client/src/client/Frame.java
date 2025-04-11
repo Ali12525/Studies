@@ -493,10 +493,8 @@ public class Frame extends javax.swing.JFrame {
         int res = fc.showOpenDialog(this);
         if (res == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            // Спрашиваем у пользователя куда сохранить (относительный путь)
-            String destPath = JOptionPane.showInputDialog(this, "Enter destination path (relative):", file.getName());
-            if (destPath == null || destPath.trim().isEmpty())
-                destPath = file.getName();
+            // Используем имя выбранного файла по умолчанию для загрузки
+            String destPath = file.getName();
             // Если загружаем в текущий каталог, добавляем префикс (если currentPath не пустой)
             String relativeDest = currentPath.isEmpty() ? destPath : currentPath + File.separator + destPath;
             if (client.uploadFile(file, relativeDest)) {
@@ -507,6 +505,7 @@ public class Frame extends javax.swing.JFrame {
             }
         }
     }
+
     
     // Обработчик скачивания файла
     private void downloadFile() {
