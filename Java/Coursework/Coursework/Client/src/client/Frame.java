@@ -1,6 +1,9 @@
 package client;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
@@ -12,6 +15,13 @@ public class Frame extends javax.swing.JFrame {
     private String copiedFilePath = null;
     private FileManagerClient client;
     private DefaultListModel<String> listModel;
+    
+    // Флаги для переключения порядка сортировки
+    private boolean sortByNameAscending = true;
+    private boolean sortBySizeAscending = true;
+    private boolean sortByTypeAscending = true;
+    private boolean sortByDateAscending = true;
+    
     /**
      * Creates new form Frame
      */
@@ -82,11 +92,11 @@ public class Frame extends javax.swing.JFrame {
         jButtonRefresh = new javax.swing.JButton();
         jButtonSearch = new javax.swing.JButton();
         jMenuBar = new javax.swing.JMenuBar();
-        jMenuSortName = new javax.swing.JMenu();
-        jMenuName = new javax.swing.JMenuItem();
+        jMenuSort = new javax.swing.JMenu();
+        jMenuSortName = new javax.swing.JMenuItem();
         jMenuSortSize = new javax.swing.JMenuItem();
         jMenuSortType = new javax.swing.JMenuItem();
-        jMenuDate = new javax.swing.JMenuItem();
+        jMenuSortDate = new javax.swing.JMenuItem();
         jMenuView = new javax.swing.JMenu();
         jMenuViewTile = new javax.swing.JMenuItem();
         jMenuViewList = new javax.swing.JMenuItem();
@@ -243,36 +253,70 @@ public class Frame extends javax.swing.JFrame {
         jMenuBar.setOpaque(true);
         jMenuBar.setPreferredSize(new java.awt.Dimension(400, 35));
 
-        jMenuSortName.setText("Сортировать");
+        jMenuSort.setText("Сортировать");
 
-        jMenuName.setText("Названию");
-        jMenuName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuNameActionPerformed(evt);
+        jMenuSortName.setText("Названию");
+        jMenuSortName.addMenuKeyListener(new javax.swing.event.MenuKeyListener() {
+            public void menuKeyPressed(javax.swing.event.MenuKeyEvent evt) {
+                jMenuSortNameMenuKeyPressed(evt);
+            }
+            public void menuKeyReleased(javax.swing.event.MenuKeyEvent evt) {
+            }
+            public void menuKeyTyped(javax.swing.event.MenuKeyEvent evt) {
             }
         });
-        jMenuSortName.add(jMenuName);
+        jMenuSortName.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuSortNameMouseClicked(evt);
+            }
+        });
+        jMenuSortName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSortNameActionPerformed(evt);
+            }
+        });
+        jMenuSort.add(jMenuSortName);
 
         jMenuSortSize.setText("Размеру");
+        jMenuSortSize.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuSortSizeMouseClicked(evt);
+            }
+        });
         jMenuSortSize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuSortSizeActionPerformed(evt);
             }
         });
-        jMenuSortName.add(jMenuSortSize);
+        jMenuSort.add(jMenuSortSize);
 
         jMenuSortType.setText("Типу");
-        jMenuSortName.add(jMenuSortType);
-
-        jMenuDate.setText("Дате изменения");
-        jMenuDate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuDateActionPerformed(evt);
+        jMenuSortType.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuSortTypeMouseClicked(evt);
             }
         });
-        jMenuSortName.add(jMenuDate);
+        jMenuSortType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSortTypeActionPerformed(evt);
+            }
+        });
+        jMenuSort.add(jMenuSortType);
 
-        jMenuBar.add(jMenuSortName);
+        jMenuSortDate.setText("Дате изменения");
+        jMenuSortDate.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuSortDateMouseClicked(evt);
+            }
+        });
+        jMenuSortDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSortDateActionPerformed(evt);
+            }
+        });
+        jMenuSort.add(jMenuSortDate);
+
+        jMenuBar.add(jMenuSort);
 
         jMenuView.setText("Вид");
 
@@ -382,21 +426,28 @@ public class Frame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuNameActionPerformed
+    //Работает
+    private void jMenuSortNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortNameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuNameActionPerformed
+        sortByNameAscending = !sortByNameAscending;
+        sortFiles("name", sortByNameAscending);
+    }//GEN-LAST:event_jMenuSortNameActionPerformed
 
     private void jMenuSortSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortSizeActionPerformed
         // TODO add your handling code here:
+        sortByNameAscending = !sortByNameAscending;
+        sortFiles("size", sortByNameAscending);
     }//GEN-LAST:event_jMenuSortSizeActionPerformed
 
     private void jTextFieldSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSearchActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldSearchActionPerformed
 
-    private void jMenuDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuDateActionPerformed
+    private void jMenuSortDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortDateActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuDateActionPerformed
+        sortByNameAscending = !sortByNameAscending;
+        sortFiles("date", sortByNameAscending);
+    }//GEN-LAST:event_jMenuSortDateActionPerformed
 
     private void jButtonBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackActionPerformed
         // TODO add your handling code here:
@@ -485,6 +536,84 @@ public class Frame extends javax.swing.JFrame {
         insertCopiedItem();
     }//GEN-LAST:event_jMenuInsertMouseClicked
 
+    private void jMenuSortNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortNameMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuSortNameMouseClicked
+
+    private void jMenuSortSizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortSizeMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuSortSizeMouseClicked
+
+    private void jMenuSortTypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortTypeMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuSortTypeMouseClicked
+
+    private void jMenuSortDateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortDateMouseClicked
+        // TODO add your handling code here:
+        
+        
+    }//GEN-LAST:event_jMenuSortDateMouseClicked
+    
+    private void jMenuSortNameMenuKeyPressed(javax.swing.event.MenuKeyEvent evt) {//GEN-FIRST:event_jMenuSortNameMenuKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuSortNameMenuKeyPressed
+
+    private void jMenuSortTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortTypeActionPerformed
+        // TODO add your handling code here:
+        sortByNameAscending = !sortByNameAscending;
+        sortFiles("type", sortByNameAscending);
+    }//GEN-LAST:event_jMenuSortTypeActionPerformed
+
+    // Метод для сортировки файлов на клиенте
+    private void sortFiles(String criterion, boolean ascending) {
+        // Получаем текущее содержимое списка из listModel
+        List<String> fileList = new ArrayList<>();
+        for (int i = 0; i < listModel.getSize(); i++) {
+            fileList.add(listModel.getElementAt(i));
+        }
+
+        Comparator<String> comparator = null;
+        switch (criterion) {
+            case "name":
+                // Сортировка по имени (без учета регистра)
+                comparator = String.CASE_INSENSITIVE_ORDER;
+                break;
+            case "size":
+                // Если нет информации о размере, можно оставить, как по имени
+                comparator = String.CASE_INSENSITIVE_ORDER;
+                break;
+            case "type":
+                comparator = (a, b) -> {
+                    String extA = a.contains(".") ? a.substring(a.lastIndexOf(".") + 1) : "";
+                    String extB = b.contains(".") ? b.substring(b.lastIndexOf(".") + 1) : "";
+                    return extA.compareToIgnoreCase(extB);
+                };
+                break;
+            case "date":
+                // Без информации о дате сортируем как по имени (расширьте по необходимости)
+                comparator = String.CASE_INSENSITIVE_ORDER;
+                break;
+        }
+
+        if (comparator != null) {
+            fileList.sort(comparator);
+            if (!ascending) {
+                Collections.reverse(fileList);
+            }
+            updateListModel(fileList);
+        }
+    }
+    
+    // Обновление модели списка
+    private void updateListModel(List<String> sorted) {
+        listModel.clear();
+        if (sorted != null) {
+            for (String s : sorted) {
+                listModel.addElement(s);
+            }
+        }
+    }
+    
     // Обновление списка файлов – запрашиваем содержимое текущего каталога с сервера
     private void refreshFileList() {
         List<String> files;
@@ -601,7 +730,6 @@ public class Frame extends javax.swing.JFrame {
         String destination = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
         // Вызываем метод копирования на стороне клиента:
         if (client.copy(copiedFilePath, destination)) {
-            JOptionPane.showMessageDialog(this, "Paste successful");
             refreshFileList();
         } else {
             JOptionPane.showMessageDialog(this, "Paste failed");
@@ -714,15 +842,15 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar5;
     private javax.swing.JMenu jMenuCopy;
     private javax.swing.JMenu jMenuCreateFolder;
-    private javax.swing.JMenuItem jMenuDate;
     private javax.swing.JMenu jMenuDelete;
     private javax.swing.JMenu jMenuDownload;
     private javax.swing.JMenu jMenuInsert;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuName;
     private javax.swing.JMenu jMenuRename;
-    private javax.swing.JMenu jMenuSortName;
+    private javax.swing.JMenu jMenuSort;
+    private javax.swing.JMenuItem jMenuSortDate;
+    private javax.swing.JMenuItem jMenuSortName;
     private javax.swing.JMenuItem jMenuSortSize;
     private javax.swing.JMenuItem jMenuSortType;
     private javax.swing.JMenu jMenuUpload;

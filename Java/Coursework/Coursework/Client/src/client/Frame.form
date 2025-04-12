@@ -273,17 +273,19 @@
         </Property>
       </Properties>
       <SubComponents>
-        <Menu class="javax.swing.JMenu" name="jMenuSortName">
+        <Menu class="javax.swing.JMenu" name="jMenuSort">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x421;&#x43e;&#x440;&#x442;&#x438;&#x440;&#x43e;&#x432;&#x430;&#x442;&#x44c;"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuName">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuSortName">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x437;&#x432;&#x430;&#x43d;&#x438;&#x44e;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuNameActionPerformed"/>
+                <EventHandler event="menuKeyPressed" listener="javax.swing.event.MenuKeyListener" parameters="javax.swing.event.MenuKeyEvent" handler="jMenuSortNameMenuKeyPressed"/>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jMenuSortNameMouseClicked"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuSortNameActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuSortSize">
@@ -291,6 +293,7 @@
                 <Property name="text" type="java.lang.String" value="&#x420;&#x430;&#x437;&#x43c;&#x435;&#x440;&#x443;"/>
               </Properties>
               <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jMenuSortSizeMouseClicked"/>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuSortSizeActionPerformed"/>
               </Events>
             </MenuItem>
@@ -298,13 +301,18 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x422;&#x438;&#x43f;&#x443;"/>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jMenuSortTypeMouseClicked"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuSortTypeActionPerformed"/>
+              </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuDate">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuSortDate">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x414;&#x430;&#x442;&#x435; &#x438;&#x437;&#x43c;&#x435;&#x43d;&#x435;&#x43d;&#x438;&#x44f;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuDateActionPerformed"/>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jMenuSortDateMouseClicked"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuSortDateActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
