@@ -4,12 +4,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.nio.file.*;
+import DTO.*;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    // После успешного логина/регистрации запомним имя пользователя
     private String username = null;
 
     public ClientHandler(Socket socket) {
@@ -27,88 +27,90 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                String command = (String) ois.readObject();
-                System.out.println("Получена команда: " + command);
-                if (command.equals("REGISTER")) {
-                    handleRegister();
-                } else if (command.equals("LOGIN")) {
-                    handleLogin();
-                } else {
-                    if (username == null) {
-                        sendResponse("ERROR: Not authenticated");
-                        continue;
-                    }
-                    switch (command) {
-                        case "UPLOAD":
-                            handleUpload();
-                            break;
-                        case "DOWNLOAD":
-                            handleDownload();
-                            break;
-                        case "CREATE_FOLDER":
-                            handleCreateFolder();
-                            break;
-                        case "DELETE":
-                            handleDelete();
-                            break;
-                        case "SEARCH":
-                            handleSearch();
-                            break;
-                        case "COPY":
-                            handleCopy();
-                            break;
-                        case "RENAME":
-                            handleRename();
-                            break;
-                        case "SORT":
-                            handleSort();
-                            break;
-                        case "MOVE":
-                            handleMove();
-                            break;
-                        case "LIST":
-                            handleListFiles();
-                            break;
-                        default:
-                            sendResponse("ERROR: Unknown command");
-                    }
+                Object obj = ois.readObject();
+                if (!(obj instanceof RequestDTO)) {
+                    sendResponse(new ResponseDTO(false, "Invalid request type"));
+                    continue;
+                }
+                RequestDTO request = (RequestDTO)obj;
+                System.out.println("Получена команда: " + request.getCommand());
+                if (username == null && 
+                   !(request instanceof RegisterRequest) && 
+                   !(request instanceof LoginRequest)) {
+                    sendResponse(new ResponseDTO(false, "Not authenticated"));
+                    continue;
+                }
+                switch(request.getCommand()){
+                    case REGISTER:
+                        handleRegister((RegisterRequest) request);
+                        break;
+                    case LOGIN:
+                        handleLogin((LoginRequest) request);
+                        break;
+                    case UPLOAD:
+                        handleUpload((UploadRequest) request);
+                        break;
+                    case DOWNLOAD:
+                        handleDownload((DownloadRequest) request);
+                        break;
+                    case CREATE_FOLDER:
+                        handleCreateFolder((CreateFolderRequest) request);
+                        break;
+                    case DELETE:
+                        handleDelete((DeleteRequest) request);
+                        break;
+                    case SEARCH:
+                        handleSearch((SearchRequest) request);
+                        break;
+                    case COPY:
+                        handleCopy((CopyRequest) request);
+                        break;
+                    case RENAME:
+                        handleRename((RenameRequest) request);
+                        break;
+                    case MOVE:
+                        handleMove((MoveRequest) request);
+                        break;
+                    case LIST_FILES:
+                        handleListFiles((ListFilesRequest) request);
+                        break;
+                    default:
+                        sendResponse(new ResponseDTO(false, "Unknown command"));
                 }
             }
         } catch (Exception ex) {
             System.out.println("Клиент отключился: " + socket.getInetAddress());
         } finally {
-            try {
-                socket.close();
-            } catch (Exception e) {}
+            try { socket.close(); } catch(Exception e) {}
         }
     }
     
     // Регистрация: ожидаем username и password
-    private void handleRegister() throws IOException, ClassNotFoundException {
-        String user = (String) ois.readObject();
-        String pass = (String) ois.readObject();
+    private void handleRegister(RegisterRequest req) throws IOException {
+        String user = req.getUsername();
+        String pass = req.getPassword();
         Map<String, String> db = Server.getUserDb();
         if (db.containsKey(user)) {
-            sendResponse("ERROR: User already exists");
+            sendResponse(new ResponseDTO(false, "User already exists"));
         } else {
             db.put(user, pass);
             username = user;
             // Создаем каталог для пользователя
             new File(Server.getBaseDir() + File.separator + username).mkdirs();
-            sendResponse("OK");
+            sendResponse(new ResponseDTO(true, "OK"));
         }
     }
     
     // Логин: ожидаем username и password
-    private void handleLogin() throws IOException, ClassNotFoundException {
-        String user = (String) ois.readObject();
-        String pass = (String) ois.readObject();
+    private void handleLogin(LoginRequest req) throws IOException {
+        String user = req.getUsername();
+        String pass = req.getPassword();
         Map<String, String> db = Server.getUserDb();
         if (db.containsKey(user) && db.get(user).equals(pass)) {
             username = user;
-            sendResponse("OK");
+            sendResponse(new ResponseDTO(true, "OK"));
         } else {
-            sendResponse("ERROR: Invalid credentials");
+            sendResponse(new ResponseDTO(false, "Invalid credentials"));
         }
     }
     
@@ -117,64 +119,60 @@ public class ClientHandler implements Runnable {
         return new File(Server.getBaseDir() + File.separator + username);
     }
     
-    // Загрузка файла на сервер
-    private void handleUpload() throws IOException, ClassNotFoundException {
-        // Клиент сначала отправляет относительный путь (включая имя файла)
-        String filePath = (String) ois.readObject();
-        long fileSize = (long) ois.readObject();
-        File outFile = new File(getUserDir(), filePath);
-        // Создаем родительские каталоги, если их нет
+    // Потоковая загрузка файла: читаем данные напрямую из потока
+    private void handleUpload(UploadRequest req) throws IOException {
+        String destPath = req.getDestinationPath();
+        long fileSize = req.getFileSize();
+        File outFile = new File(getUserDir(), destPath);
         outFile.getParentFile().mkdirs();
         FileOutputStream fos = new FileOutputStream(outFile);
         byte[] buffer = new byte[4096];
         long remaining = fileSize;
         while (remaining > 0) {
-            int read = ois.read(buffer, 0, (int) Math.min(buffer.length, remaining));
+            int read = ois.read(buffer, 0, (int)Math.min(buffer.length, remaining));
             if (read == -1)
                 break;
             fos.write(buffer, 0, read);
             remaining -= read;
         }
         fos.close();
-        sendResponse("OK");
+        sendResponse(new ResponseDTO(true, "OK"));
     }
     
-    // Скачивание файла с сервера
-    private void handleDownload() throws IOException, ClassNotFoundException {
-        String filePath = (String) ois.readObject();
+    // Потоковое скачивание файла: сначала отправляем размер файла, затем его содержимое
+    private void handleDownload(DownloadRequest req) throws IOException {
+        String filePath = req.getFilePath();
         File file = new File(getUserDir(), filePath);
         if (!file.exists() || file.isDirectory()) {
-            sendResponse("ERROR: File not found");
+            sendResponse(new ResponseDTO(false, "File not found"));
             return;
         }
-        sendResponse("OK");
-        // Отправляем имя файла и размер
-        oos.writeObject(file.getName());
-        oos.writeObject(file.length());
+        long fileSize = file.length();
+        sendResponse(new ResponseDTO(true, "OK", fileSize));
         FileInputStream fis = new FileInputStream(file);
         byte[] buffer = new byte[4096];
-        int count;
-        while ((count = fis.read(buffer)) > 0) {
-            oos.write(buffer, 0, count);
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            oos.write(buffer, 0, bytesRead);
         }
         oos.flush();
         fis.close();
     }
     
     // Создание папки
-    private void handleCreateFolder() throws IOException, ClassNotFoundException {
-        String folderPath = (String) ois.readObject(); // относительный путь для создания папки
+    private void handleCreateFolder(CreateFolderRequest req) throws IOException {
+        String folderPath = req.getFolderPath();
         File folder = new File(getUserDir(), folderPath);
         boolean created = folder.mkdirs();
-        sendResponse(created ? "OK" : "ERROR: Unable to create folder");
+        sendResponse(new ResponseDTO(created, created ? "OK" : "Unable to create folder"));
     }
     
     // Удаление файла или папки (рекурсивное)
-    private void handleDelete() throws IOException, ClassNotFoundException {
-        String path = (String) ois.readObject();
+     private void handleDelete(DeleteRequest req) throws IOException {
+        String path = req.getPath();
         File file = new File(getUserDir(), path);
         boolean deleted = deleteRecursively(file);
-        sendResponse(deleted ? "OK" : "ERROR: Deletion failed");
+        sendResponse(new ResponseDTO(deleted, deleted ? "OK" : "Deletion failed"));
     }
     
     private boolean deleteRecursively(File file) {
@@ -190,12 +188,11 @@ public class ClientHandler implements Runnable {
     }
     
     // Поиск файлов по имени (рекурсивно)
-    private void handleSearch() throws IOException, ClassNotFoundException {
-        String query = (String) ois.readObject();
+    private void handleSearch(SearchRequest req) throws IOException {
+        String query = req.getQuery();
         List<String> results = new ArrayList<>();
         searchFiles(getUserDir(), query, results, getUserDir().getAbsolutePath().length());
-        oos.writeObject(results);
-        oos.flush();
+        sendResponse(new ResponseDTO(true, "OK", results));
     }
     
     private void searchFiles(File dir, String query, List<String> results, int baseLength) {
@@ -204,7 +201,6 @@ public class ClientHandler implements Runnable {
             return;
         for (File f : files) {
             if (f.getName().contains(query)) {
-                // Возвращаем относительный путь
                 results.add(f.getAbsolutePath().substring(baseLength + 1));
             }
             if (f.isDirectory()) {
@@ -214,9 +210,9 @@ public class ClientHandler implements Runnable {
     }
     
     // Копирование файла или папки
-    private void handleCopy() throws IOException, ClassNotFoundException {
-        String sourcePath = (String) ois.readObject();
-        String destPath = (String) ois.readObject();
+    private void handleCopy(CopyRequest req) throws IOException {
+        String sourcePath = req.getSourcePath();
+        String destPath = req.getDestinationPath();
         File source = new File(getUserDir(), sourcePath);
         File dest = new File(getUserDir(), destPath);
         boolean success = false;
@@ -226,7 +222,7 @@ public class ClientHandler implements Runnable {
             dest.getParentFile().mkdirs();
             success = copyFile(source, dest);
         }
-        sendResponse(success ? "OK" : "ERROR: Copy failed");
+        sendResponse(new ResponseDTO(success, success ? "OK" : "Copy failed"));
     }
     
     private boolean copyFile(File source, File dest) {
@@ -264,89 +260,44 @@ public class ClientHandler implements Runnable {
     }
     
     // Переименование файла или папки
-    private void handleRename() throws IOException, ClassNotFoundException {
-        String oldPath = (String) ois.readObject();
-        String newName = (String) ois.readObject();
+    private void handleRename(RenameRequest req) throws IOException {
+        String oldPath = req.getOldPath();
+        String newName = req.getNewName();
         File oldFile = new File(getUserDir(), oldPath);
         File newFile = new File(oldFile.getParentFile(), newName);
         boolean renamed = oldFile.renameTo(newFile);
-        sendResponse(renamed ? "OK" : "ERROR: Rename failed");
-    }
-    
-    // Сортировка. В данном примере сортировка производится только в каталоге пользователя (без рекурсии)
-    private void handleSort() throws IOException, ClassNotFoundException {
-        String criterion = (String) ois.readObject(); // "name", "size", "type", "date"
-        boolean ascending = (Boolean) ois.readObject();
-        File dir = getUserDir();
-        File[] files = dir.listFiles();
-        if (files == null)
-            files = new File[0];
-        List<File> fileList = new ArrayList<>(Arrays.asList(files));
-        Comparator<File> comparator = null;
-        switch (criterion) {
-            case "name":
-                comparator = Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER);
-                break;
-            case "size":
-                comparator = Comparator.comparingLong(File::length);
-                break;
-            case "type":
-                comparator = Comparator.comparing(file -> {
-                    int dot = file.getName().lastIndexOf('.');
-                    return dot == -1 ? "" : file.getName().substring(dot + 1);
-                }, String.CASE_INSENSITIVE_ORDER);
-                break;
-            case "date":
-                comparator = Comparator.comparingLong(File::lastModified);
-                break;
-        }
-        if (comparator != null) {
-            if (!ascending)
-                comparator = comparator.reversed();
-            fileList.sort(comparator);
-        }
-        List<String> result = new ArrayList<>();
-        for (File f : fileList) {
-            result.add(f.getName());
-        }
-        oos.writeObject(result);
-        oos.flush();
+        sendResponse(new ResponseDTO(renamed, renamed ? "OK" : "Rename failed"));
     }
     
     // Перемещение файла или папки
-    private void handleMove() throws IOException, ClassNotFoundException {
-        String sourcePath = (String) ois.readObject();
-        String destPath = (String) ois.readObject();
+    private void handleMove(MoveRequest req) throws IOException {
+        String sourcePath = req.getSourcePath();
+        String destPath = req.getDestinationPath();
         File source = new File(getUserDir(), sourcePath);
         File dest = new File(getUserDir(), destPath);
         dest.mkdirs();
         boolean success = source.renameTo(new File(dest, source.getName()));
-        sendResponse(success ? "OK" : "ERROR: Move failed");
+        sendResponse(new ResponseDTO(success, success ? "OK" : "Move failed"));
     }
     
     // Обработка запроса на просмотр содержимого папки
-    private void handleListFiles() throws IOException, ClassNotFoundException {
-        // Получаем относительный путь к папке, содержимое которой нужно вернуть
-        String relativePath = (String) ois.readObject();
+    private void handleListFiles(ListFilesRequest req) throws IOException {
+        String relativePath = req.getRelativePath();
         File folder = new File(getUserDir(), relativePath);
         if (!folder.exists() || !folder.isDirectory()) {
-            oos.writeObject("ERROR: Folder not found");
+            sendResponse(new ResponseDTO(false, "Folder not found"));
             return;
         }
-        // Получаем список имен файлов/папок внутри каталога
         String[] fileNames = folder.list();
         List<String> list = new ArrayList<>();
         if (fileNames != null) {
-            for (String name : fileNames) {
-                list.add(name);
-            }
+            Collections.addAll(list, fileNames);
         }
-        oos.writeObject("OK");
-        oos.writeObject(list);
-        oos.flush();
+        sendResponse(new ResponseDTO(true, "OK", list));
     }
     
-    private void sendResponse(String response) throws IOException {
+     // Отправка ответа клиенту
+    private void sendResponse(ResponseDTO response) throws IOException {
         oos.writeObject(response);
         oos.flush();
     }
