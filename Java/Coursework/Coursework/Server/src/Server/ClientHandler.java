@@ -215,6 +215,12 @@ public class ClientHandler implements Runnable {
         String destPath = req.getDestinationPath();
         File source = new File(getUserDir(), sourcePath);
         File dest = new File(getUserDir(), destPath);
+
+        // Автопереименование, если цель уже существует
+        if (dest.exists()) {
+            dest = getAvailableName(dest);
+        }
+
         boolean success = false;
         if (source.isDirectory()) {
             success = copyDirectory(source, dest);
@@ -222,7 +228,34 @@ public class ClientHandler implements Runnable {
             dest.getParentFile().mkdirs();
             success = copyFile(source, dest);
         }
-        sendResponse(new ResponseDTO(success, success ? "OK" : "Copy failed"));
+
+        sendResponse(new ResponseDTO(success, success ? "Copied as: " + dest.getName() : "Copy failed"));
+    }
+    
+    private File getAvailableName(File original) {
+        String name = original.getName();
+        File parent = original.getParentFile();
+
+        String baseName;
+        String extension = "";
+
+        int dotIndex = name.lastIndexOf('.');
+        if (original.isFile() && dotIndex > 0) {
+            baseName = name.substring(0, dotIndex);
+            extension = name.substring(dotIndex); // includes the dot
+        } else {
+            baseName = name;
+        }
+
+        int index = 1;
+        File candidate;
+        do {
+            String newName = baseName + " (" + index + ")" + extension;
+            candidate = new File(parent, newName);
+            index++;
+        } while (candidate.exists());
+
+        return candidate;
     }
     
     private boolean copyFile(File source, File dest) {
