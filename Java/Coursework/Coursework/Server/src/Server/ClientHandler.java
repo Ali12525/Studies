@@ -3,7 +3,6 @@ package Server;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.nio.file.*;
 import DTO.*;
 
 public class ClientHandler implements Runnable {
@@ -120,12 +119,21 @@ public class ClientHandler implements Runnable {
     }
     
     // Потоковая загрузка файла: читаем данные напрямую из потока
-    private void handleUpload(UploadRequest req) throws IOException {
+    private void handleUpload(UploadRequest req) throws IOException, ClassNotFoundException {
         String destPath = req.getDestinationPath();
         long fileSize = req.getFileSize();
+        boolean overwrite = req.isOverwrite();
         File outFile = new File(getUserDir(), destPath);
         outFile.getParentFile().mkdirs();
-        FileOutputStream fos = new FileOutputStream(outFile);
+        
+        if (outFile.exists() && !overwrite) {
+            sendResponse(new ResponseDTO(false, "File conflict"));
+            return;
+        }
+        
+        sendResponse(new ResponseDTO(true, "READY"));
+        
+        FileOutputStream fos = new FileOutputStream(outFile, false); // перезапись файла
         byte[] buffer = new byte[4096];
         long remaining = fileSize;
         while (remaining > 0) {
@@ -136,6 +144,7 @@ public class ClientHandler implements Runnable {
             remaining -= read;
         }
         fos.close();
+        
         sendResponse(new ResponseDTO(true, "OK"));
     }
     
@@ -215,8 +224,7 @@ public class ClientHandler implements Runnable {
         String destPath = req.getDestinationPath();
         File source = new File(getUserDir(), sourcePath);
         File dest = new File(getUserDir(), destPath);
-
-        // Автопереименование, если цель уже существует
+        
         if (dest.exists()) {
             dest = getAvailableName(dest);
         }
@@ -242,7 +250,7 @@ public class ClientHandler implements Runnable {
         int dotIndex = name.lastIndexOf('.');
         if (original.isFile() && dotIndex > 0) {
             baseName = name.substring(0, dotIndex);
-            extension = name.substring(dotIndex); // includes the dot
+            extension = name.substring(dotIndex);
         } else {
             baseName = name;
         }

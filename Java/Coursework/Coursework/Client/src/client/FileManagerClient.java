@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.List;
 import DTO.*;
+import javax.swing.JOptionPane;
 
 public class FileManagerClient {
     private String serverIp;
@@ -52,11 +53,61 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
+    // Метод загрузки файла
     public boolean uploadFile(File file, String destPath) {
+        return uploadFile(file, destPath, false);
+    }
+
+    // Вспомогательный метод с параметром overwrite
+    private boolean uploadFile(File file, String destPath, boolean overwrite) {
         try {
-            UploadRequest req = new UploadRequest(destPath, file.length());
+            UploadRequest req = new UploadRequest(destPath, file.length(), overwrite);
             oos.writeObject(req);
             oos.flush();
+            
+            ResponseDTO resp = (ResponseDTO) ois.readObject();
+            
+            if (!resp.isSuccess() && "File conflict".equals(resp.getMessage())) {
+                Object[] options = {"Перезаписать", "Переименовать"};
+                int choice = JOptionPane.showOptionDialog(null,
+                    "Файл с таким именем уже существует. Выберите действие:",
+                    "Конфликт файла",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+                
+                if (choice == JOptionPane.CANCEL_OPTION || choice == -1) {
+                    return false;
+                }
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    return uploadFile(file, destPath, true);
+                } else if (choice == JOptionPane.NO_OPTION) {
+                    File original = new File(destPath);
+                    String currentName = original.getName();
+                    Object input = JOptionPane.showInputDialog(
+                        null,
+                        "Введите новое имя файла:",
+                        "Переименование",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        null,
+                        currentName
+                    );
+                    if (input == null || input.toString().trim().isEmpty()) {
+                        return false;
+                    }
+
+                    String newName = input.toString();
+                    String parent = original.getParent();
+                    String newDestPath = (parent != null ? parent + File.separator : "") + newName;
+                    return uploadFile(file, newDestPath, false);
+                }
+            } else if (!resp.isSuccess() && !"READY".equals(resp.getMessage())) {
+                return false;
+            }
             
             FileInputStream fis = new FileInputStream(file);
             byte[] buffer = new byte[4096];
@@ -67,9 +118,9 @@ public class FileManagerClient {
             fis.close();
             oos.flush();
             
-            ResponseDTO resp = (ResponseDTO) ois.readObject();
-            return resp.isSuccess();
-        } catch(Exception ex) {
+            ResponseDTO finalResp = (ResponseDTO) ois.readObject();
+            return finalResp.isSuccess();
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return false;
