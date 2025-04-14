@@ -196,21 +196,43 @@ public class ClientHandler implements Runnable {
         return file.delete();
     }
     
-    // Поиск файлов по имени (рекурсивно)
-    private void handleSearch(SearchRequest req) throws IOException {
-        String query = req.getQuery();
-        List<String> results = new ArrayList<>();
-        searchFiles(getUserDir(), query, results, getUserDir().getAbsolutePath().length());
-        sendResponse(new ResponseDTO(true, "OK", results));
+    // Вспомогательный метод для преобразования File в FileInfo
+    private FileInfo toFileInfo(File f, int baseLength) {
+        String fileType;
+        if (f.isDirectory()) {
+            fileType = "Папка";
+        } else {
+            int dot = f.getName().lastIndexOf(".");
+            if (dot != -1) {
+                fileType = f.getName().substring(dot + 1).toLowerCase();
+            } else {
+                fileType = "Файл";
+            }
+        }
+        long size = f.isDirectory() ? 0 : f.length();
+        String name = (baseLength >= 0) ? f.getAbsolutePath().substring(baseLength + 1) : f.getName();
+        return new FileInfo(name, size, f.lastModified(), fileType);
     }
     
-    private void searchFiles(File dir, String query, List<String> results, int baseLength) {
+    // Обработка запроса на поиск файлов по имени
+    private void handleSearch(SearchRequest req) throws IOException {
+        String query = req.getQuery();
+        File baseDir = getUserDir();
+        List<FileInfo> results = new ArrayList<>();
+        int baseLength = baseDir.getAbsolutePath().length();
+        searchFiles(baseDir, query, results, baseLength);
+        sendResponse(new ResponseDTO(true, "OK", results));
+    }
+
+    // Рекурсивный поиск файлов по имени
+    private void searchFiles(File dir, String query, List<FileInfo> results, int baseLength) {
         File[] files = dir.listFiles();
-        if (files == null)
+        if (files == null) {
             return;
+        }
         for (File f : files) {
             if (f.getName().contains(query)) {
-                results.add(f.getAbsolutePath().substring(baseLength + 1));
+                results.add(toFileInfo(f, baseLength));
             }
             if (f.isDirectory()) {
                 searchFiles(f, query, results, baseLength);
@@ -332,18 +354,13 @@ public class ClientHandler implements Runnable {
         File[] files = folder.listFiles();
         List<FileInfo> list = new ArrayList<>();
         if (files != null) {
-            for (File file : files) {
-                list.add(new FileInfo(
-                    file.getName(),
-                    file.isFile() ? file.length() : 0L,
-                    file.lastModified()
-                ));
+            for (File f : files) {
+                list.add(toFileInfo(f, -1));
             }
         }
         sendResponse(new ResponseDTO(true, "OK", list));
     }
-
-    
+        
      // Отправка ответа клиенту
     private void sendResponse(ResponseDTO response) throws IOException {
         oos.writeObject(response);

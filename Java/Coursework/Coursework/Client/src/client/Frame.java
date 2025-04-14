@@ -48,7 +48,7 @@ public class Frame extends javax.swing.JFrame {
     
     // Инициализация модели и таблицы
     private void initTable() {
-        String[] columnNames = {"Имя", "Дата изменения", "Размер"};
+        String[] columnNames = {"Имя", "Дата изменения", "Тип", "Размер"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -263,7 +263,7 @@ public class Frame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Имя", "Дата изменения", "Размер"
+                "Имя", "Дата изменения", "Размер", "Тип"
             }
         ));
         jTableFiles.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -540,7 +540,7 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchActionPerformed
         // TODO add your handling code here:
         String query = jTextFieldSearch.getText().trim();
-        // Предполагается, что метод поиска у клиента возвращает List<FileInfoDTO>
+        // Предполагается, что метод поиска у клиента возвращает List<FileInfo>
         List<FileInfo> results = client.search(query);
         if (results != null) {
             fileList = results;
@@ -692,12 +692,17 @@ public class Frame extends javax.swing.JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (FileInfo f : files) {
             String name = f.getName();
-            String size = f.getSize() > 0 ? formatFileSize(f.getSize()) : "";
             String lastMod = sdf.format(new Date(f.getLastModified()));
-            tableModel.addRow(new Object[]{name, lastMod, size});
+            // Если элемент не является папкой, отображаем размер, даже если он 0
+            String size = "";
+            if (!f.getFileType().equalsIgnoreCase("Папка")) {
+                size = formatFileSize(f.getSize());
+            }
+            // Новый столбец — тип данных
+            String type = f.getFileType();
+            tableModel.addRow(new Object[]{name, lastMod, type, size});
         }
     }
-
     
     // Обновление списка файлов (запрос с сервера)
     private void refreshFileList() {
