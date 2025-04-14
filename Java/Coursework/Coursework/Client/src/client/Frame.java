@@ -353,6 +353,11 @@ public class Frame extends javax.swing.JFrame {
         });
 
         jMenuViewTable.setText("Таблица");
+        jMenuViewTable.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuViewTableActionPerformed(evt);
+            }
+        });
         jMenuView.add(jMenuViewTable);
 
         jMenuViewList.setText("Список");
@@ -468,7 +473,6 @@ public class Frame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    //Работает
     private void jMenuSortNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortNameActionPerformed
         // TODO add your handling code here:
         sortByNameAscending = !sortByNameAscending;
@@ -540,7 +544,6 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchActionPerformed
         // TODO add your handling code here:
         String query = jTextFieldSearch.getText().trim();
-        // Предполагается, что метод поиска у клиента возвращает List<FileInfo>
         List<FileInfo> results = client.search(query);
         if (results != null) {
             fileList = results;
@@ -574,8 +577,6 @@ public class Frame extends javax.swing.JFrame {
 
     private void jMenuSortDateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortDateMouseClicked
         // TODO add your handling code here:
-        
-        
     }//GEN-LAST:event_jMenuSortDateMouseClicked
     
     private void jMenuSortNameMenuKeyPressed(javax.swing.event.MenuKeyEvent evt) {//GEN-FIRST:event_jMenuSortNameMenuKeyPressed
@@ -611,8 +612,6 @@ public class Frame extends javax.swing.JFrame {
 
     private void jMenuViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewActionPerformed
         // TODO add your handling code here:
-        isTableView = true;
-        setListView(false);
     }//GEN-LAST:event_jMenuViewActionPerformed
 
     private void jMenuViewListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewListActionPerformed
@@ -620,6 +619,12 @@ public class Frame extends javax.swing.JFrame {
         isTableView = false;
         setListView(true);
     }//GEN-LAST:event_jMenuViewListActionPerformed
+
+    private void jMenuViewTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewTableActionPerformed
+        // TODO add your handling code here:
+        isTableView = true;
+        setListView(false);
+    }//GEN-LAST:event_jMenuViewTableActionPerformed
     
     // Переключение вида отображения: в списке скрываем столбцы, в таблице показываем
     private void setListView(boolean listView) {
@@ -628,17 +633,24 @@ public class Frame extends javax.swing.JFrame {
             jTableFiles.getColumnModel().getColumn(1).setMaxWidth(0);
             jTableFiles.getColumnModel().getColumn(2).setMinWidth(0);
             jTableFiles.getColumnModel().getColumn(2).setMaxWidth(0);
+            jTableFiles.getColumnModel().getColumn(3).setMinWidth(0);
+            jTableFiles.getColumnModel().getColumn(3).setMaxWidth(0);
         } else {
-            jTableFiles.getColumnModel().getColumn(1).setMinWidth(50);
-            jTableFiles.getColumnModel().getColumn(1).setMaxWidth(Integer.MAX_VALUE);
-            jTableFiles.getColumnModel().getColumn(2).setMinWidth(100);
-            jTableFiles.getColumnModel().getColumn(2).setMaxWidth(Integer.MAX_VALUE);
+            jTableFiles.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+             for (int i = 0; i < jTableFiles.getColumnCount(); i++) {
+                javax.swing.table.TableColumn column = jTableFiles.getColumnModel().getColumn(i);
+                column.setMinWidth(15);
+                column.setMaxWidth(Integer.MAX_VALUE);
+                column.setPreferredWidth(jTableFiles.getWidth() / jTableFiles.getColumnCount());
+            }
+            jTableFiles.doLayout();
         }
     }
     
-    // Сортировка списка файлов по заданному критерию
+    // Метод для сортировки списка файлов по заданному критерию
     private void sortFiles(String criterion, boolean ascending) {
         if (fileList == null) return;
+
         Comparator<FileInfo> comparator;
         switch (criterion) {
             case "name":
@@ -651,21 +663,16 @@ public class Frame extends javax.swing.JFrame {
                 comparator = Comparator.comparingLong(FileInfo::getLastModified);
                 break;
             case "type":
-                comparator = Comparator.comparing(f -> {
-                    String ext = "";
-                    int dot = f.getName().lastIndexOf(".");
-                    if (dot != -1) {
-                        ext = f.getName().substring(dot + 1);
-                    }
-                    return ext.toLowerCase();
-                });
+                comparator = Comparator.comparing(FileInfo::getFileType, String.CASE_INSENSITIVE_ORDER);
                 break;
             default:
                 comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
         }
+
         if (!ascending) {
             comparator = comparator.reversed();
         }
+
         Collections.sort(fileList, comparator);
         updateTableModel(fileList);
     }
