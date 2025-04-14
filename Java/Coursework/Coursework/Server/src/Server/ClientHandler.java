@@ -329,13 +329,20 @@ public class ClientHandler implements Runnable {
             sendResponse(new ResponseDTO(false, "Folder not found"));
             return;
         }
-        String[] fileNames = folder.list();
-        List<String> list = new ArrayList<>();
-        if (fileNames != null) {
-            Collections.addAll(list, fileNames);
+        File[] files = folder.listFiles();
+        List<FileInfo> list = new ArrayList<>();
+        if (files != null) {
+            for (File file : files) {
+                list.add(new FileInfo(
+                    file.getName(),
+                    file.isFile() ? file.length() : 0L,
+                    file.lastModified()
+                ));
+            }
         }
         sendResponse(new ResponseDTO(true, "OK", list));
     }
+
     
      // Отправка ответа клиенту
     private void sendResponse(ResponseDTO response) throws IOException {

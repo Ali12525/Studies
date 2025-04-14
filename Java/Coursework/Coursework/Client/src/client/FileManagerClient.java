@@ -168,10 +168,13 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
-    public List<String> search(String query) {
+    public List<FileInfo> search(String query) {
         SearchRequest req = new SearchRequest(query);
         ResponseDTO resp = sendRequest(req);
-        return (List<String>) resp.getData();
+        if (!resp.isSuccess()) {
+            return null;
+        }
+        return (List<FileInfo>) resp.getData();
     }
     
     public boolean copy(String source, String destination) {
@@ -192,13 +195,14 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
-    // Метод для запроса содержимого папки по относительному пути
-    public List<String> listFolder(String relativePath) {
+    // метод для запроса содержимого папки.
+    public List<FileInfo> listFolder(String relativePath) {
         ListFilesRequest req = new ListFilesRequest(relativePath);
         ResponseDTO resp = sendRequest(req);
         if (!resp.isSuccess()) {
             return null;
         }
-        return (List<String>) resp.getData();
+        // Приводим объект к нужному типу
+        return (List<FileInfo>) resp.getData();
     }
 }

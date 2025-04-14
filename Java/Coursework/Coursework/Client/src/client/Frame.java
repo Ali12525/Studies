@@ -1,26 +1,36 @@
 package client;
 
+import DTO.*;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class Frame extends javax.swing.JFrame {
 
     private String currentPath = "";
     private String copiedFilePath = null;
     private FileManagerClient client;
-    private DefaultListModel<String> listModel;
+    
+    // Модель и список для хранения информации о файлах
+    private DefaultTableModel tableModel;
+    private java.util.List<FileInfo> fileList; // текущий список файлов
     
     // Флаги для переключения порядка сортировки
     private boolean sortByNameAscending = true;
     private boolean sortBySizeAscending = true;
     private boolean sortByTypeAscending = true;
     private boolean sortByDateAscending = true;
+    
+    // Флаг вида: true – таблица (полный вид), false – список (только имя)
+    private boolean isTableView = true;
     
     /**
      * Creates new form Frame
@@ -32,9 +42,20 @@ public class Frame extends javax.swing.JFrame {
     public Frame(FileManagerClient client) {
         this.client = client;
         initComponents();
-        listModel = new DefaultListModel<>();
-        jListFiles.setModel(listModel);
+        initTable();
         refreshFileList();
+    }
+    
+    // Инициализация модели и таблицы
+    private void initTable() {
+        String[] columnNames = {"Имя", "Дата изменения", "Размер"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // запрет редактирования ячеек
+            }
+        };
+        jTableFiles.setModel(tableModel);
     }
 
     /**
@@ -84,13 +105,14 @@ public class Frame extends javax.swing.JFrame {
         jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane();
+        jMenuItem3 = new javax.swing.JMenuItem();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jTextFieldSearch = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jListFiles = new javax.swing.JList<>();
         jButtonBack = new javax.swing.JButton();
         jButtonRefresh = new javax.swing.JButton();
         jButtonSearch = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTableFiles = new javax.swing.JTable();
         jMenuBar = new javax.swing.JMenuBar();
         jMenuSort = new javax.swing.JMenu();
         jMenuSortName = new javax.swing.JMenuItem();
@@ -98,7 +120,7 @@ public class Frame extends javax.swing.JFrame {
         jMenuSortType = new javax.swing.JMenuItem();
         jMenuSortDate = new javax.swing.JMenuItem();
         jMenuView = new javax.swing.JMenu();
-        jMenuViewTile = new javax.swing.JMenuItem();
+        jMenuViewTable = new javax.swing.JMenuItem();
         jMenuViewList = new javax.swing.JMenuItem();
         jMenuUpload = new javax.swing.JMenu();
         jMenuDelete = new javax.swing.JMenu();
@@ -199,6 +221,8 @@ public class Frame extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jEditorPane1);
 
+        jMenuItem3.setText("jMenuItem3");
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTextFieldSearch.addActionListener(new java.awt.event.ActionListener() {
@@ -206,18 +230,6 @@ public class Frame extends javax.swing.JFrame {
                 jTextFieldSearchActionPerformed(evt);
             }
         });
-
-        jListFiles.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = {};
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jListFiles.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jListFilesMouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(jListFiles);
 
         jButtonBack.setText("Назад");
         jButtonBack.addActionListener(new java.awt.event.ActionListener() {
@@ -245,6 +257,21 @@ public class Frame extends javax.swing.JFrame {
                 jButtonSearchActionPerformed(evt);
             }
         });
+
+        jTableFiles.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Имя", "Дата изменения", "Размер"
+            }
+        ));
+        jTableFiles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableFilesMouseClicked(evt);
+            }
+        });
+        jScrollPane3.setViewportView(jTableFiles);
 
         jMenuBar.setBorderPainted(false);
         jMenuBar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -319,11 +346,21 @@ public class Frame extends javax.swing.JFrame {
         jMenuBar.add(jMenuSort);
 
         jMenuView.setText("Вид");
+        jMenuView.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuViewActionPerformed(evt);
+            }
+        });
 
-        jMenuViewTile.setText("Плитка");
-        jMenuView.add(jMenuViewTile);
+        jMenuViewTable.setText("Таблица");
+        jMenuView.add(jMenuViewTable);
 
         jMenuViewList.setText("Список");
+        jMenuViewList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuViewListActionPerformed(evt);
+            }
+        });
         jMenuView.add(jMenuViewList);
 
         jMenuBar.add(jMenuView);
@@ -397,17 +434,22 @@ public class Frame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(279, 279, 279)
-                        .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(279, 279, 279)
+                                .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane3)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -417,8 +459,8 @@ public class Frame extends javax.swing.JFrame {
                     .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButtonSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
         );
@@ -435,8 +477,8 @@ public class Frame extends javax.swing.JFrame {
 
     private void jMenuSortSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortSizeActionPerformed
         // TODO add your handling code here:
-        sortByNameAscending = !sortByNameAscending;
-        sortFiles("size", sortByNameAscending);
+        sortBySizeAscending = !sortBySizeAscending;
+        sortFiles("size", sortBySizeAscending);
     }//GEN-LAST:event_jMenuSortSizeActionPerformed
 
     private void jTextFieldSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSearchActionPerformed
@@ -445,8 +487,8 @@ public class Frame extends javax.swing.JFrame {
 
     private void jMenuSortDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortDateActionPerformed
         // TODO add your handling code here:
-        sortByNameAscending = !sortByNameAscending;
-        sortFiles("date", sortByNameAscending);
+        sortByDateAscending = !sortByDateAscending;
+        sortFiles("date", sortByDateAscending);
     }//GEN-LAST:event_jMenuSortDateActionPerformed
 
     private void jButtonBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackActionPerformed
@@ -498,12 +540,13 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchActionPerformed
         // TODO add your handling code here:
         String query = jTextFieldSearch.getText().trim();
-        List<String> results = client.search(query);
-        listModel.clear();
+        // Предполагается, что метод поиска у клиента возвращает List<FileInfoDTO>
+        List<FileInfo> results = client.search(query);
         if (results != null) {
-            for (String s : results) {
-                listModel.addElement(s);
-            }
+            fileList = results;
+            updateTableModel(results);
+        } else {
+            JOptionPane.showMessageDialog(this, "Поиск не дал результатов");
         }
     }//GEN-LAST:event_jButtonSearchActionPerformed
 
@@ -511,25 +554,6 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
         refreshFileList();
     }//GEN-LAST:event_jButtonRefreshActionPerformed
-
-    private void jListFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListFilesMouseClicked
-        // TODO add your handling code here:
-        if (evt.getClickCount() == 2) {
-                    String selectedItem = jListFiles.getSelectedValue();
-                    if (selectedItem != null) {
-                        // Формируем новый относительный путь
-                        String newPath = currentPath.isEmpty() ? selectedItem : currentPath + File.separator + selectedItem;
-                        // Пробуем запросить содержимое папки
-                        List<String> folderContents = client.listFolder(newPath);
-                        if (folderContents != null) {
-                            currentPath = newPath;
-                            refreshFileList();
-                        } else {
-                            JOptionPane.showMessageDialog(Frame.this, "Это не папка или произошла ошибка");
-                        }
-                    }
-                }
-    }//GEN-LAST:event_jListFilesMouseClicked
 
     private void jMenuInsertMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuInsertMouseClicked
         // TODO add your handling code here:
@@ -564,70 +588,128 @@ public class Frame extends javax.swing.JFrame {
         sortFiles("type", sortByNameAscending);
     }//GEN-LAST:event_jMenuSortTypeActionPerformed
 
-    // Метод для сортировки файлов на клиенте
-    private void sortFiles(String criterion, boolean ascending) {
-        // Получаем текущее содержимое списка из listModel
-        List<String> fileList = new ArrayList<>();
-        for (int i = 0; i < listModel.getSize(); i++) {
-            fileList.add(listModel.getElementAt(i));
+    private void jTableFilesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableFilesMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2) {
+            int selectedRow = jTableFiles.getSelectedRow();
+            if (selectedRow >= 0) {
+                String selectedItem = (String) tableModel.getValueAt(selectedRow, 0);
+                if (selectedItem != null) {
+                    String newPath = currentPath.isEmpty() ? selectedItem : currentPath + File.separator + selectedItem;
+                    // Предполагается, что клиентский метод listFolder вернет null, если выбранный элемент не папка
+                    List<FileInfo> folderContents = client.listFolder(newPath);
+                    if (folderContents != null) {
+                        currentPath = newPath;
+                        refreshFileList();
+                    } else {
+                        JOptionPane.showMessageDialog(Frame.this, "Это не папка или произошла ошибка");
+                    }
+                }
+            }
         }
+    }//GEN-LAST:event_jTableFilesMouseClicked
 
-        Comparator<String> comparator = null;
+    private void jMenuViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewActionPerformed
+        // TODO add your handling code here:
+        isTableView = true;
+        setListView(false);
+    }//GEN-LAST:event_jMenuViewActionPerformed
+
+    private void jMenuViewListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewListActionPerformed
+        // TODO add your handling code here:
+        isTableView = false;
+        setListView(true);
+    }//GEN-LAST:event_jMenuViewListActionPerformed
+    
+    // Переключение вида отображения: в списке скрываем столбцы, в таблице показываем
+    private void setListView(boolean listView) {
+        if (listView) {
+            jTableFiles.getColumnModel().getColumn(1).setMinWidth(0);
+            jTableFiles.getColumnModel().getColumn(1).setMaxWidth(0);
+            jTableFiles.getColumnModel().getColumn(2).setMinWidth(0);
+            jTableFiles.getColumnModel().getColumn(2).setMaxWidth(0);
+        } else {
+            jTableFiles.getColumnModel().getColumn(1).setMinWidth(50);
+            jTableFiles.getColumnModel().getColumn(1).setMaxWidth(Integer.MAX_VALUE);
+            jTableFiles.getColumnModel().getColumn(2).setMinWidth(100);
+            jTableFiles.getColumnModel().getColumn(2).setMaxWidth(Integer.MAX_VALUE);
+        }
+    }
+    
+    // Сортировка списка файлов по заданному критерию
+    private void sortFiles(String criterion, boolean ascending) {
+        if (fileList == null) return;
+        Comparator<FileInfo> comparator;
         switch (criterion) {
             case "name":
-                // Сортировка по имени (без учета регистра)
-                comparator = String.CASE_INSENSITIVE_ORDER;
+                comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
                 break;
             case "size":
-                // Если нет информации о размере, можно оставить, как по имени
-                comparator = String.CASE_INSENSITIVE_ORDER;
-                break;
-            case "type":
-                comparator = (a, b) -> {
-                    String extA = a.contains(".") ? a.substring(a.lastIndexOf(".") + 1) : "";
-                    String extB = b.contains(".") ? b.substring(b.lastIndexOf(".") + 1) : "";
-                    return extA.compareToIgnoreCase(extB);
-                };
+                comparator = Comparator.comparingLong(FileInfo::getSize);
                 break;
             case "date":
-                // Без информации о дате сортируем как по имени (расширьте по необходимости)
-                comparator = String.CASE_INSENSITIVE_ORDER;
+                comparator = Comparator.comparingLong(FileInfo::getLastModified);
                 break;
+            case "type":
+                comparator = Comparator.comparing(f -> {
+                    String ext = "";
+                    int dot = f.getName().lastIndexOf(".");
+                    if (dot != -1) {
+                        ext = f.getName().substring(dot + 1);
+                    }
+                    return ext.toLowerCase();
+                });
+                break;
+            default:
+                comparator = Comparator.comparing(FileInfo::getName, String.CASE_INSENSITIVE_ORDER);
         }
+        if (!ascending) {
+            comparator = comparator.reversed();
+        }
+        Collections.sort(fileList, comparator);
+        updateTableModel(fileList);
+    }
+    
+    // Метод форматирования размера файла
+    private String formatFileSize(long size) {
+        if (size < 1024) {
+            return size + " Б";
+        } else if (size < 1024 * 1024) {
+            double kb = size / 1024.0;
+            return String.format("%.1f КБ", kb);
+        } else if (size < 1024L * 1024 * 1024) {
+            double mb = size / (1024.0 * 1024);
+            return String.format("%.1f МБ", mb);
+        } else {
+            double gb = size / (1024.0 * 1024 * 1024);
+            return String.format("%.1f Г", gb);
+        }
+    }
 
-        if (comparator != null) {
-            fileList.sort(comparator);
-            if (!ascending) {
-                Collections.reverse(fileList);
-            }
-            updateListModel(fileList);
+    // Обновление модели таблицы данными из списка файлов
+    private void updateTableModel(List<FileInfo> files) {
+        tableModel.setRowCount(0);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (FileInfo f : files) {
+            String name = f.getName();
+            String size = f.getSize() > 0 ? formatFileSize(f.getSize()) : "";
+            String lastMod = sdf.format(new Date(f.getLastModified()));
+            tableModel.addRow(new Object[]{name, lastMod, size});
         }
     }
+
     
-    // Обновление модели списка
-    private void updateListModel(List<String> sorted) {
-        listModel.clear();
-        if (sorted != null) {
-            for (String s : sorted) {
-                listModel.addElement(s);
-            }
-        }
-    }
-    
-    // Обновление списка файлов – запрашиваем содержимое текущего каталога с сервера
+    // Обновление списка файлов (запрос с сервера)
     private void refreshFileList() {
-        List<String> files;
+        List<FileInfo> files;
         if (currentPath.isEmpty()) {
-            // Если текущий путь пустой – получаем содержимое корневой папки пользователя.
             files = client.listFolder("");
         } else {
             files = client.listFolder(currentPath);
         }
-        listModel.clear();
         if (files != null) {
-            for (String s : files) {
-                listModel.addElement(s);
-            }
+            fileList = files;
+            updateTableModel(files);
         }
     }
     
@@ -650,18 +732,17 @@ public class Frame extends javax.swing.JFrame {
         }
     }
 
-    
-    // Обработчик скачивания файла
+    // Скачивание файла
     private void downloadFile() {
-        String filePath = jListFiles.getSelectedValue();
-        if (filePath == null) {
-            JOptionPane.showMessageDialog(this, "Select a file from the list");
+        int selectedRow = jTableFiles.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Выберите файл для скачивания");
             return;
         }
-        // Формируем относительный путь до файла с учетом текущего каталога
-        String relativePath = currentPath.isEmpty() ? filePath : currentPath + File.separator + filePath;
+        String fileName = (String) tableModel.getValueAt(selectedRow, 0);
+        String relativePath = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
         JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File(filePath));
+        fc.setSelectedFile(new File(fileName));
         int res = fc.showSaveDialog(this);
         if (res == JFileChooser.APPROVE_OPTION) {
             File saveTo = fc.getSelectedFile();
@@ -689,32 +770,33 @@ public class Frame extends javax.swing.JFrame {
     
     // Удаление файла или папки
     private void deleteItem() {
-        String item = jListFiles.getSelectedValue();
-        if (item == null) {
-            JOptionPane.showMessageDialog(this, "Select an item from the list");
+        int selectedRow = jTableFiles.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Выберите элемент для удаления");
             return;
         }
-        String relativePath = currentPath.isEmpty() ? item : currentPath + File.separator + item;
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete: " + item + "?");
+        String fileName = (String) tableModel.getValueAt(selectedRow, 0);
+        String relativePath = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
+        int confirm = JOptionPane.showConfirmDialog(this, "Вы действительно хотите удалить: " + fileName + "?");
         if (confirm == JOptionPane.YES_OPTION) {
             if (client.delete(relativePath)) {
-                JOptionPane.showMessageDialog(this, "Deleted successfully");
+                JOptionPane.showMessageDialog(this, "Удалено успешно");
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Deletion failed");
+                JOptionPane.showMessageDialog(this, "Удаление не удалось");
             }
         }
     }
     
-    // Метод для копирования (вызывается при нажатии на "Копировать")
+    // Копирование файла или папки
     private void copyItem() {
-        String source = jListFiles.getSelectedValue();
-        if (source == null) {
-            JOptionPane.showMessageDialog(this, "Select an item to copy");
+        int selectedRow = jTableFiles.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Выберите элемент для копирования");
             return;
         }
-        // Формируем относительный путь исходного элемента
-        copiedFilePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
+        String fileName = (String) tableModel.getValueAt(selectedRow, 0);
+        copiedFilePath = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
     }
     
     // Метод для вставки (вызывается при нажатии на "Вставить")
@@ -723,55 +805,53 @@ public class Frame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "No file has been copied. Please click 'Copy' first.");
             return;
         }
-        // Определяем имя копируемого файла (например, "file.txt")
         File f = new File(copiedFilePath);
         String fileName = f.getName();
-        // Формируем целевой путь для вставки в текущем каталоге
         String destination = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
-        // Вызываем метод копирования на стороне клиента:
         if (client.copy(copiedFilePath, destination)) {
             refreshFileList();
         } else {
             JOptionPane.showMessageDialog(this, "Paste failed");
         }
-        // Очистка буфера копирования
         copiedFilePath = null;
     }
     
     // Переименование файла или папки
     private void renameItem() {
-        String oldName = jListFiles.getSelectedValue();
-        if (oldName == null) {
-            JOptionPane.showMessageDialog(this, "Select an item to rename");
+        int selectedRow = jTableFiles.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Выберите элемент для переименования");
             return;
         }
-        String newName = JOptionPane.showInputDialog(this, "Enter new name:");
+        String oldName = (String) tableModel.getValueAt(selectedRow, 0);
+        String newName = JOptionPane.showInputDialog(this, "Введите новое имя:", oldName);
         if (newName != null && !newName.trim().isEmpty()) {
             String relativePath = currentPath.isEmpty() ? oldName : currentPath + File.separator + oldName;
             if (client.rename(relativePath, newName)) {
-                JOptionPane.showMessageDialog(this, "Rename successful");
+                JOptionPane.showMessageDialog(this, "Переименование прошло успешно");
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Rename failed");
+                JOptionPane.showMessageDialog(this, "Переименование не удалось");
             }
         }
     }
     
     // Перемещение файла или папки
     private void moveItem() {
-        String source = jListFiles.getSelectedValue();
-        if (source == null) {
-            JOptionPane.showMessageDialog(this, "Select an item to move");
+        int selectedRow = jTableFiles.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Выберите элемент для перемещения");
             return;
         }
-        String sourcePath = currentPath.isEmpty() ? source : currentPath + File.separator + source;
-        String dest = JOptionPane.showInputDialog(this, "Enter destination folder (relative):");
+        String fileName = (String) tableModel.getValueAt(selectedRow, 0);
+        String sourcePath = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
+        String dest = JOptionPane.showInputDialog(this, "Введите имя целевой папки (относительно):");
         if (dest != null && !dest.trim().isEmpty()) {
             if (client.move(sourcePath, dest)) {
-                JOptionPane.showMessageDialog(this, "Move successful");
+                JOptionPane.showMessageDialog(this, "Перемещение прошло успешно");
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Move failed");
+                JOptionPane.showMessageDialog(this, "Перемещение не удалось");
             }
         }
     }
@@ -823,7 +903,6 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JFrame jFrame2;
-    private javax.swing.JList<String> jListFiles;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu10;
     private javax.swing.JMenu jMenu11;
@@ -847,6 +926,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenuInsert;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenu jMenuRename;
     private javax.swing.JMenu jMenuSort;
     private javax.swing.JMenuItem jMenuSortDate;
@@ -856,7 +936,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenuUpload;
     private javax.swing.JMenu jMenuView;
     private javax.swing.JMenuItem jMenuViewList;
-    private javax.swing.JMenuItem jMenuViewTile;
+    private javax.swing.JMenuItem jMenuViewTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
@@ -865,7 +945,8 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu5;
     private javax.swing.JPopupMenu jPopupMenu6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTableFiles;
     private javax.swing.JTextField jTextFieldSearch;
     private java.awt.Menu menu1;
     private java.awt.Menu menu2;
