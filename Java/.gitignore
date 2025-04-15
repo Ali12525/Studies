@@ -51,3 +51,4 @@ Thumbs.db
 # Системные файлы ОС (например, macOS или Windows)
 *.bak
 *.swp
+*.db
