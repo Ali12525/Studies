@@ -10,9 +10,11 @@ public class ClientHandler implements Runnable {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private String username = null;
+    private UserDao userDao;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
+        this.userDao = new UserDao();
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
@@ -88,30 +90,35 @@ public class ClientHandler implements Runnable {
     private void handleRegister(RegisterRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-        Map<String, String> db = Server.getUserDb();
-        if (db.containsKey(user)) {
+        if (userDao.userExists(user)) {
             sendResponse(new ResponseDTO(false, "User already exists"));
         } else {
-            db.put(user, pass);
-            username = user;
-            // Создаем каталог для пользователя
-            new File(Server.getBaseDir() + File.separator + username).mkdirs();
-            sendResponse(new ResponseDTO(true, "OK"));
+            if (userDao.insertUser(user, pass)) {
+                username = user;
+                new File(Server.getBaseDir() + File.separator + username).mkdirs();
+                sendResponse(new ResponseDTO(true, "OK"));
+            } else {
+                sendResponse(new ResponseDTO(false, "Registration failed"));
+            }
         }
     }
     
-    // Логин: ожидаем username и password
+    // Логин
     private void handleLogin(LoginRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-        Map<String, String> db = Server.getUserDb();
-        if (db.containsKey(user) && db.get(user).equals(pass)) {
+
+        // Используем UserDao для получения сохраненного пароля
+        String storedPass = userDao.getPassword(user);
+        // Если пользователь найден и переданный пароль совпадает с сохраненным
+        if (storedPass != null && storedPass.equals(pass)) {
             username = user;
             sendResponse(new ResponseDTO(true, "OK"));
         } else {
             sendResponse(new ResponseDTO(false, "Invalid credentials"));
         }
     }
+
     
     // Получаем каталог текущего пользователя
     private File getUserDir() {

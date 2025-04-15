@@ -202,7 +202,6 @@ public class FileManagerClient {
         if (!resp.isSuccess()) {
             return null;
         }
-        // Приводим объект к нужному типу
         return (List<FileInfo>) resp.getData();
     }
 }

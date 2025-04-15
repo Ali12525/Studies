@@ -8,16 +8,17 @@ import java.nio.charset.StandardCharsets;
 
 public class Server {
     private static final int PORT = 12345;
-    // Простейшая «база данных» пользователей (username -> password)
-    private static Map<String, String> userDb = Collections.synchronizedMap(new HashMap<>());
     // Базовая директория для файлов пользователей
     private static final String BASE_DIR = "server_data";
+    // DAO для работы с пользователями
+    private static UserDao userDao;
 
     public static void main(String[] args) {
         // Создаем базовую папку, если ее нет
         setUtf8Output();
         
         new File(BASE_DIR).mkdirs();
+        userDao = new UserDao();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Сервер запущен на порту " + PORT);
             while (true) {
@@ -28,10 +29,6 @@ public class Server {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    
-    public static Map<String, String> getUserDb() {
-        return userDb;
     }
     
     public static String getBaseDir() {
