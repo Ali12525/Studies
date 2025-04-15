@@ -1,13 +1,14 @@
 package Server;
 
+import java.io.File;
 import java.sql.*;
 
 public class UserDao {
-    // Файл базы данных будет размещён в каталоге server_data
-    private static final String DB_URL = "jdbc:sqlite:server_data/users.db";
+    private static final String BASE_DIR = "server_data/users";
+    private static final String DB_URL = "jdbc:sqlite:server_data/users/users.db";
 
     public UserDao() {
-        // Инициализируем базу данных: создаём таблицу, если её ещё нет
+        new File(BASE_DIR).mkdirs();
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             if (conn != null) {
                 String createTable = "CREATE TABLE IF NOT EXISTS users (" +
@@ -40,7 +41,7 @@ public class UserDao {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, username);
-            pstmt.setString(2, password);  // Здесь рекомендуется хранить зашифрованный пароль!
+            pstmt.setString(2, password);
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {

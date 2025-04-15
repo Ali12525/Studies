@@ -2,21 +2,16 @@ package Server;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 public class Server {
     private static final int PORT = 12345;
-    // Базовая директория для файлов пользователей
-    private static final String BASE_DIR = "server_data";
-    // DAO для работы с пользователями
+    private static final String BASE_DIR = "server_data/catalogs";
     private static UserDao userDao;
 
     public static void main(String[] args) {
-        // Создаем базовую папку, если ее нет
         setUtf8Output();
-        
         new File(BASE_DIR).mkdirs();
         userDao = new UserDao();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {

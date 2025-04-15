@@ -127,16 +127,13 @@ public class LoginFrame extends javax.swing.JFrame {
     private void jPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jPasswordFieldActionPerformed
-
-    // Метод для обработки входа
+    
     private void performLogin() {
         String login = jTextFieldLogin.getText().trim();
         String password = new String(jPasswordField.getPassword()).trim();
         
-        // Используем метод login у FileManagerClient для обращения к серверу
         if(client.login(login, password)){
             JOptionPane.showMessageDialog(this, "Вход выполнен успешно!");
-            // Открываем главное окно и закрываем окно входа
             Frame mainFrame = new Frame(client);
             mainFrame.setTitle("Главное окно файлового менеджера");
             mainFrame.setVisible(true);
@@ -146,7 +143,6 @@ public class LoginFrame extends javax.swing.JFrame {
         }
     }
     
-    // Метод для регистрации (простейший пример)
     private void performRegistration() {
         String login = jTextFieldLogin.getText().trim();
         String password = new String(jPasswordField.getPassword()).trim();

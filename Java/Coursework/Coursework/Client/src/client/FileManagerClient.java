@@ -53,12 +53,10 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
-    // Метод загрузки файла
     public boolean uploadFile(File file, String destPath) {
         return uploadFile(file, destPath, false);
     }
-
-    // Вспомогательный метод с параметром overwrite
+    
     private boolean uploadFile(File file, String destPath, boolean overwrite) {
         try {
             UploadRequest req = new UploadRequest(destPath, file.length(), overwrite);
@@ -195,7 +193,7 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
-    // метод для запроса содержимого папки.
+    // Запрос содержимого папки.
     public List<FileInfo> listFolder(String relativePath) {
         ListFilesRequest req = new ListFilesRequest(relativePath);
         ResponseDTO resp = sendRequest(req);

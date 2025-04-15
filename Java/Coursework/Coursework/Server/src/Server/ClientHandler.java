@@ -86,7 +86,6 @@ public class ClientHandler implements Runnable {
         }
     }
     
-    // Регистрация: ожидаем username и password
     private void handleRegister(RegisterRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
@@ -103,14 +102,10 @@ public class ClientHandler implements Runnable {
         }
     }
     
-    // Логин
     private void handleLogin(LoginRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-
-        // Используем UserDao для получения сохраненного пароля
         String storedPass = userDao.getPassword(user);
-        // Если пользователь найден и переданный пароль совпадает с сохраненным
         if (storedPass != null && storedPass.equals(pass)) {
             username = user;
             sendResponse(new ResponseDTO(true, "OK"));
@@ -119,13 +114,10 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    
-    // Получаем каталог текущего пользователя
     private File getUserDir() {
         return new File(Server.getBaseDir() + File.separator + username);
     }
     
-    // Потоковая загрузка файла: читаем данные напрямую из потока
     private void handleUpload(UploadRequest req) throws IOException, ClassNotFoundException {
         String destPath = req.getDestinationPath();
         long fileSize = req.getFileSize();
@@ -140,7 +132,7 @@ public class ClientHandler implements Runnable {
         
         sendResponse(new ResponseDTO(true, "READY"));
         
-        FileOutputStream fos = new FileOutputStream(outFile, false); // перезапись файла
+        FileOutputStream fos = new FileOutputStream(outFile, false);
         byte[] buffer = new byte[4096];
         long remaining = fileSize;
         while (remaining > 0) {
@@ -155,7 +147,6 @@ public class ClientHandler implements Runnable {
         sendResponse(new ResponseDTO(true, "OK"));
     }
     
-    // Потоковое скачивание файла: сначала отправляем размер файла, затем его содержимое
     private void handleDownload(DownloadRequest req) throws IOException {
         String filePath = req.getFilePath();
         File file = new File(getUserDir(), filePath);
@@ -175,7 +166,6 @@ public class ClientHandler implements Runnable {
         fis.close();
     }
     
-    // Создание папки
     private void handleCreateFolder(CreateFolderRequest req) throws IOException {
         String folderPath = req.getFolderPath();
         File folder = new File(getUserDir(), folderPath);
@@ -183,7 +173,6 @@ public class ClientHandler implements Runnable {
         sendResponse(new ResponseDTO(created, created ? "OK" : "Unable to create folder"));
     }
     
-    // Удаление файла или папки (рекурсивное)
      private void handleDelete(DeleteRequest req) throws IOException {
         String path = req.getPath();
         File file = new File(getUserDir(), path);
@@ -203,7 +192,6 @@ public class ClientHandler implements Runnable {
         return file.delete();
     }
     
-    // Вспомогательный метод для преобразования File в FileInfo
     private FileInfo toFileInfo(File f, int baseLength) {
         String fileType;
         if (f.isDirectory()) {
@@ -221,7 +209,6 @@ public class ClientHandler implements Runnable {
         return new FileInfo(name, size, f.lastModified(), fileType);
     }
     
-    // Обработка запроса на поиск файлов по имени
     private void handleSearch(SearchRequest req) throws IOException {
         String query = req.getQuery();
         File baseDir = getUserDir();
@@ -231,7 +218,6 @@ public class ClientHandler implements Runnable {
         sendResponse(new ResponseDTO(true, "OK", results));
     }
 
-    // Рекурсивный поиск файлов по имени
     private void searchFiles(File dir, String query, List<FileInfo> results, int baseLength) {
         File[] files = dir.listFiles();
         if (files == null) {
@@ -247,7 +233,6 @@ public class ClientHandler implements Runnable {
         }
     }
     
-    // Копирование файла или папки
     private void handleCopy(CopyRequest req) throws IOException {
         String sourcePath = req.getSourcePath();
         String destPath = req.getDestinationPath();
@@ -329,7 +314,6 @@ public class ClientHandler implements Runnable {
         return true;
     }
     
-    // Переименование файла или папки
     private void handleRename(RenameRequest req) throws IOException {
         String oldPath = req.getOldPath();
         String newName = req.getNewName();
@@ -339,7 +323,6 @@ public class ClientHandler implements Runnable {
         sendResponse(new ResponseDTO(renamed, renamed ? "OK" : "Rename failed"));
     }
     
-    // Перемещение файла или папки
     private void handleMove(MoveRequest req) throws IOException {
         String sourcePath = req.getSourcePath();
         String destPath = req.getDestinationPath();
@@ -350,7 +333,6 @@ public class ClientHandler implements Runnable {
         sendResponse(new ResponseDTO(success, success ? "OK" : "Move failed"));
     }
     
-    // Обработка запроса на просмотр содержимого папки
     private void handleListFiles(ListFilesRequest req) throws IOException {
         String relativePath = req.getRelativePath();
         File folder = new File(getUserDir(), relativePath);
@@ -367,8 +349,7 @@ public class ClientHandler implements Runnable {
         }
         sendResponse(new ResponseDTO(true, "OK", list));
     }
-        
-     // Отправка ответа клиенту
+    
     private void sendResponse(ResponseDTO response) throws IOException {
         oos.writeObject(response);
         oos.flush();
