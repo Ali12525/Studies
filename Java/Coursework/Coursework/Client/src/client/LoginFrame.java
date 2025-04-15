@@ -133,7 +133,6 @@ public class LoginFrame extends javax.swing.JFrame {
         String password = new String(jPasswordField.getPassword()).trim();
         
         if(client.login(login, password)){
-            JOptionPane.showMessageDialog(this, "Вход выполнен успешно!");
             Frame mainFrame = new Frame(client);
             mainFrame.setTitle("Главное окно файлового менеджера");
             mainFrame.setVisible(true);
