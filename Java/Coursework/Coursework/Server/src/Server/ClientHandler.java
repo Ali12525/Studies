@@ -69,9 +69,6 @@ public class ClientHandler implements Runnable {
                     case RENAME:
                         handleRename((RenameRequest) request);
                         break;
-                    case MOVE:
-                        handleMove((MoveRequest) request);
-                        break;
                     case LIST_FILES:
                         handleListFiles((ListFilesRequest) request);
                         break;
@@ -321,16 +318,6 @@ public class ClientHandler implements Runnable {
         File newFile = new File(oldFile.getParentFile(), newName);
         boolean renamed = oldFile.renameTo(newFile);
         sendResponse(new ResponseDTO(renamed, renamed ? "OK" : "Rename failed"));
-    }
-    
-    private void handleMove(MoveRequest req) throws IOException {
-        String sourcePath = req.getSourcePath();
-        String destPath = req.getDestinationPath();
-        File source = new File(getUserDir(), sourcePath);
-        File dest = new File(getUserDir(), destPath);
-        dest.mkdirs();
-        boolean success = source.renameTo(new File(dest, source.getName()));
-        sendResponse(new ResponseDTO(success, success ? "OK" : "Move failed"));
     }
     
     private void handleListFiles(ListFilesRequest req) throws IOException {

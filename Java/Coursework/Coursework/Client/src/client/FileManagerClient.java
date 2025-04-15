@@ -187,12 +187,6 @@ public class FileManagerClient {
         return resp.isSuccess();
     }
     
-    public boolean move(String source, String destination) {
-        MoveRequest req = new MoveRequest(source, destination);
-        ResponseDTO resp = sendRequest(req);
-        return resp.isSuccess();
-    }
-    
     // Запрос содержимого папки.
     public List<FileInfo> listFolder(String relativePath) {
         ListFilesRequest req = new ListFilesRequest(relativePath);

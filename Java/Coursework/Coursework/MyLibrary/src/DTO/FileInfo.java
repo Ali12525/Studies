@@ -8,7 +8,7 @@ public class FileInfo implements Serializable {
     private final String name;
     private final long size;
     private final long lastModified;
-    private final String fileType;  // новое поле
+    private final String fileType;
 
     public FileInfo(String name, long size, long lastModified, String fileType) {
         this.name = name;

@@ -1,6 +1,8 @@
 package client;
 
 import DTO.*;
+import Component.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -25,6 +27,9 @@ public class Frame extends javax.swing.JFrame {
     private boolean sortByTypeAscending = true;
     private boolean sortByDateAscending = true;
     
+    private BreadcrumbPanel breadcrumbPanel;    
+
+    
     /**
      * Creates new form Frame
      */
@@ -37,6 +42,7 @@ public class Frame extends javax.swing.JFrame {
         initComponents();
         initTable();
         refreshFileList();
+        initBreadcrumbPanel();
     }
     
     private void initTable() {
@@ -48,6 +54,23 @@ public class Frame extends javax.swing.JFrame {
             }
         };
         jTableFiles.setModel(tableModel);
+    }
+    
+    private void initBreadcrumbPanel() {
+        breadcrumbPanel = new BreadcrumbPanel(new BreadcrumbPanel.BreadcrumbListener() {
+            @Override
+            public void onBreadcrumbClicked(String path) {
+                currentPath = path;
+                refreshFileList();
+                breadcrumbPanel.updateBreadcrumb(currentPath);
+            }
+        });
+
+        jPanelBreadcrumb.setLayout(new BorderLayout());
+        jPanelBreadcrumb.removeAll();
+        jPanelBreadcrumb.add(breadcrumbPanel, BorderLayout.CENTER);
+        jPanelBreadcrumb.revalidate();
+        jPanelBreadcrumb.repaint();
     }
 
     /**
@@ -105,6 +128,7 @@ public class Frame extends javax.swing.JFrame {
         jButtonSearch = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTableFiles = new javax.swing.JTable();
+        jPanelBreadcrumb = new javax.swing.JPanel();
         jMenuBar = new javax.swing.JMenuBar();
         jMenuSort = new javax.swing.JMenu();
         jMenuSortName = new javax.swing.JMenuItem();
@@ -217,6 +241,7 @@ public class Frame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jTextFieldSearch.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jTextFieldSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextFieldSearchActionPerformed(evt);
@@ -264,6 +289,20 @@ public class Frame extends javax.swing.JFrame {
             }
         });
         jScrollPane3.setViewportView(jTableFiles);
+
+        jPanelBreadcrumb.setBackground(new java.awt.Color(255, 255, 255));
+        jPanelBreadcrumb.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        javax.swing.GroupLayout jPanelBreadcrumbLayout = new javax.swing.GroupLayout(jPanelBreadcrumb);
+        jPanelBreadcrumb.setLayout(jPanelBreadcrumbLayout);
+        jPanelBreadcrumbLayout.setHorizontalGroup(
+            jPanelBreadcrumbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jPanelBreadcrumbLayout.setVerticalGroup(
+            jPanelBreadcrumbLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
 
         jMenuBar.setBorderPainted(false);
         jMenuBar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -368,11 +407,6 @@ public class Frame extends javax.swing.JFrame {
                 jMenuUploadMouseClicked(evt);
             }
         });
-        jMenuUpload.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuUploadActionPerformed(evt);
-            }
-        });
         jMenuBar.add(jMenuUpload);
 
         jMenuDelete.setText("Удалить");
@@ -432,20 +466,20 @@ public class Frame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 458, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(279, 279, 279)
-                                .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(279, 279, 279)
+                        .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanelBreadcrumb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane3)))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -453,13 +487,14 @@ public class Frame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldSearch, javax.swing.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
                     .addComponent(jButtonBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanelBreadcrumb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
+                .addComponent(jButtonRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE))
         );
 
         pack();
@@ -496,12 +531,9 @@ public class Frame extends javax.swing.JFrame {
             else
                 currentPath = currentPath.substring(0, sepIndex);
             refreshFileList();
+            breadcrumbPanel.updateBreadcrumb(currentPath);
         } 
     }//GEN-LAST:event_jButtonBackActionPerformed
-
-    private void jMenuUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuUploadActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuUploadActionPerformed
 
     private void jMenuUploadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuUploadMouseClicked
         // TODO add your handling code here:
@@ -548,6 +580,7 @@ public class Frame extends javax.swing.JFrame {
     private void jButtonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefreshActionPerformed
         // TODO add your handling code here:
         refreshFileList();
+        breadcrumbPanel.updateBreadcrumb(currentPath);
     }//GEN-LAST:event_jButtonRefreshActionPerformed
 
     private void jMenuInsertMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuInsertMouseClicked
@@ -593,6 +626,7 @@ public class Frame extends javax.swing.JFrame {
                     if (folderContents != null) {
                         currentPath = newPath;
                         refreshFileList();
+                        breadcrumbPanel.updateBreadcrumb(currentPath);
                     } else {
                         JOptionPane.showMessageDialog(Frame.this, "Это не папка или произошла ошибка");
                     }
@@ -900,6 +934,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuViewList;
     private javax.swing.JMenuItem jMenuViewTable;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanelBreadcrumb;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
     private javax.swing.JPopupMenu jPopupMenu3;
