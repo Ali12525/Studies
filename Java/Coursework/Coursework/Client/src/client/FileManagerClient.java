@@ -4,6 +4,10 @@ import java.io.*;
 import java.net.*;
 import java.util.List;
 import DTO.*;
+import Security.CryptoUtils;
+import java.security.PublicKey;
+import java.util.Arrays;
+import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 
 public class FileManagerClient {
@@ -12,6 +16,8 @@ public class FileManagerClient {
     private Socket socket;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
+    private SecretKey aesKey;
+    private PublicKey serverPublicKey;
     
     public FileManagerClient(String ip, int port) {
         this.serverIp = ip;
@@ -25,20 +31,45 @@ public class FileManagerClient {
             oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
             ois = new ObjectInputStream(socket.getInputStream());
+            
+            serverPublicKey = CryptoUtils.publicKeyFromString((String) ois.readObject());
+            
+            aesKey = CryptoUtils.generateAESKey();
+            byte[] encryptedAESKey = CryptoUtils.encryptRSA(aesKey.getEncoded(), serverPublicKey);
+            oos.writeObject(encryptedAESKey);
+            oos.flush();
         } catch(Exception ex) {
             ex.printStackTrace();
         }
     }
     
-    private ResponseDTO sendRequest(RequestDTO request) {
+     private ResponseDTO sendRequest(RequestDTO request) {
         try {
-            oos.writeObject(request);
+            byte[] data = serialize(request);
+            byte[] encrypted = CryptoUtils.encryptAES(data, aesKey);
+            oos.writeObject(encrypted);
             oos.flush();
-            return (ResponseDTO) ois.readObject();
+            
+            byte[] encryptedResponse = (byte[]) ois.readObject();
+            byte[] decrypted = CryptoUtils.decryptAES(encryptedResponse, aesKey);
+            return (ResponseDTO) deserialize(decrypted);
         } catch(Exception ex) {
             ex.printStackTrace();
             return new ResponseDTO(false, "Exception: " + ex.getMessage());
         }
+    }
+     
+    private byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(obj);
+        return bos.toByteArray();
+    }
+
+    private Object deserialize(byte[] data) throws Exception {
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        return ois.readObject();
     }
     
     public boolean register(String username, String password) {
@@ -60,10 +91,7 @@ public class FileManagerClient {
     private boolean uploadFile(File file, String destPath, boolean overwrite) {
         try {
             UploadRequest req = new UploadRequest(destPath, file.length(), overwrite);
-            oos.writeObject(req);
-            oos.flush();
-            
-            ResponseDTO resp = (ResponseDTO) ois.readObject();
+            ResponseDTO resp = sendRequest(req);
             
             if (!resp.isSuccess() && "File conflict".equals(resp.getMessage())) {
                 Object[] options = {"Перезаписать", "Переименовать"};
@@ -111,12 +139,17 @@ public class FileManagerClient {
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = fis.read(buffer)) != -1) {
-                oos.write(buffer, 0, bytesRead);
+                byte[] block = Arrays.copyOf(buffer, bytesRead);
+                byte[] encryptedBlock = CryptoUtils.encryptAES(block, aesKey);
+                oos.writeObject(encryptedBlock);
             }
             fis.close();
             oos.flush();
             
-            ResponseDTO finalResp = (ResponseDTO) ois.readObject();
+            byte[] encryptedResponse = (byte[]) ois.readObject();
+            byte[] decrypted = CryptoUtils.decryptAES(encryptedResponse, aesKey);
+            ResponseDTO finalResp = (ResponseDTO) deserialize(decrypted);
+
             return finalResp.isSuccess();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -127,25 +160,27 @@ public class FileManagerClient {
     public boolean downloadFile(String filePath, File saveTo) {
         try {
             DownloadRequest req = new DownloadRequest(filePath);
-            oos.writeObject(req);
-            oos.flush();
+            ResponseDTO resp = sendRequest(req);
             
-            ResponseDTO resp = (ResponseDTO) ois.readObject();
             if (!resp.isSuccess()) {
                 return false;
             }
+            
             long fileSize = (Long) resp.getData();
             
             FileOutputStream fos = new FileOutputStream(saveTo);
             byte[] buffer = new byte[4096];
             long remaining = fileSize;
+                
             while (remaining > 0) {
-                int bytesRead = ois.read(buffer, 0, (int)Math.min(buffer.length, remaining));
-                if (bytesRead == -1)
-                    break;
-                fos.write(buffer, 0, bytesRead);
-                remaining -= bytesRead;
+                byte[] encryptedBlock = (byte[]) ois.readObject();
+                byte[] decrypted = CryptoUtils.decryptAES(encryptedBlock, aesKey);
+                
+                
+                fos.write(decrypted);
+                remaining -= decrypted.length;
             }
+            
             fos.close();
             return true;
         } catch(Exception ex) {

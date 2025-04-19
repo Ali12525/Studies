@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import DTO.*;
+import Security.*;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -11,6 +14,7 @@ public class ClientHandler implements Runnable {
     private ObjectOutputStream oos;
     private String username = null;
     private UserDao userDao;
+    private SecretKey aesKey;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -27,8 +31,19 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
+            oos.writeObject(CryptoUtils.keyToString(Server.getPublicKey()));
+            oos.flush();
+            
+            byte[] encryptedAESKey = (byte[]) ois.readObject();
+            byte[] aesKeyBytes = CryptoUtils.decryptRSA(encryptedAESKey, Server.getPrivateKey());
+            
+            aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+
+            
             while (true) {
-                Object obj = ois.readObject();
+                byte[] encryptedRequest = (byte[]) ois.readObject();
+                byte[] decrypted = CryptoUtils.decryptAES(encryptedRequest, aesKey);
+                Object obj = deserialize(decrypted);
                 if (!(obj instanceof RequestDTO)) {
                     sendResponse(new ResponseDTO(false, "Invalid request type"));
                     continue;
@@ -83,6 +98,19 @@ public class ClientHandler implements Runnable {
         }
     }
     
+    private byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(obj);
+        return bos.toByteArray();
+    }
+
+    private Object deserialize(byte[] data) throws Exception {
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        return ois.readObject();
+    }
+    
     private void handleRegister(RegisterRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
@@ -102,8 +130,7 @@ public class ClientHandler implements Runnable {
     private void handleLogin(LoginRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-        String storedPass = userDao.getPassword(user);
-        if (storedPass != null && storedPass.equals(pass)) {
+        if (userDao.checkPassword(user, pass)) {
             username = user;
             sendResponse(new ResponseDTO(true, "OK"));
         } else {
@@ -111,56 +138,77 @@ public class ClientHandler implements Runnable {
         }
     }
 
+
     private File getUserDir() {
         return new File(Server.getBaseDir() + File.separator + username);
     }
     
     private void handleUpload(UploadRequest req) throws IOException, ClassNotFoundException {
         String destPath = req.getDestinationPath();
-        long fileSize = req.getFileSize();
+        long fileSize = req.getFileSize(); // Примечание: фактический размер может отличаться из-за шифрования
         boolean overwrite = req.isOverwrite();
         File outFile = new File(getUserDir(), destPath);
         outFile.getParentFile().mkdirs();
-        
+
         if (outFile.exists() && !overwrite) {
             sendResponse(new ResponseDTO(false, "File conflict"));
             return;
         }
-        
+
         sendResponse(new ResponseDTO(true, "READY"));
-        
-        FileOutputStream fos = new FileOutputStream(outFile, false);
-        byte[] buffer = new byte[4096];
-        long remaining = fileSize;
-        while (remaining > 0) {
-            int read = ois.read(buffer, 0, (int)Math.min(buffer.length, remaining));
-            if (read == -1)
-                break;
-            fos.write(buffer, 0, read);
-            remaining -= read;
+
+        try (FileOutputStream fos = new FileOutputStream(outFile, false)) {
+            long remaining = fileSize;
+
+            while (true) {
+                byte[] encryptedBlock = (byte[]) ois.readObject();
+                byte[] decryptedBlock;
+                try {
+                    decryptedBlock = CryptoUtils.decryptAES(encryptedBlock, aesKey);
+                } catch (Exception e) {
+                    sendResponse(new ResponseDTO(false, "Decryption error"));
+                    return;
+                }
+
+                fos.write(decryptedBlock);
+                remaining -= decryptedBlock.length;
+                if (remaining <= 0) break;
+            }
+
+            sendResponse(new ResponseDTO(true, "OK"));
+        } catch (Exception ex) {
+            sendResponse(new ResponseDTO(false, "Upload failed: " + ex.getMessage()));
+            throw ex;
         }
-        fos.close();
-        
-        sendResponse(new ResponseDTO(true, "OK"));
     }
     
     private void handleDownload(DownloadRequest req) throws IOException {
         String filePath = req.getFilePath();
         File file = new File(getUserDir(), filePath);
+
         if (!file.exists() || file.isDirectory()) {
             sendResponse(new ResponseDTO(false, "File not found"));
             return;
         }
-        long fileSize = file.length();
-        sendResponse(new ResponseDTO(true, "OK", fileSize));
-        FileInputStream fis = new FileInputStream(file);
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = fis.read(buffer)) != -1) {
-            oos.write(buffer, 0, bytesRead);
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            long fileSize = file.length();
+            sendResponse(new ResponseDTO(true, "OK", fileSize));
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                byte[] blockToEncrypt = Arrays.copyOf(buffer, bytesRead);
+                byte[] encryptedBlock = CryptoUtils.encryptAES(blockToEncrypt, aesKey);
+
+                oos.writeObject(encryptedBlock);
+            }
+
+            oos.flush();
+        } catch (Exception ex) {
+            sendResponse(new ResponseDTO(false, "Download failed: " + ex.getMessage()));
         }
-        oos.flush();
-        fis.close();
     }
     
     private void handleCreateFolder(CreateFolderRequest req) throws IOException {
@@ -338,7 +386,13 @@ public class ClientHandler implements Runnable {
     }
     
     private void sendResponse(ResponseDTO response) throws IOException {
-        oos.writeObject(response);
-        oos.flush();
+        try {
+            byte[] data = serialize(response);
+            byte[] encrypted = CryptoUtils.encryptAES(data, aesKey);
+            oos.writeObject(encrypted);
+            oos.flush();
+        } catch (Exception e) {
+            throw new IOException("Encryption failed", e);
+        }
     }
 }
