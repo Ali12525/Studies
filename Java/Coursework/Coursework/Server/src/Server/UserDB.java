@@ -4,11 +4,11 @@ import java.io.File;
 import java.sql.*;
 import org.mindrot.BCrypt;
 
-public class UserDao {
+public class UserDB {
     private static final String BASE_DIR = "server_data/users";
     private static final String DB_URL = "jdbc:sqlite:server_data/users/users.db";
 
-    public UserDao() {
+    public UserDB() {
         new File(BASE_DIR).mkdirs();
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             if (conn != null) {

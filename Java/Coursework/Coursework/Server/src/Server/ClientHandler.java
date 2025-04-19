@@ -13,12 +13,12 @@ public class ClientHandler implements Runnable {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private String username = null;
-    private UserDao userDao;
+    private UserDB userDB;
     private SecretKey aesKey;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
-        this.userDao = new UserDao();
+        this.userDB = new UserDB();
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
@@ -114,10 +114,10 @@ public class ClientHandler implements Runnable {
     private void handleRegister(RegisterRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-        if (userDao.userExists(user)) {
+        if (userDB.userExists(user)) {
             sendResponse(new ResponseDTO(false, "User already exists"));
         } else {
-            if (userDao.insertUser(user, pass)) {
+            if (userDB.insertUser(user, pass)) {
                 username = user;
                 new File(Server.getBaseDir() + File.separator + username).mkdirs();
                 sendResponse(new ResponseDTO(true, "OK"));
@@ -130,7 +130,7 @@ public class ClientHandler implements Runnable {
     private void handleLogin(LoginRequest req) throws IOException {
         String user = req.getUsername();
         String pass = req.getPassword();
-        if (userDao.checkPassword(user, pass)) {
+        if (userDB.checkPassword(user, pass)) {
             username = user;
             sendResponse(new ResponseDTO(true, "OK"));
         } else {

@@ -12,13 +12,13 @@ import java.security.PublicKey;
 public class Server {
     private static final int PORT = 12345;
     private static final String BASE_DIR = "server_data/catalogs";
-    private static UserDao userDao;
+    private static UserDB userDB;
     private static KeyPair rsaKeyPair;
 
     public static void main(String[] args) {
         setUtf8Output();
         new File(BASE_DIR).mkdirs();
-        userDao = new UserDao();
+        userDB = new UserDB();
         
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
