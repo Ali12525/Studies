@@ -15,4 +15,4 @@ public enum CommandType implements Serializable {
     SORT,
     MOVE,
     LIST_FILES
-}
+}   

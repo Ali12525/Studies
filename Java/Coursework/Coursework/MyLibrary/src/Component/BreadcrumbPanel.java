@@ -12,8 +12,8 @@ public class BreadcrumbPanel extends JPanel {
 
     public BreadcrumbPanel(BreadcrumbListener listener) {
         this.listener = listener;
-        setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
-        setBackground(Color.WHITE); // Белый фон панели
+        setLayout(new FlowLayout(FlowLayout.LEFT, 4, 3));
+        setBackground(Color.WHITE);
         updateBreadcrumb("");
     }
     
@@ -21,7 +21,7 @@ public class BreadcrumbPanel extends JPanel {
         this.currentPath = path;
         removeAll();
 
-        JLabel rootLabel = createLinkLabel("root", "");
+        JLabel rootLabel = createLinkLabel("Главная", "");
         add(rootLabel);
 
         if (!path.isEmpty()) {

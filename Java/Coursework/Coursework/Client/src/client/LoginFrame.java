@@ -134,7 +134,7 @@ public class LoginFrame extends javax.swing.JFrame {
         
         if(client.login(login, password)){
             Frame mainFrame = new Frame(client);
-            mainFrame.setTitle("Главное окно файлового менеджера");
+            mainFrame.setTitle("Файловый менеджер");
             mainFrame.setVisible(true);
             this.dispose();
         } else {

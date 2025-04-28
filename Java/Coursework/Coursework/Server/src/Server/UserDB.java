@@ -41,7 +41,7 @@ public class UserDB {
         String query = "INSERT INTO users(username, password) VALUES(?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            // Генерируем хэш пароля с BCrypt. Второй параметр - число раундов, рекомендуется 10-12.
+            // Генерируем хэш пароля с BCrypt. Второй параметр - число раундов.
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
             pstmt.setString(1, username);
             pstmt.setString(2, hashedPassword);
