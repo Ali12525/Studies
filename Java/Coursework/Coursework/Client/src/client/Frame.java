@@ -124,7 +124,6 @@ public class Frame extends javax.swing.JFrame {
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         jTextFieldSearch = new javax.swing.JTextField();
         jButtonBack = new javax.swing.JButton();
-        jButtonRefresh = new javax.swing.JButton();
         jButtonSearch = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTableFiles = new javax.swing.JTable();
@@ -139,12 +138,13 @@ public class Frame extends javax.swing.JFrame {
         jMenuViewTable = new javax.swing.JMenuItem();
         jMenuViewList = new javax.swing.JMenuItem();
         jMenuUpload = new javax.swing.JMenu();
+        jMenuDownload = new javax.swing.JMenu();
         jMenuDelete = new javax.swing.JMenu();
         jMenuCreateFolder = new javax.swing.JMenu();
         jMenuRename = new javax.swing.JMenu();
         jMenuCopy = new javax.swing.JMenu();
-        jMenuDownload = new javax.swing.JMenu();
         jMenuInsert = new javax.swing.JMenu();
+        jMenuRefresh = new javax.swing.JMenu();
 
         jMenu1.setText("jMenu1");
 
@@ -242,11 +242,6 @@ public class Frame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTextFieldSearch.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jTextFieldSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldSearchActionPerformed(evt);
-            }
-        });
 
         jButtonBack.setText("Назад");
         jButtonBack.setMaximumSize(new java.awt.Dimension(72, 25));
@@ -254,16 +249,6 @@ public class Frame extends javax.swing.JFrame {
         jButtonBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonBackActionPerformed(evt);
-            }
-        });
-
-        jButtonRefresh.setText("Обновить");
-        jButtonRefresh.setMaximumSize(new java.awt.Dimension(72, 25));
-        jButtonRefresh.setMinimumSize(new java.awt.Dimension(72, 25));
-        jButtonRefresh.setName(""); // NOI18N
-        jButtonRefresh.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonRefreshActionPerformed(evt);
             }
         });
 
@@ -315,20 +300,6 @@ public class Frame extends javax.swing.JFrame {
         jMenuSort.setText("Сортировать");
 
         jMenuSortName.setText("Названию");
-        jMenuSortName.addMenuKeyListener(new javax.swing.event.MenuKeyListener() {
-            public void menuKeyPressed(javax.swing.event.MenuKeyEvent evt) {
-                jMenuSortNameMenuKeyPressed(evt);
-            }
-            public void menuKeyReleased(javax.swing.event.MenuKeyEvent evt) {
-            }
-            public void menuKeyTyped(javax.swing.event.MenuKeyEvent evt) {
-            }
-        });
-        jMenuSortName.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenuSortNameMouseClicked(evt);
-            }
-        });
         jMenuSortName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuSortNameActionPerformed(evt);
@@ -337,11 +308,6 @@ public class Frame extends javax.swing.JFrame {
         jMenuSort.add(jMenuSortName);
 
         jMenuSortSize.setText("Размеру");
-        jMenuSortSize.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenuSortSizeMouseClicked(evt);
-            }
-        });
         jMenuSortSize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuSortSizeActionPerformed(evt);
@@ -350,11 +316,6 @@ public class Frame extends javax.swing.JFrame {
         jMenuSort.add(jMenuSortSize);
 
         jMenuSortType.setText("Типу");
-        jMenuSortType.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenuSortTypeMouseClicked(evt);
-            }
-        });
         jMenuSortType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuSortTypeActionPerformed(evt);
@@ -363,11 +324,6 @@ public class Frame extends javax.swing.JFrame {
         jMenuSort.add(jMenuSortType);
 
         jMenuSortDate.setText("Дате изменения");
-        jMenuSortDate.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenuSortDateMouseClicked(evt);
-            }
-        });
         jMenuSortDate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuSortDateActionPerformed(evt);
@@ -378,11 +334,6 @@ public class Frame extends javax.swing.JFrame {
         jMenuBar.add(jMenuSort);
 
         jMenuView.setText("Вид");
-        jMenuView.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuViewActionPerformed(evt);
-            }
-        });
 
         jMenuViewTable.setText("Таблица");
         jMenuViewTable.addActionListener(new java.awt.event.ActionListener() {
@@ -409,6 +360,14 @@ public class Frame extends javax.swing.JFrame {
             }
         });
         jMenuBar.add(jMenuUpload);
+
+        jMenuDownload.setText("Скачать");
+        jMenuDownload.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuDownloadMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuDownload);
 
         jMenuDelete.setText("Удалить");
         jMenuDelete.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -442,14 +401,6 @@ public class Frame extends javax.swing.JFrame {
         });
         jMenuBar.add(jMenuCopy);
 
-        jMenuDownload.setText("Скачать");
-        jMenuDownload.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jMenuDownloadMouseClicked(evt);
-            }
-        });
-        jMenuBar.add(jMenuDownload);
-
         jMenuInsert.setText("Вставить");
         jMenuInsert.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -458,6 +409,14 @@ public class Frame extends javax.swing.JFrame {
         });
         jMenuBar.add(jMenuInsert);
 
+        jMenuRefresh.setText("Обновить");
+        jMenuRefresh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenuRefreshMouseClicked(evt);
+            }
+        });
+        jMenuBar.add(jMenuRefresh);
+
         setJMenuBar(jMenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -465,9 +424,9 @@ public class Frame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanelBreadcrumb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -475,14 +434,8 @@ public class Frame extends javax.swing.JFrame {
                         .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 1087, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(292, 292, 292)
-                .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -495,10 +448,8 @@ public class Frame extends javax.swing.JFrame {
                         .addComponent(jButtonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jButtonBack, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -515,10 +466,6 @@ public class Frame extends javax.swing.JFrame {
         sortBySizeAscending = !sortBySizeAscending;
         sortFiles("size", sortBySizeAscending);
     }//GEN-LAST:event_jMenuSortSizeActionPerformed
-
-    private void jTextFieldSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSearchActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldSearchActionPerformed
 
     private void jMenuSortDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortDateActionPerformed
         // TODO add your handling code here:
@@ -581,37 +528,11 @@ public class Frame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonSearchActionPerformed
 
-    private void jButtonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRefreshActionPerformed
-        // TODO add your handling code here:
-        refreshFileList();
-        breadcrumbPanel.updateBreadcrumb(currentPath);
-    }//GEN-LAST:event_jButtonRefreshActionPerformed
-
     private void jMenuInsertMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuInsertMouseClicked
         // TODO add your handling code here:
         insertCopiedItem();
     }//GEN-LAST:event_jMenuInsertMouseClicked
-
-    private void jMenuSortNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortNameMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuSortNameMouseClicked
-
-    private void jMenuSortSizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortSizeMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuSortSizeMouseClicked
-
-    private void jMenuSortTypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortTypeMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuSortTypeMouseClicked
-
-    private void jMenuSortDateMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuSortDateMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuSortDateMouseClicked
     
-    private void jMenuSortNameMenuKeyPressed(javax.swing.event.MenuKeyEvent evt) {//GEN-FIRST:event_jMenuSortNameMenuKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuSortNameMenuKeyPressed
-
     private void jMenuSortTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSortTypeActionPerformed
         // TODO add your handling code here:
         sortByTypeAscending = !sortByTypeAscending;
@@ -639,10 +560,6 @@ public class Frame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTableFilesMouseClicked
 
-    private void jMenuViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuViewActionPerformed
-
     private void jMenuViewListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuViewListActionPerformed
         // TODO add your handling code here:
         setListView(true);
@@ -652,6 +569,12 @@ public class Frame extends javax.swing.JFrame {
         // TODO add your handling code here:
         setListView(false);
     }//GEN-LAST:event_jMenuViewTableActionPerformed
+
+    private void jMenuRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuRefreshMouseClicked
+        // TODO add your handling code here:
+        refreshFileList();
+        breadcrumbPanel.updateBreadcrumb(currentPath);
+    }//GEN-LAST:event_jMenuRefreshMouseClicked
     
     // Переключение вида отображения
     private void setListView(boolean listView) {
@@ -896,7 +819,6 @@ public class Frame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
     private javax.swing.JButton jButtonBack;
-    private javax.swing.JButton jButtonRefresh;
     private javax.swing.JButton jButtonSearch;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
@@ -927,6 +849,7 @@ public class Frame extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenu jMenuRefresh;
     private javax.swing.JMenu jMenuRename;
     private javax.swing.JMenu jMenuSort;
     private javax.swing.JMenuItem jMenuSortDate;

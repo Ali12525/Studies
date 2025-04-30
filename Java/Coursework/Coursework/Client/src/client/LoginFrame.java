@@ -39,11 +39,6 @@ public class LoginFrame extends javax.swing.JFrame {
         jLabelLogin.setText("Логин:");
 
         jTextFieldLogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jTextFieldLogin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldLoginActionPerformed(evt);
-            }
-        });
 
         jLabelPassword.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabelPassword.setText("Пароль:");
@@ -59,12 +54,6 @@ public class LoginFrame extends javax.swing.JFrame {
         jButtonLogin.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButtonLoginMouseClicked(evt);
-            }
-        });
-
-        jPasswordField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jPasswordFieldActionPerformed(evt);
             }
         });
 
@@ -110,10 +99,6 @@ public class LoginFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextFieldLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLoginActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldLoginActionPerformed
-
     private void jButtonLoginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonLoginMouseClicked
         // TODO add your handling code here:
         performLogin();  
@@ -123,10 +108,6 @@ public class LoginFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         performRegistration();
     }//GEN-LAST:event_jButtonRegistrationMouseClicked
-
-    private void jPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jPasswordFieldActionPerformed
     
     private void performLogin() {
         String login = jTextFieldLogin.getText().trim();
