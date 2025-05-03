@@ -687,7 +687,7 @@ public class Frame extends javax.swing.JFrame {
     private void downloadFile() {
         int selectedRow = jTableFiles.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Выберите файл для скачивания");
+            JOptionPane.showMessageDialog(this, "Выберите файл для скачивания", "Скачивание", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         String fileName = (String) tableModel.getValueAt(selectedRow, 0);
@@ -698,21 +698,25 @@ public class Frame extends javax.swing.JFrame {
         if (res == JFileChooser.APPROVE_OPTION) {
             File saveTo = fc.getSelectedFile();
             if (client.downloadFile(relativePath, saveTo)) {
-                JOptionPane.showMessageDialog(this, "Файл успешно скачан");
+                JOptionPane.showMessageDialog(this, "Файл успешно скачан", "Скачивание", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Не удалось загрузить файл");
+                JOptionPane.showMessageDialog(this, "Не удалось загрузить файл", "Скачивание", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
     
     private void createFolder() {
-        String folderName = JOptionPane.showInputDialog(this, "Введите название папки:");
+        String folderName = JOptionPane.showInputDialog(
+            this,
+            "Введите название папки:",
+            "Создание папки",
+            JOptionPane.PLAIN_MESSAGE);
         if (folderName != null && !folderName.trim().isEmpty()) {
             String relativePath = currentPath.isEmpty() ? folderName : currentPath + File.separator + folderName;
             if (client.createFolder(relativePath)) {
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Не удалось создать папку");
+                JOptionPane.showMessageDialog(this, "Не удалось создать папку", "Создание папки", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -720,17 +724,25 @@ public class Frame extends javax.swing.JFrame {
     private void deleteItem() {
         int selectedRow = jTableFiles.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Выберите элемент для удаления");
+            JOptionPane.showMessageDialog(this, "Выберите элемент для удаления", "Удаление", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         String fileName = (String) tableModel.getValueAt(selectedRow, 0);
         String relativePath = currentPath.isEmpty() ? fileName : currentPath + File.separator + fileName;
-        int confirm = JOptionPane.showConfirmDialog(this, "Вы действительно хотите удалить: " + fileName + "?");
+        int confirm = JOptionPane.showOptionDialog(
+            this,
+            "Вы действительно хотите удалить: " + fileName + "?",
+            "Подтверждение удаления",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,          
+            new Object[] { "Да", "Нет" },      
+            null);  
         if (confirm == JOptionPane.YES_OPTION) {
             if (client.delete(relativePath)) {
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Удаление не удалось");
+                JOptionPane.showMessageDialog(this, "Выберите элемент для удаления", "Удаление", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
@@ -738,7 +750,7 @@ public class Frame extends javax.swing.JFrame {
     private void copyItem() {
         int selectedRow = jTableFiles.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Выберите элемент для копирования");
+            JOptionPane.showMessageDialog(this, "Выберите элемент для копирования", "Копирование", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         String fileName = (String) tableModel.getValueAt(selectedRow, 0);
@@ -747,7 +759,8 @@ public class Frame extends javax.swing.JFrame {
     
     private void insertCopiedItem() {
         if (copiedFilePath == null) {
-            JOptionPane.showMessageDialog(this, "Ни один файл не был скопирован. Пожалуйста, сначала нажмите \"Копировать\".");
+            JOptionPane.showMessageDialog(this,
+                "Ни один файл не был скопирован. Пожалуйста, сначала нажмите «Копировать».", "Вставка", JOptionPane.WARNING_MESSAGE);
             return;
         }
         File f = new File(copiedFilePath);
@@ -756,7 +769,7 @@ public class Frame extends javax.swing.JFrame {
         if (client.copy(copiedFilePath, destination)) {
             refreshFileList();
         } else {
-            JOptionPane.showMessageDialog(this, "Копирование не удалось");
+            JOptionPane.showMessageDialog(this, "Копирование не удалось", "Вставка", JOptionPane.ERROR_MESSAGE);
         }
         copiedFilePath = null;
     }
@@ -764,17 +777,26 @@ public class Frame extends javax.swing.JFrame {
     private void renameItem() {
         int selectedRow = jTableFiles.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Выберите элемент для переименования");
+            JOptionPane.showMessageDialog(this, "Выберите элемент для переименования", "Переименование", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         String oldName = (String) tableModel.getValueAt(selectedRow, 0);
-        String newName = JOptionPane.showInputDialog(this, "Введите новое имя:", oldName);
+        String newName = (String) JOptionPane.showInputDialog(
+            this,                    
+            "Введите новое имя:",     
+            "Переименование",        
+            JOptionPane.PLAIN_MESSAGE,
+            null,                  
+            null,                     
+            oldName                 
+        );
+
         if (newName != null && !newName.trim().isEmpty()) {
             String relativePath = currentPath.isEmpty() ? oldName : currentPath + File.separator + oldName;
             if (client.rename(relativePath, newName)) {
                 refreshFileList();
             } else {
-                JOptionPane.showMessageDialog(this, "Переименование не удалось");
+                JOptionPane.showMessageDialog(this, "Переименование не удалось", "Переименование", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
