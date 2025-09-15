@@ -1,21 +1,19 @@
 ##############################
 ## 1. Java / Kotlin (JVM)
 ##############################
+.mtj.tmp/
 *.class
 *.jar
 *.war
 *.ear
 *.nar
-*.zip
-*.tar.gz
-*.rar
+hs_err_pid*
+replay_pid*
 *.log
 *.tmp
 *.swp
 *.swo
 *.lck
-hs_err_pid*
-replay_pid*
 
 ##############################
 ## 2. Maven
@@ -30,6 +28,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/
+.mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
 ##############################
@@ -42,17 +41,14 @@ gradle-app.setting
 !gradle-wrapper.jar
 
 ##############################
-## 4. Kotlin/JS & Node.js
+## 4. Kotlin/JS
 ##############################
 node_modules/
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 *.js.map
 *.kt.js
 *.kjsm
-dist/
-out/
 
 ##############################
 ## 5. Kotlin/Native
@@ -65,89 +61,43 @@ out/
 *.dylib
 
 ##############################
-## 6. Python
+## 6. Spring Boot / Liquibase / DB
 ##############################
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-
-# Virtual env
-venv/
-ENV/
-.venv/
-env/
-.conda/
-
-# Packaging
-*.egg-info/
-.eggs/
-*.egg
-dist/
-build/
-develop-eggs/
-
-# Logs & reports
-*.log
-*.coverage
-.coverage*
-.cache
-.tox/
-nosetests.xml
-coverage.xml
-htmlcov/
-.pytest_cache/
-
-.ipynb_checkpoints/
-*.ipynb
-
-##############################
-## 7. .NET
-##############################
-.vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.userprefs
-
-# Build results
-[Dd]ebug*/
-[Rr]elease*/
-x64/
-x86/
-[Bb]in/
-[Oo]bj/
-bld/
-
-# Other generated
-*.pdb
-*.obj
-*.idb
-*.ilk
-*.log
-
-##############################
-## 8. Databases / Dumps
-##############################
-*.db
 *.sql
 *.dump
+*.db
 *.h2.db
 *.mv.db
 
 ##############################
-## 9. IDEs & Editors
+## 7. IDEs
 ##############################
 .idea/
 *.iml
 *.ipr
 *.iws
+out/
+
+# Исключаем пользовательские/чувствительные файлы из .idea:
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/shelf/
+.idea/**/dictionaries/
+.idea/**/aws.xml
+.idea/**/contentModel.xml
+.idea/**/dataSources/
+.idea/**/httpRequests/
+.idea/**/caches/
 
 .settings/
+bin/
+tmp/
 .metadata/
 .classpath
 .project
+local.properties
+.loadpath
 .factorypath
 
 nbproject/private/
@@ -159,21 +109,15 @@ nb-configuration.xml
 .vscode/
 *.code-workspace
 
-# Other editors
-*.sublime-workspace
-*.sublime-project
-
 ##############################
-## 10. OS-specific
+## 8. OS-specific
 ##############################
 .DS_Store
 Thumbs.db
 Icon?
-*.bak
-*.swp
 
 ##############################
-## 11. Test artifacts
+## 9. Test artifacts
 ##############################
 surefire-reports/
 failsafe-reports/
@@ -184,22 +128,18 @@ jacoco.exec
 *.ec
 
 ##############################
-## 12. WebDriverManager
+## 10. WebDriverManager
 ##############################
 .wdm/
 
 ##############################
-## 13. Environment / secrets
+## 11. Environment / secrets
 ##############################
 .env
 *.env
-.env.local
-.env.*
-!.env.example
 
 ##############################
-## 14. Generated code & docs
+## 12. Generated code
 ##############################
 delombok/
 javadoc/
-docs/_build/
