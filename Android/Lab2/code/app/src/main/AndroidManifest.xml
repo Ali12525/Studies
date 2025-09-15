@@ -12,14 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lab2">
         <activity
-            android:name=".HelloActivity"
+            android:name=".UsersActivity"
+            android:label="Список пользователей"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".RegisterActivity"
+            android:label="Регистрация"
+            android:exported="false" />
     </application>
 
 </manifest>
