@@ -85,7 +85,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         if (validateInput(login, password, fullName, birthDate, gender)) {
-            val user = User(login, password, fullName, birthDate, gender)
+            val user = User(login, password, fullName, birthDate, gender, selectedAvatarResId)
             UsersRepository.addUser(user)
 
             Toast.makeText(this, "Пользователь зарегистрирован!", Toast.LENGTH_SHORT).show()
