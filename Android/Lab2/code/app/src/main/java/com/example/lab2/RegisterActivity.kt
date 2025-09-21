@@ -116,10 +116,19 @@ class RegisterActivity : AppCompatActivity() {
             Toast.makeText(this, "Введите дату рождения", Toast.LENGTH_SHORT).show()
             return false
         }
+        if (!validDate(birthDate)) {
+            Toast.makeText(this, "Неправильный формат даты", Toast.LENGTH_SHORT).show()
+            return false
+        }
         if (gender.isEmpty()) {
             Toast.makeText(this, "Выберите пол", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
+    }
+
+    fun validDate(birthDate : String) : Boolean {
+        var regex = "\\d{2}.\\d{2}.\\d{4}".toRegex()
+        return birthDate.matches(regex)
     }
 }
