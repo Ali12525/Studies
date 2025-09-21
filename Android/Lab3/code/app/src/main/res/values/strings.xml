@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Lab3</string>
+
+    <!-- Login -->
+    <string name="welcome_title">Приветствие</string>
+    <string name="hint_login">Логин</string>
+    <string name="hint_password">Пароль</string>
+    <string name="btn_login">Вход</string>
+    <string name="btn_register">Регистрация</string>
+    <string name="btn_exit">Выход</string>
+
+    <!-- Menu -->
+    <string name="menu_title">Меню</string>
+    <string name="btn_start">Старт</string>
+    <string name="btn_profile">Профиль</string>
+    <string name="btn_settings">Настройки</string>
+    <string name="btn_report_problem">Сообщить о проблеме</string>
+
+    <!-- Profile -->
+    <string name="avatar_desc">Аватар</string>
+    <string name="hint_fullname">ФИО</string>
+    <string name="hint_birthdate">Дата рождения (дд.мм.гггг)</string>
+    <string name="hint_gender">Пол</string>
+
+    <!-- Registration -->
+    <string name="select_avatar">Выбрать аватар</string>
+    <string name="male">Мужской</string>
+    <string name="female">Женский</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="day_night_label">Тема: День / Ночь</string>
+</resources>
