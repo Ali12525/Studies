@@ -54,21 +54,11 @@ class MenuActivity : BaseActivity() {
 
                 if (!isDestroyed && user != null) {
                     btnAdmin.visibility = if (user.isAdmin == true) View.VISIBLE else View.GONE
-
-                    val currentTheme = prefs.getBoolean("night_mode", false)
-                    val userTheme = (user.theme == 1)
-                    if (currentTheme != userTheme) {
-                        saveThemeToPreferences(userTheme)
-                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-    }
-
-    private fun saveThemeToPreferences(isNight: Boolean) {
-        prefs.edit().putBoolean("night_mode", isNight).apply()
     }
 
     private fun setupClickListeners() {

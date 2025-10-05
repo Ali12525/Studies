@@ -105,6 +105,11 @@ class DatabaseHandler(context: Context) :
         db.update(DBContract.UserEntry.TABLE_NAME, values, "${DBContract.UserEntry.COLUMN_LOGIN}=?", arrayOf(login))
     }
 
+    fun deleteUser(login: String) {
+        val db = writableDatabase
+        val deleteRows = db.delete(DBContract.UserEntry.TABLE_NAME, "${DBContract.UserEntry.COLUMN_LOGIN}=?", arrayOf(login))
+    }
+
     private fun parseUser(cursor: Cursor): User {
         return User(
             id = cursor.getInt(cursor.getColumnIndexOrThrow(DBContract.UserEntry.COLUMN_ID)),

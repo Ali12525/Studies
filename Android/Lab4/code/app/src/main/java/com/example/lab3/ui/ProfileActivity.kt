@@ -20,6 +20,8 @@ class ProfileActivity : BaseActivity() {
     private lateinit var birthTv: TextView
     private lateinit var genderTv: TextView
     private lateinit var btnMakeAdmin: Button
+    private lateinit var btnDeleteUser: Button
+
     private lateinit var db: DatabaseHandler
 
     private var viewingLogin: String? = null
@@ -44,10 +46,12 @@ class ProfileActivity : BaseActivity() {
         birthTv = findViewById(R.id.profileBirthDate)
         genderTv = findViewById(R.id.profileGender)
         btnMakeAdmin = findViewById(R.id.btnMakeAdmin)
+        btnDeleteUser = findViewById(R.id.btnDeleteUser)
     }
 
     private fun setupClickListeners() {
         btnMakeAdmin.setOnClickListener { confirmMakeAdmin() }
+        btnDeleteUser.setOnClickListener { confirmDeleteUser() }
     }
 
     private fun extractIntentAndPreferences() {
@@ -75,6 +79,7 @@ class ProfileActivity : BaseActivity() {
 
                         val showMake = (currentUser?.isAdmin == true) && user.login != currentLogin && !user.isAdmin
                         btnMakeAdmin.visibility = if (showMake) Button.VISIBLE else Button.GONE
+                        btnDeleteUser.visibility = if (showMake) Button.VISIBLE else Button.GONE
                     }
                 }
             } catch (e: Exception) {
@@ -98,6 +103,33 @@ class ProfileActivity : BaseActivity() {
 
                         if (!isDestroyed) {
                             AuthLogger.log(this@ProfileActivity, "Promoted to admin: $viewingLogin")
+                            btnMakeAdmin.visibility = Button.GONE
+                            loadProfile()
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun confirmDeleteUser() {
+        AlertDialog.Builder(this)
+            .setTitle("Подтверждение")
+            .setMessage("Удалить этого пользователя?")
+            .setPositiveButton("Да") { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        withContext(Dispatchers.IO) {
+                            viewingLogin?.let {
+                                db.deleteUser(it)
+                            }
+                        }
+
+                        if (!isDestroyed) {
+                            AuthLogger.log(this@ProfileActivity, "Admin $currentLogin delevit user $viewingLogin")
                             btnMakeAdmin.visibility = Button.GONE
                             loadProfile()
                         }
