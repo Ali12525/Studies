@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:gravity="center_horizontal"
+    android:background="@android:color/background_light">
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Статус"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvDifficultyLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Уровень:"
+            android:layout_marginEnd="8dp"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/spinnerDifficulty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown" />
+    </LinearLayout>
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rowCount="3"
+        android:columnCount="3"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn00"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn01"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn02"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn10"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn11"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn12"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn20"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn21"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+        <Button
+            android:id="@+id/btn22"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:textSize="24sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/cell_bg"
+            android:textColor="@android:color/black" />
+
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Сброс" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Назад"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+</LinearLayout>
